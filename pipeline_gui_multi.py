@@ -134,7 +134,7 @@ div[data-testid="stButton"] > button {
   font-family: 'Poppins', sans-serif;
   font-size: 15px;
   font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
 div[data-testid="stButton"] > button:hover {
