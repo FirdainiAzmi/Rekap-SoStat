@@ -117,23 +117,28 @@ st.markdown("""
   box-shadow: initial !important;
   transform: none !important;
 }
-/* hanya button kategori */
-div[data-testid="stButton"] > button[key^="kat_btn_"] {
-    background: #dc2626 !important; /* merah */
-    color: white !important;
-    border-radius: 16px !important;
-    height: 160px !important;
-    font-weight: 700 !important;
-    border: none !important;
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+/* default: style semua button jadi merah */
+div[data-testid="stButton"] > button {
+  background: #dc2626 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 16px !important;
 }
 
-/* hover */
-div[data-testid="stButton"] > button[key^="kat_btn_Desa Cantik"]:hover {
-    background: #b91c1c !important;
-    transform: translateY(-6px);
+/* reset tombol non-kategori (yang kamu punya) */
+div[data-testid="stButton"] > button[aria-label="Logout"],
+div[data-testid="stButton"] > button[aria-label="⬅️ Kembali"],
+div[data-testid="stButton"] > button[aria-label="Buka ↗"]{
+  background: initial !important;
+  color: initial !important;
+  border: initial !important;
+  border-radius: initial !important;
 }
-button[key="kat_btn_Desa Cantik"] { background: #2563eb !important; }
-button[key="kat_btn_Statistik Kependudukan dan Ketenagakerjaan"]  { background: #16a34a !important; }
 </style>
 """, unsafe_allow_html=True)
 
