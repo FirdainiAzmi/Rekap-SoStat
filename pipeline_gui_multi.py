@@ -55,7 +55,6 @@ def login_page():
 
     st.markdown("</div></div>", unsafe_allow_html=True)
 
-
 if not st.session_state.is_logged_in:
     login_page()
     st.stop()
@@ -64,7 +63,7 @@ if not st.session_state.is_logged_in:
 # HEADER + LOGOUT
 # =============================
 with st.form("logout_form"):
-    col1, col2 = st.columns([6,1])
+    col1, col2 = st.columns([6, 1])
     with col1:
         st.markdown(
             "### 📊 Selamat datang di Portal Data Statistik Sosial⚡\n"
@@ -77,10 +76,17 @@ with st.form("logout_form"):
             st.rerun()
 
 # =============================
-# DATA
+# DATA (1 SHEET)
 # =============================
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
+
+# Pastikan kolom ada (biar kalau typo ketahuan)
+required_cols = ["Kategori", "Icon", "Deskripsi", "Sub_Menu", "Nama_Kegiatan", "Nama_File", "Link_File"]
+missing = [c for c in required_cols if c not in df.columns]
+if missing:
+    st.error(f"Kolom ini belum ada di Google Sheets: {missing}")
+    st.stop()
 
 # =============================
 # SEARCH
@@ -112,26 +118,38 @@ def render_file_card(title, link):
 # =============================
 if search_query:
     results = df[
-        df["Nama_Kegiatan"].str.contains(search_query, case=False) |
-        df["Nama_File"].str.contains(search_query, case=False)
+        df["Kategori"].str.contains(search_query, case=False, na=False) |
+        df["Nama_Kegiatan"].str.contains(search_query, case=False, na=False) |
+        df["Nama_File"].str.contains(search_query, case=False, na=False)
     ]
-    for _, row in results.iterrows():
-        st.markdown(f"**{row['Kategori']} > {row['Nama_Kegiatan']}**")
-        render_file_card(row["Nama_File"], row["Link_File"])
+
+    if results.empty:
+        st.info("Tidak ada hasil.")
+    else:
+        for (kat, sub, keg), group in results.groupby(["Kategori", "Sub_Menu", "Nama_Kegiatan"], dropna=False):
+            st.markdown(f"**{kat} > {sub} > {keg}**")
+            for _, row in group.iterrows():
+                render_file_card(row["Nama_File"], row["Link_File"])
 
 else:
+    # =============================
+    # HOME: tampil kategori unik (tanpa dobel)
+    # =============================
     if st.session_state.current_level == "home":
-        kategori_unik = df["Kategori"]
-        cols = st.columns(5)
+        # Ambil kategori unik + icon/desk (ambil baris pertama per kategori)
+        df_kat = df.groupby("Kategori", as_index=False).first()[["Kategori", "Icon", "Deskripsi"]]
 
-        for i, kat in enumerate(kategori_unik):
-            data = df[df["Kategori"] == kat].iloc[0]
+        cols = st.columns(5)
+        for i, row in df_kat.iterrows():
             with cols[i % 5]:
-                if st.button(f"{data['Icon']}\n\n{kat}\n\n{data['Deskripsi']}", key=kat):
-                    st.session_state.selected_category = kat
+                if st.button(f"{row['Icon']}\n\n{row['Kategori']}\n\n{row['Deskripsi']}", key=f"kat_{row['Kategori']}"):
+                    st.session_state.selected_category = row["Kategori"]
                     st.session_state.current_level = "detail"
                     st.rerun()
 
+    # =============================
+    # DETAIL: tabs dari Sub_Menu, expander dari Nama_Kegiatan
+    # =============================
     else:
         with st.form("back_form"):
             if st.form_submit_button("⬅️ Kembali ke Dashboard"):
@@ -142,19 +160,27 @@ else:
         selected = st.session_state.selected_category
         st.markdown(f"## {selected}")
 
-        df_cat = df[df["Kategori"] == selected]
+        df_cat = df[df["Kategori"] == selected].copy()
 
-        # ✅ FIX SAJA DI SINI
-        sub_menus = df_cat["Sub_Menu"]
-        tabs = st.tabs(sub_menus.tolist())
+        # Tabs unik (urut sesuai kemunculan)
+        sub_menus = df_cat["Sub_Menu"].dropna().unique().tolist()
+        if not sub_menus:
+            st.info("Belum ada Sub_Menu untuk kategori ini.")
+        else:
+            tabs = st.tabs(sub_menus)
 
-        for i, tab in enumerate(tabs):
-            with tab:
-                df_sub = df_cat[df_cat["Sub_Menu"] == sub_menus.iloc[i]]
-                for keg in df_sub["Nama_Kegiatan"]:
-                    with st.expander(keg, expanded=True):
-                        for _, row in df_sub[df_sub["Nama_Kegiatan"] == keg].iterrows():
-                            render_file_card(row["Nama_File"], row["Link_File"])
+            for i, tab in enumerate(tabs):
+                with tab:
+                    sub = sub_menus[i]
+                    df_sub = df_cat[df_cat["Sub_Menu"] == sub].copy()
+
+                    # Expander per kegiatan (unik & urut)
+                    kegiatan_list = df_sub["Nama_Kegiatan"].dropna().unique().tolist()
+                    for keg in kegiatan_list:
+                        with st.expander(keg, expanded=True):
+                            df_keg = df_sub[df_sub["Nama_Kegiatan"] == keg]
+                            for _, row in df_keg.iterrows():
+                                render_file_card(row["Nama_File"], row["Link_File"])
 
 # =============================
 # FOOTER
