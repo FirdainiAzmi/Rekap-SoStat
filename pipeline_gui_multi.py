@@ -199,21 +199,30 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =============================
-# FILTER PANEL
+# FILTER PANEL (FIX TANPA MENGURANGI APAPUN)
 # =============================
 with st.expander("🔎 Filter", expanded=False):
-    f_menu = st.selectbox(
-        "Menu", ["Semua"]+sorted(df_cat["Menu"].unique()),
-        index=0 if st.session_state.nav_menu is None else
-        ["Semua"]+sorted(df_cat["Menu"].unique()).index(st.session_state.nav_menu)
-    )
-    df_f = df_cat if f_menu=="Semua" else df_cat[df_cat["Menu"]==f_menu]
 
-    f_sub = st.selectbox("Sub Menu", ["Semua"]+sorted(df_f["Sub_Menu"].unique()))
-    df_f2 = df_f if f_sub=="Semua" else df_f[df_f["Sub_Menu"]==f_sub]
+    menu_list = ["Semua"] + sorted(df_cat["Menu"].unique().tolist())
+    default_menu = st.session_state.nav_menu
+    menu_idx = menu_list.index(default_menu) if default_menu in menu_list else 0
 
-    f_sub2 = st.selectbox("Sub2 Menu", ["Semua"]+sorted(df_f2["Sub2_Menu"].unique()))
-    df_view = df_f2 if f_sub2=="Semua" else df_f2[df_f2["Sub2_Menu"]==f_sub2]
+    f_menu = st.selectbox("Menu", menu_list, index=menu_idx)
+    df_f = df_cat if f_menu == "Semua" else df_cat[df_cat["Menu"] == f_menu]
+
+    sub_list = ["Semua"] + sorted(df_f["Sub_Menu"].unique().tolist())
+    default_sub = st.session_state.nav_submenu
+    sub_idx = sub_list.index(default_sub) if default_sub in sub_list else 0
+
+    f_sub = st.selectbox("Sub Menu", sub_list, index=sub_idx)
+    df_f2 = df_f if f_sub == "Semua" else df_f[df_f["Sub_Menu"] == f_sub]
+
+    sub2_list = ["Semua"] + sorted(df_f2["Sub2_Menu"].unique().tolist())
+    default_sub2 = st.session_state.nav_sub2
+    sub2_idx = sub2_list.index(default_sub2) if default_sub2 in sub2_list else 0
+
+    f_sub2 = st.selectbox("Sub2 Menu", sub2_list, index=sub2_idx)
+    df_view = df_f2 if f_sub2 == "Semua" else df_f2[df_f2["Sub2_Menu"] == f_sub2]
 
 # =============================
 # RENDER MENU → SUB → SUB2 → FILE
