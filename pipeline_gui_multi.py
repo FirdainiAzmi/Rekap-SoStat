@@ -117,6 +117,23 @@ st.markdown("""
   box-shadow: initial !important;
   transform: none !important;
 }
+/* hanya button kategori */
+div[data-testid="stButton"] > button[key^="kat_btn_"] {
+    background: #dc2626 !important; /* merah */
+    color: white !important;
+    border-radius: 16px !important;
+    height: 160px !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+/* hover */
+div[data-testid="stButton"] > button[key^="kat_btn_"]:hover {
+    background: #b91c1c !important;
+    transform: translateY(-6px);
+}
+button[key="kat_btn_Desa_Cantik"] { background: #2563eb !important; }
+button[key="kat_btn_Kesehatan"]  { background: #16a34a !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -217,28 +234,6 @@ if search:
 # =============================
 # HOME
 # =============================
-st.markdown("""
-<style>
-/* hanya button kategori */
-div[data-testid="stButton"] > button[key^="kat_btn_"] {
-    background: #dc2626 !important; /* merah */
-    color: white !important;
-    border-radius: 16px !important;
-    height: 160px !important;
-    font-weight: 700 !important;
-    border: none !important;
-}
-
-/* hover */
-div[data-testid="stButton"] > button[key^="kat_btn_"]:hover {
-    background: #b91c1c !important;
-    transform: translateY(-6px);
-}
-button[key="kat_btn_Desa Cantik"] { background: #2563eb !important; }
-button[key="kat_btn_Kesehatan"]  { background: #16a34a !important; }
-</style>
-""", unsafe_allow_html=True)
-
 if st.session_state.current_level == "home":
     cols = st.columns(5)
     for i, kat in enumerate(df["Kategori"].unique()):
