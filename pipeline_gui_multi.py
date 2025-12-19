@@ -20,6 +20,10 @@ if "nav_submenu" not in st.session_state:
 if "nav_sub2" not in st.session_state:
     st.session_state.nav_sub2 = None
 
+# ✅ PENTING: inisialisasi key widget search dulu (biar aman di-set)
+if "global_search" not in st.session_state:
+    st.session_state["global_search"] = ""
+
 # =============================
 # PAGE CONFIG
 # =============================
@@ -133,7 +137,9 @@ if any(c not in df.columns for c in required_cols):
 # SEARCH BAR (NAVIGASI)
 # =============================
 search = st.text_input(
-    "", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed", key="global_search"
+    "", placeholder="🔍 Cari & navigasi file...",
+    label_visibility="collapsed",
+    key="global_search"
 )
 
 if search:
@@ -162,8 +168,8 @@ if search:
                 st.session_state.nav_submenu = r["Sub_Menu"]
                 st.session_state.nav_sub2 = r["Sub2_Menu"]
 
-                # PENTING: kosongkan search supaya rerun tidak balik ke blok search + st.stop()
-                st.session_state.global_search = ""
+                # ✅ PENTING: set pakai dict style (lebih aman)
+                st.session_state["global_search"] = ""
 
                 st.rerun()
     st.stop()
@@ -205,7 +211,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =============================
-# FILTER PANEL (FIX AMAN + DEFAULT DARI NAV)
+# FILTER PANEL (AMAN)
 # =============================
 with st.expander("🔎 Filter", expanded=False):
 
