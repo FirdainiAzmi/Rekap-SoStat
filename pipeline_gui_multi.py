@@ -342,7 +342,7 @@ if search_query:
 
 else:
     if st.session_state.current_level == "home":
-        kategori_unik = df["Kategori"].unique()
+        kategori_unik = df["Kategori"]
         cols = st.columns(5)
 
         for i, kat in enumerate(kategori_unik):
@@ -364,13 +364,13 @@ else:
         st.markdown(f"## {selected}")
 
         df_cat = df[df["Kategori"] == selected]
-        sub_menus = df_cat["Sub_Menu"].unique()
+        sub_menus = df_cat["Sub_Menu"]
         tabs = st.tabs(sub_menus)
 
         for i, tab in enumerate(tabs):
             with tab:
                 df_sub = df_cat[df_cat["Sub_Menu"] == sub_menus[i]]
-                for keg in df_sub["Nama_Kegiatan"].unique():
+                for keg in df_sub["Nama_Kegiatan"]:
                     with st.expander(keg, expanded=True):
                         for _, row in df_sub[df_sub["Nama_Kegiatan"] == keg].iterrows():
                             render_file_card(row["Nama_File"], row["Link_File"])
