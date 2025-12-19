@@ -118,7 +118,7 @@ def login_page():
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
 
-        if st.button("Masuk", use_container_width=True):
+        if st.button("Masuk"):
             if username == "admin" and password == "bps123":
                 st.session_state.is_logged_in = True
                 st.rerun()
