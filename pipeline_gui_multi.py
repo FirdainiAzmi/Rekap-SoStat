@@ -204,4 +204,3 @@ st.markdown("""
 Data Google Sheets • Auto Sync
 </div>
 """, unsafe_allow_html=True)
-login portal
