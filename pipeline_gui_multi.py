@@ -185,19 +185,6 @@ if search:
 # HOME
 # =============================
 if st.session_state.current_level == "home":
-    st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
-    cols = st.columns(5)
-    for i, kat in enumerate(df["Kategori"].unique()):
-        d = df[df["Kategori"]==kat].iloc[0]
-        with cols[i%5]:
-            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}"):
-                st.session_state.selected_category = kat
-                st.session_state.current_level = "detail"
-                st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.stop()
-
     st.markdown("""
     <style>
     /* Hanya button di dalam .kat-grid */
@@ -208,19 +195,18 @@ if st.session_state.current_level == "home":
       border: 1px solid rgba(26,83,92,0.25) !important;
       background: linear-gradient(135deg, rgba(247,255,247,0.95), rgba(195,207,226,0.9)) !important;
       color: #1a535c !important;
-    
-      white-space: pre-wrap !important;   /* biar \n kebaca */
+
+      white-space: pre-wrap !important; /* biar \\n kebaca */
       line-height: 1.25 !important;
       font-weight: 700 !important;
     }
-    
-    /* Hover khusus button kategori */
+
     .kat-grid div.stButton > button:not([disabled]):hover {
       transform: translateY(-1px);
       border-color: rgba(26,83,92,0.45) !important;
     }
-    
-    /* Disabled: biar tetap default */
+
+    /* Disabled tetap default */
     .kat-grid div.stButton > button[disabled] {
       background: initial !important;
       color: initial !important;
@@ -228,6 +214,21 @@ if st.session_state.current_level == "home":
     }
     </style>
     """, unsafe_allow_html=True)
+
+    st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
+
+    cols = st.columns(5)
+    for i, kat in enumerate(df["Kategori"].unique()):
+        d = df[df["Kategori"] == kat].iloc[0]
+        with cols[i % 5]:
+            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=f"kat_{kat}"):
+                st.session_state.selected_category = kat
+                st.session_state.current_level = "detail"
+                st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.stop()
 
 # =============================
 # DETAIL PAGE
