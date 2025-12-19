@@ -29,39 +29,65 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
+/* =============================
+   ROOT & BACKGROUND
+============================= */
 .stApp {
-    background: radial-gradient(circle at top,
-        #f8fbff 0%,
-        #e9f0f7 45%,
-        #d9e2ec 100%);
+    background:
+        radial-gradient(1200px at 10% 0%, #ffffff 0%, transparent 60%),
+        radial-gradient(900px at 90% 10%, #eef4ff 0%, transparent 55%),
+        linear-gradient(180deg, #eef3f9 0%, #d9e2ec 100%);
     font-family: 'Poppins', sans-serif;
 }
 
 #MainMenu, header, footer {visibility:hidden;}
 
 /* =============================
-   HERO / HEADER FEEL
+   GLOBAL TEXT FEEL
 ============================= */
-h3, h2, h1 {
-    letter-spacing: -0.3px;
+h1, h2, h3 {
+    letter-spacing: -0.4px;
+}
+
+p {
+    line-height: 1.65;
 }
 
 /* =============================
-   DASHBOARD CARD (WOW)
+   HERO / HEADER CARD EFFECT
+============================= */
+section[data-testid="stVerticalBlock"] > div:has(h3) {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 22px;
+    padding: 18px 24px;
+    box-shadow:
+        0 30px 60px rgba(0,0,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* =============================
+   DASHBOARD CARD (WOW CORE)
 ============================= */
 div.stButton > button:first-child {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
 
-    border: 1px solid rgba(255,255,255,0.5);
-    height: 165px;
+    background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.9),
+        rgba(245,248,255,0.9)
+    );
+
+    border: 1px solid rgba(255,255,255,0.7);
+    height: 170px;
     width: 100%;
-    border-radius: 20px;
+    border-radius: 22px;
 
     box-shadow:
-        0 10px 25px rgba(0,0,0,0.06),
-        inset 0 1px 0 rgba(255,255,255,0.6);
+        0 18px 40px rgba(0,0,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.7);
 
     display: flex;
     align-items: center;
@@ -71,75 +97,105 @@ div.stButton > button:first-child {
     font-size: 15px;
     font-weight: 600;
     line-height: 1.45;
-    padding: 20px;
+    padding: 22px;
     color: #1e293b;
 
-    transition: all 0.35s ease;
+    transition: 
+        transform 0.45s cubic-bezier(.2,.8,.2,1),
+        box-shadow 0.45s ease,
+        background 0.45s ease;
 }
 
-/* isi button */
-div.stButton > button:first-child > div {
-    width: 100%;
+/* subtle light streak */
+div.stButton > button:first-child::before {
+    content: "";
+    position: absolute;
+    top: -60%;
+    left: -60%;
+    width: 220%;
+    height: 220%;
+    background: linear-gradient(
+        120deg,
+        transparent 40%,
+        rgba(255,255,255,0.6) 50%,
+        transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.4s;
 }
 
-/* Hover WOW */
+/* HOVER MAGIC */
 div.stButton > button:first-child:hover {
-    transform: translateY(-10px) scale(1.02);
+    transform: translateY(-14px) scale(1.04);
     background: linear-gradient(135deg, #0054A6, #007bff);
-    color: white;
+    color: #ffffff;
+
     box-shadow:
-        0 25px 45px rgba(0,84,166,0.25);
+        0 35px 70px rgba(0,84,166,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+div.stButton > button:first-child:hover::before {
+    opacity: 1;
 }
 
 /* =============================
-   SEARCH BOX
+   SEARCH BAR (PREMIUM INPUT)
 ============================= */
 input {
-    border-radius: 14px !important;
-    padding: 12px 16px !important;
+    background: rgba(255,255,255,0.85) !important;
+    border-radius: 16px !important;
+    padding: 14px 18px !important;
+    border: 1px solid rgba(255,255,255,0.6) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
     font-size: 14px !important;
 }
 
 /* =============================
-   FILE CARD (DETAIL VIEW)
+   FILE CARD (DOCUMENTS)
 ============================= */
 a > div {
-    transition: all 0.25s ease;
+    background: linear-gradient(145deg, #ffffff, #f8faff);
+    transition: 
+        transform 0.35s ease,
+        box-shadow 0.35s ease;
 }
 
 a > div:hover {
-    transform: translateX(6px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    transform: translateX(8px);
+    box-shadow:
+        0 18px 35px rgba(0,0,0,0.12);
 }
 
 /* =============================
-   TABS
+   TABS (SOFT & FLOATING)
 ============================= */
 .stTabs [data-baseweb="tab"] {
-    background: white;
-    border-radius: 14px 14px 0 0;
+    background: rgba(255,255,255,0.85);
+    border-radius: 16px 16px 0 0;
     font-weight: 600;
-    padding: 10px 18px;
+    padding: 10px 20px;
+    box-shadow: 0 -4px 14px rgba(0,0,0,0.05);
 }
 
 /* =============================
-   EXPANDER
+   EXPANDER (CARD STYLE)
 ============================= */
 .st-expander {
-    border-radius: 14px;
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.85);
 }
 
 /* =============================
    FOOTER
 ============================= */
-footer {
-    opacity: 0.8;
+div[style*="© 2025"] {
+    opacity: 0.85;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 # =============================
 # LOGIN PAGE
