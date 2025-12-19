@@ -91,8 +91,7 @@ def login_page():
     <div style="
         display:flex;
         justify-content:center;
-        align-items:center;
-        height:75vh;
+        margin-top:8vh;
     ">
         <div style="
             background:white;
@@ -100,39 +99,33 @@ def login_page():
             width:340px;
             border-radius:16px;
             box-shadow:0 8px 25px rgba(0,0,0,0.08);
+            text-align:center;
         ">
-            <h2 style="
-                text-align:center;
-                color:#0054A6;
-                margin-bottom:4px;
-                font-size:20px;
-            ">
+            <h2 style="color:#0054A6;margin-bottom:4px;font-size:20px;">
                 🔐 Login Portal
             </h2>
-            <p style="
-                text-align:center;
-                font-size:12px;
-                color:#777;
-                margin-bottom:18px;
-            ">
+            <p style="font-size:12px;color:#777;margin-bottom:16px;">
                 Portal Kegiatan Sosial BPS Sidoarjo
             </p>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
 
-    username = st.text_input("Username")
-    st.write("")
-    password = st.text_input("Password", type="password")
+    # === INPUT DI CONTAINER (INI KUNCI NYA) ===
+    with st.container():
+        st.markdown("<div style='max-width:340px;margin:auto;'>", unsafe_allow_html=True)
 
-    st.write("")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
 
-    if st.button("Masuk", use_container_width=True):
-        if username == "admin" and password == "bps123":
-            st.session_state.is_logged_in = True
-            st.rerun()
-        else:
-            st.error("Username atau password salah")
+        if st.button("Masuk", use_container_width=True):
+            if username == "admin" and password == "bps123":
+                st.session_state.is_logged_in = True
+                st.rerun()
+            else:
+                st.error("Username atau password salah")
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 if not st.session_state.is_logged_in:
