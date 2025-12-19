@@ -187,36 +187,46 @@ if search:
 if st.session_state.current_level == "home":
     st.markdown("""
     <style>
-    /* Hanya button di dalam .kat-grid */
-    .kat-grid div.stButton > button:not([disabled]) {
+    /* hanya tombol di dalam kat-grid */
+    .kat-grid div.stButton > button {
+      background: white;
+      border: none;
+      height: 160px;
       width: 100% !important;
-      padding: 18px 14px !important;
-      border-radius: 16px !important;
-      border: 1px solid rgba(26,83,92,0.25) !important;
-      background: linear-gradient(135deg, rgba(247,255,247,0.9), rgba(195,207,226,0.9)) !important;
-      color: #c1121f !important;
-
-      white-space: pre-wrap !important; /* biar \\n kebaca */
-      line-height: 1.25 !important;
-      font-weight: 700 !important;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      color: #333;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      padding: 20px;
+      white-space: pre-wrap !important; /* biar \n kebaca */
+      line-height: 1.25;
+      text-align: left; /* opsional, biar lebih “card” */
     }
-
-    .kat-grid div.stButton > button:not([disabled]):hover {
-      transform: translateY(-1px);
-      border-color: rgba(26,83,92,0.45) !important;
+    
+    .kat-grid div.stButton > button:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
+      background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
+      color: white !important;
     }
-
-    /* Disabled tetap default */
+    
+    /* disabled tetap default */
     .kat-grid div.stButton > button[disabled] {
       background: initial !important;
       color: initial !important;
       border: initial !important;
+      box-shadow: initial !important;
+      transform: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
-
+    
+    # 2) wrapper supaya CSS hanya kena tombol kategori
     st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
-
+    
+    # 3) tombol kamu (tetap sama)
     cols = st.columns(5)
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
@@ -225,9 +235,9 @@ if st.session_state.current_level == "home":
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
-
+    
     st.markdown("</div>", unsafe_allow_html=True)
-
+                
     st.stop()
 
 # =============================
