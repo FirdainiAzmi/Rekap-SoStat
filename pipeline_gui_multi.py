@@ -191,7 +191,7 @@ with st.form("logout_form"):
     with col1:
         st.markdown("""
         <div style="background:linear-gradient(135deg,#0974F1,#9FCCFA);
-        padding:16px;border-radius:14px;color:white">
+        padding:16px 20px;border-radius:14px;margin-bottom: 12px;color:white">
         <h3>📊 Portal Data Statistik Sosial</h3>
         <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.</p>
         </div>
