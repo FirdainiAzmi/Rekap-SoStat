@@ -178,7 +178,6 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"]{
 .stTabs [aria-selected="true"] {
   background-color: #fff;
   color: #0054A6;
-  border-bottom: 3px solid #0054A6;
 }
 </style>
 """, unsafe_allow_html=True)
