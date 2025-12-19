@@ -89,7 +89,7 @@ div.stButton > button:first-child:hover {
 def login_page():
     st.markdown("""
     <div style="display:flex;justify-content:center;align-items:center;height:90vh;">
-        <div style="background:white;padding:30px;width:380px;border-radius:18px;
+        <div style="background:white;padding:5px;width:380px;border-radius:18px;
         box-shadow:0 10px 30px rgba(0,0,0,0.08);">
             <h2 style="text-align:center;color:#0054A6;">🔐 Login Portal</h2>
             <p style="text-align:center;font-size:13px;color:#777;">
