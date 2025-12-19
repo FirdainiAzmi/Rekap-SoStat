@@ -245,16 +245,16 @@ st.markdown("""
 
 if st.session_state.current_level == "home":
     cols = st.columns(5)
-        categories = list(data_structure.keys())
-        for i, col in enumerate(cols):
-            cat_name = categories[i]
-            data = data_structure[cat_name]
-            with col:
-                # Kartu Menu Utama
-                if st.button(f"{data['icon']}\n\n{cat_name}\n\n{data['desc']}", key=cat_name):
-                    st.session_state.selected_category = cat_name
-                    st.session_state.current_level = 'direct_page' if data.get("direct_link") else 'category_view'
-                    st.rerun()
+    categories = list(data_structure.keys())
+    for i, col in enumerate(cols):
+        cat_name = categories[i]
+        data = data_structure[cat_name]
+        with col:
+            # Kartu Menu Utama
+            if st.button(f"{data['icon']}\n\n{cat_name}\n\n{data['desc']}", key=cat_name):
+                st.session_state.selected_category = cat_name
+                st.session_state.current_level = 'direct_page' if data.get("direct_link") else 'category_view'
+                st.rerun()
 
     st.stop()
 
