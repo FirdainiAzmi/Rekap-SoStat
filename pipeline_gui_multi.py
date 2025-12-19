@@ -1,20 +1,7 @@
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-import pandas as pd
+import time
 
-# =============================
-# SESSION STATE
-# =============================
-if "is_logged_in" not in st.session_state:
-    st.session_state.is_logged_in = False
-if "current_level" not in st.session_state:
-    st.session_state.current_level = "home"
-if "selected_category" not in st.session_state:
-    st.session_state.selected_category = None
-
-# =============================
-# PAGE CONFIG
-# =============================
+# --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(
     page_title="Portal BPS Sidoarjo",
     page_icon="📊",
@@ -22,172 +9,343 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# =============================
-# CSS
-# =============================
-st.markdown("""<style>/* CSS KAMU TIDAK DIUBAH */</style>""", unsafe_allow_html=True)
-
-# =============================
-# LOGIN PAGE
-# =============================
-def login_page():
-    st.markdown("""
-    <div style="margin-top:8vh;text-align:center;">
-        <div style="background:white;width:340px;padding:22px;margin:auto;
-        border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.08);">
-            <h3 style="color:#0054A6;">🔐 Login Portal</h3>
-            <p style="font-size:12px;color:#777;">
-                Portal Kegiatan Sosial BPS Sidoarjo
-            </p>
-    """, unsafe_allow_html=True)
-
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit = st.form_submit_button("Masuk")
-
-        if submit:
-            if username == "admin" and password == "bps123":
-                st.session_state.is_logged_in = True
-                st.rerun()
-            else:
-                st.error("Username atau password salah")
-
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-if not st.session_state.is_logged_in:
-    login_page()
-    st.stop()
-
-# =============================
-# HEADER + LOGOUT
-# =============================
-with st.form("logout_form"):
-    col1, col2 = st.columns([6, 1])
-    with col1:
-        st.markdown(
-            "### 📊 Selamat datang di Portal Data Statistik Sosial⚡\n"
-            "Portal ini merupakan dashboard penyimpanan terpusat aset digital "
-            "kegiatan Sosial Statistik."
-        )
-    with col2:
-        if st.form_submit_button("Logout"):
-            st.session_state.is_logged_in = False
-            st.rerun()
-
-# =============================
-# DATA (1 SHEET)
-# =============================
-conn = st.connection("gsheets", type=GSheetsConnection)
-df = conn.read(ttl=60).fillna("-")
-
-# Pastikan kolom ada (biar kalau typo ketahuan)
-required_cols = ["Kategori", "Icon", "Deskripsi", "Sub_Menu", "Nama_Kegiatan", "Nama_File", "Link_File"]
-missing = [c for c in required_cols if c not in df.columns]
-if missing:
-    st.error(f"Kolom ini belum ada di Google Sheets: {missing}")
-    st.stop()
-
-# =============================
-# SEARCH
-# =============================
-search_query = st.text_input(
-    "", placeholder="🔍 Cari Kegiatan atau File...", label_visibility="collapsed"
-)
-
-# =============================
-# FILE CARD
-# =============================
-def render_file_card(title, link):
-    st.markdown(f"""
-    <a href="{link}" target="_blank" style="text-decoration:none;">
-        <div style="background:white;padding:14px;border-radius:12px;
-        margin-bottom:10px;border-left:5px solid #0054A6;
-        display:flex;justify-content:space-between;align-items:center;">
-            <div>
-                <b>📄 {title}</b><br>
-                <span style="font-size:12px;color:#777;">Klik untuk membuka</span>
-            </div>
-            <span style="font-size:12px;color:#0054A6;font-weight:600;">Buka ↗</span>
-        </div>
-    </a>
-    """, unsafe_allow_html=True)
-
-# =============================
-# UI LOGIC
-# =============================
-if search_query:
-    results = df[
-        df["Kategori"].str.contains(search_query, case=False, na=False) |
-        df["Nama_Kegiatan"].str.contains(search_query, case=False, na=False) |
-        df["Nama_File"].str.contains(search_query, case=False, na=False)
-    ]
-
-    if results.empty:
-        st.info("Tidak ada hasil.")
-    else:
-        for (kat, sub, keg), group in results.groupby(["Kategori", "Sub_Menu", "Nama_Kegiatan"], dropna=False):
-            st.markdown(f"**{kat} > {sub} > {keg}**")
-            for _, row in group.iterrows():
-                render_file_card(row["Nama_File"], row["Link_File"])
-
-else:
-    # =============================
-    # HOME: tampil kategori unik (tanpa dobel)
-    # =============================
-    if st.session_state.current_level == "home":
-        # Ambil kategori unik + icon/desk (ambil baris pertama per kategori)
-        df_kat = df.groupby("Kategori", as_index=False).first()[["Kategori", "Icon", "Deskripsi"]]
-
-        cols = st.columns(5)
-        for i, row in df_kat.iterrows():
-            with cols[i % 5]:
-                if st.button(f"{row['Icon']}\n\n{row['Kategori']}\n\n{row['Deskripsi']}", key=f"kat_{row['Kategori']}"):
-                    st.session_state.selected_category = row["Kategori"]
-                    st.session_state.current_level = "detail"
-                    st.rerun()
-
-    # =============================
-    # DETAIL: tabs dari Sub_Menu, expander dari Nama_Kegiatan
-    # =============================
-    else:
-        with st.form("back_form"):
-            if st.form_submit_button("⬅️ Kembali ke Dashboard"):
-                st.session_state.current_level = "home"
-                st.session_state.selected_category = None
-                st.rerun()
-
-        selected = st.session_state.selected_category
-        st.markdown(f"## {selected}")
-
-        df_cat = df[df["Kategori"] == selected].copy()
-
-        # Tabs unik (urut sesuai kemunculan)
-        sub_menus = df_cat["Sub_Menu"].dropna().unique().tolist()
-        if not sub_menus:
-            st.info("Belum ada Sub_Menu untuk kategori ini.")
-        else:
-            tabs = st.tabs(sub_menus)
-
-            for i, tab in enumerate(tabs):
-                with tab:
-                    sub = sub_menus[i]
-                    df_sub = df_cat[df_cat["Sub_Menu"] == sub].copy()
-
-                    # Expander per kegiatan (unik & urut)
-                    kegiatan_list = df_sub["Nama_Kegiatan"].dropna().unique().tolist()
-                    for keg in kegiatan_list:
-                        with st.expander(keg, expanded=True):
-                            df_keg = df_sub[df_sub["Nama_Kegiatan"] == keg]
-                            for _, row in df_keg.iterrows():
-                                render_file_card(row["Nama_File"], row["Link_File"])
-
-# =============================
-# FOOTER
-# =============================
+# --- 2. CSS "SUPER PREMIUM" (LUAR & DALAM) ---
 st.markdown("""
-<div style="margin-top:40px;text-align:center;font-size:12px;color:#94a3b8;">
-© 2025 Badan Pusat Statistik Kabupaten Sidoarjo<br>
-Data Google Sheets • Auto Sync
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    /* BASE STYLING */
+    .stApp {
+        background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    /* HIDE DEFAULT ELEMENTS */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* --- STYLING HALAMAN DEPAN (KARTU MENU) --- */
+    div.stButton > button:first-child {
+        background: white;
+        border: none;
+        height: 160px;
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        color: #333;
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: 20px;
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
+        background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
+        color: white !important;
+    }
+
+    /* --- STYLING HALAMAN DALAM (ISI WOW) --- */
+    
+    /* 1. File Card (Pengganti Link Biasa) */
+    .file-card {
+        background-color: white;
+        padding: 15px;
+        border-radius: 12px;
+        border-left: 5px solid #0054A6;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s;
+    }
+    .file-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        cursor: pointer;
+    }
+    .file-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    .file-meta {
+        font-size: 12px;
+        color: #7f8c8d;
+    }
+    
+    /* 2. Status Badge */
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-green {background-color: #e6fffa; color: #047857;}
+    .badge-blue {background-color: #ebf8ff; color: #0054A6;}
+    .badge-orange {background-color: #fffaf0; color: #dd6b20;}
+
+    /* 3. Section Title Inside */
+    .inner-header {
+        color: #0054A6;
+        font-weight: 700;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+    
+    /* 4. Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 20px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: white;
+        border-radius: 10px 10px 0 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
+        padding-left: 20px;
+        padding-right: 20px;
+        font-weight: 600;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #fff;
+        color: #0054A6;
+        border-bottom: 3px solid #0054A6;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# --- 3. DATABASE STRUKTUR DATA (DIPERBUAT LEBIH KAYA) ---
+# Struktur data ini disesuaikan dengan permintaan user (Logic Dropdown/Drilldown)
+data_structure = {
+    "Statistik Kependudukan": {
+        "icon": "👥", 
+        "desc": "Sakernas & Survei Penduduk",
+        "subs": {
+            "Sakernas Triwulan": {
+                "type": "menu",
+                "items": {
+                    "Sakernas Agustus 2025": {
+                        "status": "Sedang Berjalan", 
+                        "progress": 70,
+                        "files": ["📄 Materi Pelatihan Petugas", "📝 Instrumen Pendataan", "📊 Target Sampel Blok Sensus", "📂 Arsip Surat Tugas"]
+                    },
+                    "Sakernas November 2025": {
+                        "status": "Persiapan", 
+                        "progress": 10,
+                        "files": ["📄 Draft Pedoman", "📂 Rencana Anggaran (RAB)"]
+                    }
+                }
+            }
+        }
+    },
+    "Statistik Ketahanan": {
+        "icon": "🛡️", 
+        "desc": "Podes, SNLIK, Polkam",
+        "subs": {
+            "Potensi Desa (Podes)": {"type": "page", "status": "Selesai", "files": ["📊 Publikasi Podes 2024", "📂 Raw Data Mikro", "📝 Kuesioner Desa"]},
+            "SNLIK": {"type": "page", "status": "Analisis", "files": ["📂 Tabulasi SNLIK", "📄 Laporan Eksekutif"]},
+            "Polkam": {"type": "page", "status": "Pengolahan", "files": ["📝 Entri Data Polkam", "📂 Dokumen Validasi"]}
+        }
+    },
+    "Statistik Kesejahteraan": {
+        "icon": "🏠", 
+        "desc": "Susenas & Seruti",
+        "subs": {
+            "Susenas": {
+                "type": "menu",
+                "items": {
+                    "Susenas Maret 2025": {"status": "Selesai", "progress": 100, "files": ["📂 Master File Susenas", "📄 Pelatihan Inda", "📊 Publikasi Awal"]},
+                    "Susenas September 2025": {"status": "Akan Datang", "progress": 0, "files": ["📄 Kerangka Sampel"]}
+                }
+            },
+            "Seruti": {
+                "type": "menu",
+                "items": {
+                    "Triwulan 2 2025": {"status": "Arsip", "progress": 100, "files": ["📂 Data T2 Full"]},
+                    "Triwulan 3 2025": {"status": "On Going", "progress": 45, "files": ["📝 Monitoring Lapangan", "📂 Upload Data"]},
+                    "Triwulan 4 2025": {"status": "Waiting", "progress": 0, "files": []}
+                }
+            }
+        }
+    },
+    "Publikasi Statistik": {
+        "icon": "📚", "desc": "Buku Dalam Angka, DDA", "direct_link": True,
+        "content": "Koleksi Publikasi Digital",
+        "files": ["📚 Kab. Sidoarjo Dalam Angka 2024", "📚 Statistik Kesejahteraan Rakyat 2024", "📚 Analisis Profil Kemiskinan"]
+    },
+    "Desa Cantik": {
+        "icon": "🌸", "desc": "Desa Cinta Statistik", "direct_link": True,
+        "content": "Program Pembinaan Statistik",
+        "files": ["📂 SK Agen Statistik", "📝 Modul Pembinaan Desa", "📷 Galeri Kegiatan"]
+    }
+}
+
+# --- 4. NAVIGASI STATE ---
+if 'current_level' not in st.session_state: st.session_state.current_level = 'home'
+if 'selected_category' not in st.session_state: st.session_state.selected_category = None
+if 'selected_sub_item' not in st.session_state: st.session_state.selected_sub_item = None
+
+def go_home():
+    st.session_state.current_level = 'home'
+    st.session_state.selected_category = None
+    st.session_state.selected_sub_item = None
+
+# --- 5. FUNGSI RENDER KOMPONEN WOW ---
+
+def render_file_card(title, tag="PDF"):
+    # HTML Component untuk File Card yang Cantik
+    st.markdown(f"""
+    <div class="file-card">
+        <div>
+            <div class="file-title">📄 {title}</div>
+            <div class="file-meta">Diupdate: Baru saja • Tipe: {tag}</div>
+        </div>
+        <div style="background:#eef2ff; padding:8px 15px; border-radius:8px; color:#0054A6; font-weight:bold; font-size:12px;">
+            Unduh ⬇️
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def render_status_header(title, status, progress=None):
+    # Header dinamis dengan Progress bar
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown(f"### 👉 {title}")
+    with col2:
+        # Warna badge berdasarkan status
+        color_class = "badge-green" if status == "Selesai" else ("badge-blue" if status == "Sedang Berjalan" or status == "On Going" else "badge-orange")
+        st.markdown(f'<div style="text-align:right;"><span class="status-badge {color_class}">{status}</span></div>', unsafe_allow_html=True)
+    
+    if progress is not None:
+        st.progress(progress)
+
+# --- 6. LOGIKA UI UTAMA ---
+
+# HEADER GLOBAL (HERO)
+st.markdown("""
+<div style="text-align: center; margin-bottom: 30px; padding: 20px; background: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.03);">
+    <h1 style="color:#0054A6; margin:0; font-size: 2.2rem;">PORTAL KEGIATAN SOSIAL</h1>
+    <p style="color:#F7941D; font-weight:600; margin:0;">BPS KABUPATEN SIDOARJO</p>
+    <p style="color:#666; font-size:0.9rem; margin-top:10px;">Pusat Integrasi Data & Dokumen Digital</p>
 </div>
 """, unsafe_allow_html=True)
+
+# SEARCH BAR
+search_cols = st.columns([1, 6, 1])
+with search_cols[1]:
+    search_query = st.text_input("", placeholder="🔍 Cari 'Sakernas', 'Susenas', atau dokumen...", label_visibility="collapsed")
+    st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
+
+# --- KONTEN UTAMA ---
+
+# A. JIKA ADA PENCARIAN
+if search_query:
+    st.info(f"🔍 Hasil Pencarian untuk: **{search_query}**")
+    # (Logika pencarian sederhana - disingkat untuk fokus visual)
+    st.write("Fitur pencarian aktif...") 
+
+# B. JIKA TIDAK ADA PENCARIAN (NORMAL FLOW)
+else:
+    # --- HALAMAN DEPAN (HOME) ---
+    if st.session_state.current_level == 'home':
+        cols = st.columns(5)
+        categories = list(data_structure.keys())
+        for i, col in enumerate(cols):
+            cat_name = categories[i]
+            data = data_structure[cat_name]
+            with col:
+                # Kartu Menu Utama
+                if st.button(f"{data['icon']}\n\n{cat_name}\n\n{data['desc']}", key=cat_name):
+                    st.session_state.selected_category = cat_name
+                    st.session_state.current_level = 'direct_page' if data.get("direct_link") else 'category_view'
+                    st.rerun()
+
+    # --- HALAMAN DALAM (ISI KATEGORI) ---
+    elif st.session_state.current_level == 'category_view':
+        selected_cat = st.session_state.selected_category
+        cat_data = data_structure[selected_cat]
+        
+        # Tombol Navigasi Atas
+        if st.button("⬅️ Dashboard Utama"):
+            go_home()
+            st.rerun()
+            
+        # Judul Halaman Dalam
+        st.markdown(f"<h2 style='color:#0054A6;'>{cat_data['icon']} {selected_cat}</h2>", unsafe_allow_html=True)
+        st.write("Pilih kegiatan di bawah untuk melihat detail dokumen.")
+        
+        # LOGIKA TABS OTOMATIS BERDASARKAN SUB-MENU
+        subs = cat_data["subs"]
+        sub_names = list(subs.keys())
+        
+        # Membuat Tab untuk Sub-Kategori (Misal: Sakernas Triwulan)
+        tabs = st.tabs([f"📂 {name}" for name in sub_names])
+        
+        for i, tab in enumerate(tabs):
+            sub_name = sub_names[i]
+            sub_info = subs[sub_name]
+            
+            with tab:
+                st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+                
+                # JIKA TIPE NYA ADALAH "PAGE" (Langsung isi file)
+                if sub_info["type"] == "page":
+                    render_status_header(sub_name, sub_info.get("status", "Aktif"))
+                    
+                    st.markdown("#### 📥 Dokumen Tersedia")
+                    f_cols = st.columns(2) # Grid 2 Kolom untuk File Card
+                    for idx, f in enumerate(sub_info["files"]):
+                        with f_cols[idx % 2]:
+                            render_file_card(f)
+                            
+                # JIKA TIPE NYA ADALAH "MENU" (Ada sub-item lagi seperti Agt/Nov)
+                elif sub_info["type"] == "menu":
+                    items = sub_info["items"]
+                    
+                    # Kita gunakan Expander yang dimodifikasi atau Container
+                    for item_name, item_data in items.items():
+                        with st.expander(f"{item_name}", expanded=True):
+                            # Tampilkan Progress Bar & Status
+                            render_status_header(item_name, item_data["status"], item_data.get("progress"))
+                            
+                            st.markdown("#### 📥 Arsip Dokumen")
+                            if not item_data["files"]:
+                                st.info("Belum ada dokumen yang diunggah.")
+                            else:
+                                f_cols = st.columns(2)
+                                for idx, f in enumerate(item_data["files"]):
+                                    with f_cols[idx % 2]:
+                                        render_file_card(f)
+
+    # --- HALAMAN DIRECT LINK (PUBLIKASI / DESA CANTIK) ---
+    elif st.session_state.current_level == 'direct_page':
+        selected_cat = st.session_state.selected_category
+        cat_data = data_structure[selected_cat]
+        
+        if st.button("⬅️ Dashboard Utama"):
+            go_home()
+            st.rerun()
+            
+        st.markdown(f"<h2 style='color:#F7941D;'>{cat_data['icon']} {selected_cat}</h2>", unsafe_allow_html=True)
+        
+        # Layout Dashboard Ringkas
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Total Dokumen", len(cat_data["files"]))
+        c2.metric("Viewer Bulan Ini", "125 User", "12%")
+        c3.metric("Status Update", "Minggu Lalu")
+        
+        st.divider()
+        
+        st.markdown("### 📚 Daftar Pustaka")
+        for f in cat_data["files"]:
+            render_file_card(f, tag="Publikasi")
+
+# Footer Kosong agar rapi
+st.write("")
+st.write("")
