@@ -255,7 +255,8 @@ if search:
 # HOME
 # =============================
 if st.session_state.current_level == "home":
-    cols = st.columns(4)
+    jumlah_kategori = df["Kategori"].nunique()
+    cols = st.columns(jumlah_kategori)
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
