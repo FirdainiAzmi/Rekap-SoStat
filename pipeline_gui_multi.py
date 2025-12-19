@@ -56,7 +56,8 @@ p {
 /* =============================
    HERO / HEADER CARD EFFECT
 ============================= */
-section[data-testid="stVerticalBlock"] > div:has(h3) {
+section[data-testid="stVerticalBlock"]:not(:nth-of-type(2)) > div:has(h3) {
+
     background: rgba(255,255,255,0.75);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
