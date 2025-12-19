@@ -255,6 +255,8 @@ if st.session_state.current_level == "home":
             with cols[i % 5]:
                 st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=f"kat_{kat}")
 
+    st.stop()
+
 # =============================
 # DETAIL PAGE
 # =============================
