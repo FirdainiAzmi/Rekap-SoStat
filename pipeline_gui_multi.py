@@ -88,17 +88,42 @@ div.stButton > button:first-child:hover {
 # =============================
 def login_page():
     st.markdown("""
-    <div style="display:flex;justify-content:center;align-items:center;height:90vh;">
-        <div style="background:white;padding:5px;width:380px;border-radius:18px;
-        box-shadow:0 10px 30px rgba(0,0,0,0.08);">
-            <h2 style="text-align:center;color:#0054A6;">🔐 Login Portal</h2>
-            <p style="text-align:center;font-size:13px;color:#777;">
+    <div style="
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:75vh;
+    ">
+        <div style="
+            background:white;
+            padding:22px;
+            width:340px;
+            border-radius:16px;
+            box-shadow:0 8px 25px rgba(0,0,0,0.08);
+        ">
+            <h2 style="
+                text-align:center;
+                color:#0054A6;
+                margin-bottom:4px;
+                font-size:20px;
+            ">
+                🔐 Login Portal
+            </h2>
+            <p style="
+                text-align:center;
+                font-size:12px;
+                color:#777;
+                margin-bottom:18px;
+            ">
                 Portal Kegiatan Sosial BPS Sidoarjo
             </p>
     """, unsafe_allow_html=True)
 
     username = st.text_input("Username")
+    st.write("")
     password = st.text_input("Password", type="password")
+
+    st.write("")
 
     if st.button("Masuk", use_container_width=True):
         if username == "admin" and password == "bps123":
@@ -108,6 +133,7 @@ def login_page():
             st.error("Username atau password salah")
 
     st.markdown("</div></div>", unsafe_allow_html=True)
+
 
 if not st.session_state.is_logged_in:
     login_page()
