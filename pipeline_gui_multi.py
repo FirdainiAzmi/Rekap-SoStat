@@ -20,9 +20,18 @@ if "nav_submenu" not in st.session_state:
 if "nav_sub2" not in st.session_state:
     st.session_state.nav_sub2 = None
 
-# ✅ PENTING: inisialisasi key widget search dulu (biar aman di-set)
+# key widget search
 if "global_search" not in st.session_state:
     st.session_state["global_search"] = ""
+
+# ✅ FLAG: untuk clear search DI RUN BERIKUTNYA (aman)
+if "pending_clear_search" not in st.session_state:
+    st.session_state["pending_clear_search"] = False
+
+# ✅ CLEAR search harus dilakukan SEBELUM widget dibuat
+if st.session_state["pending_clear_search"]:
+    st.session_state["global_search"] = ""
+    st.session_state["pending_clear_search"] = False
 
 # =============================
 # PAGE CONFIG
@@ -137,9 +146,7 @@ if any(c not in df.columns for c in required_cols):
 # SEARCH BAR (NAVIGASI)
 # =============================
 search = st.text_input(
-    "", placeholder="🔍 Cari & navigasi file...",
-    label_visibility="collapsed",
-    key="global_search"
+    "", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed", key="global_search"
 )
 
 if search:
@@ -168,8 +175,8 @@ if search:
                 st.session_state.nav_submenu = r["Sub_Menu"]
                 st.session_state.nav_sub2 = r["Sub2_Menu"]
 
-                # ✅ PENTING: set pakai dict style (lebih aman)
-                st.session_state["global_search"] = ""
+                # ✅ jangan clear langsung; tandai dulu
+                st.session_state["pending_clear_search"] = True
 
                 st.rerun()
     st.stop()
