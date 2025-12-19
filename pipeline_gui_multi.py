@@ -128,7 +128,7 @@ div[data-testid="stButton"] > button[key^="kat_btn_"] {
 }
 
 /* hover */
-div[data-testid="stButton"] > button[key^="kat_btn_"]:hover {
+div[data-testid="stButton"] > button[key^="kat_btn_Desa Cantik"]:hover {
     background: #b91c1c !important;
     transform: translateY(-6px);
 }
