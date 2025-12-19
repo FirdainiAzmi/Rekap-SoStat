@@ -234,6 +234,7 @@ if search:
 # =============================
 # HOME
 # =============================
+test = []
 if st.session_state.current_level == "home":
     cols = st.columns(5)
     for i, kat in enumerate(df["Kategori"].unique()):
@@ -245,7 +246,9 @@ if st.session_state.current_level == "home":
             ):
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
+                test.append(f"kat_btn_{kat}")
                 st.rerun()
+        st.write(test)
     st.stop()
 
 # =============================
