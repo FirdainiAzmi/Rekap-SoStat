@@ -234,21 +234,22 @@ if search:
 # =============================
 # HOME
 # =============================
-test = []
+if "last_clicked_key" not in st.session_state:
+    st.session_state.last_clicked_key = None
+
 if st.session_state.current_level == "home":
     cols = st.columns(5)
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
-            if st.button(
-                f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}",
-                key=f"kat_btn_{kat}"
-            ):
+            key = f"kat_btn_{kat}"
+            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=key):
+                st.session_state.last_clicked_key = key
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
-                test.append(f"kat_btn_{kat}")
                 st.rerun()
-        st.write(test)
+
+    st.info(f"Last clicked: {st.session_state.last_clicked_key}")
     st.stop()
 
 # =============================
