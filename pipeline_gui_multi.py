@@ -79,7 +79,7 @@ with st.form("logout_form"):
         st.markdown("""
         <style>
         .hero-box {
-          background: linear-gradient(135deg, #595CFF 0%, #9FCCFA 100%);
+          background: linear-gradient(135deg, #0974F1 0%, #9FCCFA 100%);
           padding: 16px 20px;
           border-radius: 14px;
           margin-bottom: 12px;
@@ -149,17 +149,20 @@ if search_query:
 
 else:
     if st.session_state.current_level == "home":
-        # sebelumnya: kategori_unik = df["Kategori"]  (ini bikin dobel)
+        st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
+        
         kategori_unik = df["Kategori"].unique()  # tetap konsep sama: list kategori, tapi unik
         cols = st.columns(5)
 
         for i, kat in enumerate(kategori_unik):
-            data = df[df["Kategori"] == kat].iloc[0]
-            with cols[i % 5]:
-                if st.button(f"{data['Icon']}\n\n{kat}\n\n{data['Deskripsi']}", key=f"kat_{kat}"):
-                    st.session_state.selected_category = kat
-                    st.session_state.current_level = "detail"
-                    st.rerun()
+        data = df[df["Kategori"] == kat].iloc[0]
+        with cols[i % 5]:
+            if st.button(f"{data['Icon']}\n\n{kat}\n\n{data['Deskripsi']}", key=f"kat_{kat}"):
+                st.session_state.selected_category = kat
+                st.session_state.current_level = "detail"
+                st.rerun()
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
         with st.form("back_form"):
