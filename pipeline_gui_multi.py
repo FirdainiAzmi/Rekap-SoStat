@@ -140,7 +140,7 @@ footer {
 }
 </style>
 """, unsafe_allow_html=True)
-True)
+
 
 # =============================
 # LOGIN PAGE
