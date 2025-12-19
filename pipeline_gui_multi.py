@@ -1,3 +1,4 @@
+
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
@@ -103,7 +104,7 @@ if not st.session_state.is_logged_in:
 with st.form("logout_form"):
     col1, col2 = st.columns([6,1])
     with col1:
-        st.markdown("### 📊 Portal Kegiatan Sosial BPS Sidoarjo")
+        st.markdown("### 📊 Selamat datang di Portal Data Statistik Sosial⚡\n Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik. Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur. ")
     with col2:
         if st.form_submit_button("Logout"):
             st.session_state.is_logged_in = False
@@ -203,3 +204,4 @@ st.markdown("""
 Data Google Sheets • Auto Sync
 </div>
 """, unsafe_allow_html=True)
+login portal
