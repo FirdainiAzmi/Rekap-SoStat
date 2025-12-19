@@ -23,9 +23,71 @@ st.set_page_config(
 )
 
 # =============================
-# CSS
+# CSS (LOGIKA TIDAK DIUBAH)
 # =============================
-st.markdown("""<style>/* CSS KAMU TIDAK DIUBAH */</style>""", unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* ====== CSS KAMU (TIDAK DIUBAH) ====== */
+/* taruh CSS kamu yang asli di sini kalau ada */
+
+/* ====== TAMBAHAN CSS UNTUK TAMPILAN DETAIL (MIRIP SCREENSHOT) ====== */
+.page-wrap{padding:6px 6px 30px 6px;}
+.title-row{display:flex;gap:14px;align-items:center;margin:8px 0 6px;}
+.title-ico{font-size:40px;line-height:1;}
+.title-text h1{margin:0;font-size:42px;font-weight:800;color:#0B2F5B;}
+.subtitle{margin:0;color:#6B7B8C;font-size:15px;}
+
+.section-card{
+  background: rgba(255,255,255,0.65);
+  border:1px solid rgba(15,23,42,0.08);
+  border-radius:14px;
+  padding:14px;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+}
+
+/* ====== FILE CARD (baru) ====== */
+.file-card{
+  background:white;
+  border-radius:14px;
+  border:1px solid rgba(15,23,42,0.08);
+  padding:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  box-shadow:0 10px 22px rgba(15,23,42,0.06);
+  margin:8px 0;
+  border-left:5px solid #0B5BD3;
+}
+.file-left{display:flex;gap:10px;align-items:center;}
+.file-ico{font-size:22px}
+.file-title{font-weight:800;color:#0f172a;margin:0}
+.file-meta{font-size:12px;color:#6b7280;margin:2px 0 0 0}
+
+.dl-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 14px;
+  border-radius:12px;
+  background:#EEF5FF;
+  color:#0B5BD3;
+  font-weight:800;
+  text-decoration:none;
+  border:1px solid rgba(11,91,211,0.12);
+}
+.dl-btn:hover{background:#E4F0FF}
+
+.hr{height:1px;background:rgba(15,23,42,0.08);margin:12px 0}
+
+/* expander lebih “card” */
+[data-testid="stExpander"]{
+  border-radius:14px !important;
+  border:1px solid rgba(15,23,42,0.10) !important;
+  background: rgba(255,255,255,0.55) !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # =============================
 # LOGIN PAGE
@@ -84,12 +146,8 @@ with st.form("logout_form"):
           border-radius: 14px;
           margin-bottom: 12px;
         }
-        
-        /* optional: teks di dalamnya */
         .hero-box h3,
-        .hero-box p {
-          color: #ffffff;
-        }
+        .hero-box p { color:#ffffff; }
         </style>
         """, unsafe_allow_html=True)
     with col2:
@@ -103,7 +161,6 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-# OPTIONAL: cek kolom wajib biar ketahuan kalau sheet belum sesuai
 required_cols = ["Kategori", "Icon", "Deskripsi", "Sub_Menu", "Nama_Kegiatan", "Nama_File", "Link_File"]
 missing = [c for c in required_cols if c not in df.columns]
 if missing:
@@ -118,7 +175,24 @@ search_query = st.text_input(
 )
 
 # =============================
-# FILE CARD
+# FILE CARD (versi baru untuk detail)
+# =============================
+def render_file_card_detail(title, link):
+    st.markdown(f"""
+    <div class="file-card">
+      <div class="file-left">
+        <div class="file-ico">📄</div>
+        <div>
+          <p class="file-title">{title}</p>
+          <p class="file-meta">Klik untuk membuka</p>
+        </div>
+      </div>
+      <a class="dl-btn" href="{link}" target="_blank">Unduh ⬇️</a>
+    </div>
+    """, unsafe_allow_html=True)
+
+# =============================
+# FILE CARD (versi lama untuk search) - BISA TETAP DIPAKAI
 # =============================
 def render_file_card(title, link):
     st.markdown(f"""
@@ -150,8 +224,8 @@ if search_query:
 else:
     if st.session_state.current_level == "home":
         st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
-        
-        kategori_unik = df["Kategori"].unique()  # tetap konsep sama: list kategori, tapi unik
+
+        kategori_unik = df["Kategori"].unique()
         cols = st.columns(5)
 
         for i, kat in enumerate(kategori_unik):
@@ -161,10 +235,11 @@ else:
                     st.session_state.selected_category = kat
                     st.session_state.current_level = "detail"
                     st.rerun()
-    
-            st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
+        # BACK
         with st.form("back_form"):
             if st.form_submit_button("⬅️ Kembali ke Dashboard"):
                 st.session_state.current_level = "home"
@@ -172,11 +247,28 @@ else:
                 st.rerun()
 
         selected = st.session_state.selected_category
-        st.markdown(f"## {selected}")
-
         df_cat = df[df["Kategori"] == selected]
 
-        # sebelumnya: sub_menus = df_cat["Sub_Menu"] (ini bikin tab dobel)
+        # ambil icon & deskripsi kategori
+        first = df_cat.iloc[0]
+        kat_icon = first["Icon"]
+        kat_desc = first["Deskripsi"]
+
+        # HEADER mirip screenshot
+        st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="title-row">
+          <div class="title-ico">{kat_icon}</div>
+          <div class="title-text">
+            <h1>{selected}</h1>
+            <p class="subtitle">{kat_desc}</p>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+
+        # TAB SUB MENU (unik)
         sub_menus = df_cat["Sub_Menu"].unique()
         tabs = st.tabs(sub_menus.tolist())
 
@@ -184,11 +276,26 @@ else:
             with tab:
                 df_sub = df_cat[df_cat["Sub_Menu"] == sub_menus[i]]
 
-                # sebelumnya: for keg in df_sub["Nama_Kegiatan"] (ini bikin expander dobel)
+                # KEGIATAN (unik)
                 for keg in df_sub["Nama_Kegiatan"].unique():
                     with st.expander(keg, expanded=True):
-                        for _, row in df_sub[df_sub["Nama_Kegiatan"] == keg].iterrows():
-                            render_file_card(row["Nama_File"], row["Link_File"])
+                        st.markdown(f"### 👉 {keg}")
+                        st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
+                        st.markdown("### 📥 Arsip Dokumen")
+
+                        # GRID KARTU FILE (2 kolom)
+                        left, right = st.columns(2)
+                        rows = df_sub[df_sub["Nama_Kegiatan"] == keg].reset_index(drop=True)
+
+                        for idx, row in rows.iterrows():
+                            if idx % 2 == 0:
+                                with left:
+                                    render_file_card_detail(row["Nama_File"], row["Link_File"])
+                            else:
+                                with right:
+                                    render_file_card_detail(row["Nama_File"], row["Link_File"])
+
+        st.markdown("</div></div>", unsafe_allow_html=True)
 
 # =============================
 # FOOTER
