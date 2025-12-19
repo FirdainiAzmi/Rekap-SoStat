@@ -124,10 +124,12 @@ st.markdown("""
 <style>
 /* default: style semua button jadi merah */
 div[data-testid="stButton"] > button {
-  background: #dc2626 !important;
-  color: white !important;
+  background: white !important;
+  color: #333 !important;
   border: none !important;
   border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  padding: 20px;
 }
 
 /* reset tombol non-kategori (yang kamu punya) */
