@@ -88,7 +88,7 @@ with st.form("logout_form"):
         /* optional: teks di dalamnya */
         .hero-box h3,
         .hero-box p {
-          color: #1a535c;
+          color: #ffffff;
         }
         </style>
         """, unsafe_allow_html=True)
