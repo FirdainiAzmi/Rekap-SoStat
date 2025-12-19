@@ -313,17 +313,32 @@ st.markdown("""
 
 /* ===== CARD BUTTON (HANYA DASHBOARD) ===== */
 div.stButton > button:first-child {
-    background:white;
-    border:none;
-    height:160px;
-    width:100%;
-    border-radius:16px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.05);
-    font-size:15px;
-    font-weight:600;
-    padding:20px;
-    transition:0.3s;
+    background: white;
+    border: none;
+    height: 160px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+
+    /* 🔑 INI KUNCINYA */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 18px;
+
+    transition: all 0.3s ease;
 }
+
+/* isi button konsisten */
+div.stButton > button:first-child > div {
+    width: 100%;
+}
+
 
 div.stButton > button:first-child:hover {
     transform:translateY(-8px);
