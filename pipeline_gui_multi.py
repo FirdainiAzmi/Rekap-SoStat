@@ -234,6 +234,8 @@ div[data-testid="stButton"] > button[key^="kat_btn_"]:hover {
     background: #b91c1c !important;
     transform: translateY(-6px);
 }
+button[key="kat_btn_Desa Cantik"] { background: #2563eb !important; }
+button[key="kat_btn_Kesehatan"]  { background: #16a34a !important; }
 </style>
 """, unsafe_allow_html=True)
 
