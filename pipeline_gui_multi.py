@@ -217,23 +217,43 @@ if search:
 # =============================
 # HOME
 # =============================
-if st.session_state.current_level == "home":    
-    # 2) wrapper supaya CSS hanya kena tombol kategori
-    st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
-    
-    # 3) tombol kamu (tetap sama)
-    cols = st.columns(5)
-    for i, kat in enumerate(df["Kategori"].unique()):
-        d = df[df["Kategori"] == kat].iloc[0]
-        with cols[i % 5]:
-            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=f"kat_{kat}"):
-                st.session_state.selected_category = kat
-                st.session_state.current_level = "detail"
-                st.rerun()
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-                
-    st.stop()
+st.markdown("""
+<style>
+/* target tombol button di area home (lebih spesifik) */
+div[data-testid="column"] div[data-testid="stButton"] > button {
+  background: white !important;
+  border: none !important;
+  height: 160px !important;
+  width: 100% !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+  color: #333 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  padding: 20px !important;
+  white-space: pre-wrap !important;
+  line-height: 1.25 !important;
+  text-align: left !important;
+}
+
+div[data-testid="column"] div[data-testid="stButton"] > button:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15) !important;
+  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
+  color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+if st.session_state.current_level == "home":
+    st.markdown('<div id="home-kategori"></div>', unsafe_allow_html=True)
+    kat_wrap = st.container()
+    with kat_wrap:
+        cols = st.columns(5)
+        for i, kat in enumerate(df["Kategori"].unique()):
+            d = df[df["Kategori"] == kat].iloc[0]
+            with cols[i % 5]:
+                st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=f"kat_{kat}")
 
 # =============================
 # DETAIL PAGE
