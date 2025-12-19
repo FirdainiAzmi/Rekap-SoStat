@@ -79,6 +79,47 @@ section[data-testid="stVerticalBlock"]:nth-of-type(2) button {
 section[data-testid="stVerticalBlock"]:nth-of-type(2) button:hover {
     background: rgba(255,255,255,0.3) !important;
 }
+/* =========================
+   HERO "SELAMAT DATANG" – GRADIENT ONLY
+========================= */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) {
+    background: linear-gradient(
+        135deg,
+        #0054A6 0%,
+        #1e88e5 50%,
+        #42a5f5 100%
+    );
+    border-radius: 22px;
+    padding: 30px 34px;
+    margin-bottom: 28px;
+
+    box-shadow:
+        0 25px 60px rgba(0, 84, 166, 0.45),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* Judul tetap */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) h3 {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+/* Deskripsi tetap */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) p {
+    color: rgba(255,255,255,0.92);
+}
+
+/* Tombol logout */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) button {
+    background: rgba(255,255,255,0.2) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    border: none !important;
+}
+
+section[data-testid="stVerticalBlock"]:nth-of-type(2) button:hover {
+    background: rgba(255,255,255,0.35) !important;
+}
 
 /* =============================
    GLASS CARD (NON-HERO ONLY)
