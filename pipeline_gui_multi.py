@@ -253,9 +253,6 @@ if search:
 # =============================
 # HOME
 # =============================
-if "last_clicked_key" not in st.session_state:
-    st.session_state.last_clicked_key = None
-
 if st.session_state.current_level == "home":
     cols = st.columns(5)
     for i, kat in enumerate(df["Kategori"].unique()):
@@ -267,8 +264,7 @@ if st.session_state.current_level == "home":
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
-
-    st.info(f"Last clicked: {st.session_state.last_clicked_key}")
+                
     st.stop()
 
 # =============================
