@@ -155,14 +155,14 @@ else:
         cols = st.columns(5)
 
         for i, kat in enumerate(kategori_unik):
-        data = df[df["Kategori"] == kat].iloc[0]
-        with cols[i % 5]:
-            if st.button(f"{data['Icon']}\n\n{kat}\n\n{data['Deskripsi']}", key=f"kat_{kat}"):
-                st.session_state.selected_category = kat
-                st.session_state.current_level = "detail"
-                st.rerun()
-
-        st.markdown("</div>", unsafe_allow_html=True)
+            data = df[df["Kategori"] == kat].iloc[0]
+            with cols[i % 5]:
+                if st.button(f"{data['Icon']}\n\n{kat}\n\n{data['Deskripsi']}", key=f"kat_{kat}"):
+                    st.session_state.selected_category = kat
+                    st.session_state.current_level = "detail"
+                    st.rerun()
+    
+            st.markdown("</div>", unsafe_allow_html=True)
 
     else:
         with st.form("back_form"):
