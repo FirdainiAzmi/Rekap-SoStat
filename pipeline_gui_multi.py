@@ -129,6 +129,12 @@ div[data-testid="stButton"] > button {
   border-radius: 16px !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   padding: 20px;
+  height: 160px;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 div[data-testid="stButton"] > button:hover {
