@@ -194,7 +194,7 @@ if st.session_state.current_level == "home":
       border-radius: 16px !important;
       border: 1px solid rgba(26,83,92,0.25) !important;
       background: linear-gradient(135deg, rgba(247,255,247,0.95), rgba(195,207,226,0.9)) !important;
-      color: #1a535c !important;
+      color: #c1121f !important;
 
       white-space: pre-wrap !important; /* biar \\n kebaca */
       line-height: 1.25 !important;
