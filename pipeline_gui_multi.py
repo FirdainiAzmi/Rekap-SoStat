@@ -219,41 +219,42 @@ if search:
 # =============================
 st.markdown("""
 <style>
-/* target tombol button di area home (lebih spesifik) */
-div[data-testid="column"] div[data-testid="stButton"] > button {
-  background: white !important;
-  border: none !important;
-  height: 160px !important;
-  width: 100% !important;
-  border-radius: 16px !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
-  color: #333 !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  padding: 20px !important;
-  white-space: pre-wrap !important;
-  line-height: 1.25 !important;
-  text-align: left !important;
-}
-
-div[data-testid="column"] div[data-testid="stButton"] > button:hover {
-  transform: translateY(-8px) !important;
-  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15) !important;
-  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
-  color: white !important;
-}
+    /* --- STYLING HALAMAN DEPAN (KARTU MENU) --- */
+    div.stButton > button:first-child {
+        background: white;
+        border: none;
+        height: 160px;
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        color: #333;
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: 20px;
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
+        background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
+        color: white !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 if st.session_state.current_level == "home":
-    st.markdown('<div id="home-kategori"></div>', unsafe_allow_html=True)
-    kat_wrap = st.container()
-    with kat_wrap:
-        cols = st.columns(5)
-        for i, kat in enumerate(df["Kategori"].unique()):
-            d = df[df["Kategori"] == kat].iloc[0]
-            with cols[i % 5]:
-                st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=f"kat_{kat}")
+    cols = st.columns(5)
+        categories = list(data_structure.keys())
+        for i, col in enumerate(cols):
+            cat_name = categories[i]
+            data = data_structure[cat_name]
+            with col:
+                # Kartu Menu Utama
+                if st.button(f"{data['icon']}\n\n{cat_name}\n\n{data['desc']}", key=cat_name):
+                    st.session_state.selected_category = cat_name
+                    st.session_state.current_level = 'direct_page' if data.get("direct_link") else 'category_view'
+                    st.rerun()
 
     st.stop()
 
