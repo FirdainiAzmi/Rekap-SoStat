@@ -54,6 +54,10 @@ st.markdown("""
 .title-text h1{margin:0;font-size:40px;font-weight:800;color:#0B2F5B}
 .subtitle{margin:0;color:#64748b}
 
+header[data-testid="stHeader"] {
+  background-color: rgba(0,0,0,0) !important;
+}
+    
 .stApp {
   background: linear-gradient(135deg, #f1faee 0%, #f1faee 100%);
 }
