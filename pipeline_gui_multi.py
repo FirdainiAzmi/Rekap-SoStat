@@ -132,7 +132,9 @@ if any(c not in df.columns for c in required_cols):
 # =============================
 # SEARCH BAR (NAVIGASI)
 # =============================
-search = st.text_input("", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed")
+search = st.text_input(
+    "", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed", key="global_search"
+)
 
 if search:
     res = df[
@@ -159,6 +161,10 @@ if search:
                 st.session_state.nav_menu = r["Menu"]
                 st.session_state.nav_submenu = r["Sub_Menu"]
                 st.session_state.nav_sub2 = r["Sub2_Menu"]
+
+                # PENTING: kosongkan search supaya rerun tidak balik ke blok search + st.stop()
+                st.session_state.global_search = ""
+
                 st.rerun()
     st.stop()
 
@@ -199,7 +205,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =============================
-# FILTER PANEL (FIX TANPA MENGURANGI APAPUN)
+# FILTER PANEL (FIX AMAN + DEFAULT DARI NAV)
 # =============================
 with st.expander("🔎 Filter", expanded=False):
 
