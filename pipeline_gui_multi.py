@@ -134,7 +134,7 @@ div[data-testid="stButton"] > button {
 div[data-testid="stButton"] > button:hover {
   transform: translateY(-8px);
   box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
-  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
+  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
   color: white !important;
 }
 
@@ -146,14 +146,6 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"]{
   color: initial !important;
   border: initial !important;
   border-radius: initial !important;
-}
-
-div[data-testid="column"] div[data-testid="stButton"] > button{
-  height: 160px !important;
-  width: 100% !important;
-  padding: 20px !important;
-  white-space: pre-wrap !important;
-  text-align: left !important;
 }
 </style>
 """, unsafe_allow_html=True)
