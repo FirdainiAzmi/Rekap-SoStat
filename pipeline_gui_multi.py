@@ -217,43 +217,14 @@ if search:
 # =============================
 # HOME
 # =============================
-st.markdown("""
-<style>
-    /* --- STYLING HALAMAN DEPAN (KARTU MENU) --- */
-    div.stButton > button:first-child {
-        background: white;
-        border: none;
-        height: 160px;
-        width: 100%;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        color: #333;
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        padding: 20px;
-    }
-    div.stButton > button:first-child:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
-        background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
-        color: white !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 if st.session_state.current_level == "home":
     cols = st.columns(5)
-    categories = list(data_structure.keys())
-    for i, col in enumerate(cols):
-        cat_name = categories[i]
-        data = data_structure[cat_name]
-        with col:
-            # Kartu Menu Utama
-            if st.button(f"{data['icon']}\n\n{cat_name}\n\n{data['desc']}", key=cat_name):
-                st.session_state.selected_category = cat_name
-                st.session_state.current_level = 'direct_page' if data.get("direct_link") else 'category_view'
+    for i, kat in enumerate(df["Kategori"].unique()):
+        d = df[df["Kategori"]==kat].iloc[0]
+        with cols[i%5]:
+            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}"):
+                st.session_state.selected_category = kat
+                st.session_state.current_level = "detail"
                 st.rerun()
 
     st.stop()
