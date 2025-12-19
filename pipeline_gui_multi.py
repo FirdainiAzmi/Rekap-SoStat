@@ -260,9 +260,11 @@ if st.session_state.current_level == "home":
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
-            key = f"kat_btn_{kat}"
-            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}", key=key):
-                st.session_state.last_clicked_key = key
+            if st.button(
+                f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}",
+                key=f"kat_btn_{kat}",
+                use_container_width=True
+            ):
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
