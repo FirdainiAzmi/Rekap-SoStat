@@ -84,6 +84,39 @@ st.markdown("""
   color:#0B5BD3;
 }
 .hr{height:1px;background:rgba(15,23,42,.08);margin:12px 0}
+/* hanya tombol di dalam kat-grid */
+.kat-grid div.stButton > button {
+  background: white;
+  border: none;
+  height: 160px;
+  width: 100% !important;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 20px;
+  white-space: pre-wrap !important; /* biar \n kebaca */
+  line-height: 1.25;
+  text-align: left; /* opsional, biar lebih “card” */
+}
+
+.kat-grid div.stButton > button:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
+  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
+  color: white !important;
+}
+
+/* disabled tetap default */
+.kat-grid div.stButton > button[disabled] {
+  background: initial !important;
+  color: initial !important;
+  border: initial !important;
+  box-shadow: initial !important;
+  transform: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -184,45 +217,7 @@ if search:
 # =============================
 # HOME
 # =============================
-if st.session_state.current_level == "home":
-    st.markdown("""
-    <style>
-    /* hanya tombol di dalam kat-grid */
-    .kat-grid div.stButton > button {
-      background: white;
-      border: none;
-      height: 160px;
-      width: 100% !important;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      color: #333;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      padding: 20px;
-      white-space: pre-wrap !important; /* biar \n kebaca */
-      line-height: 1.25;
-      text-align: left; /* opsional, biar lebih “card” */
-    }
-    
-    .kat-grid div.stButton > button:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
-      background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
-      color: white !important;
-    }
-    
-    /* disabled tetap default */
-    .kat-grid div.stButton > button[disabled] {
-      background: initial !important;
-      color: initial !important;
-      border: initial !important;
-      box-shadow: initial !important;
-      transform: none !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
+if st.session_state.current_level == "home":    
     # 2) wrapper supaya CSS hanya kena tombol kategori
     st.markdown('<div class="kat-grid">', unsafe_allow_html=True)
     
