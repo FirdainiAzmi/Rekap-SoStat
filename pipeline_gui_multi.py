@@ -79,7 +79,7 @@ with st.form("logout_form"):
         st.markdown("""
         <style>
         .hero-box {
-          background: linear-gradient(135deg, #595CFF 0%, ##9FCCFA 100%);
+          background: linear-gradient(135deg, #595CFF 0%, #9FCCFA 100%);
           padding: 16px 20px;
           border-radius: 14px;
           margin-bottom: 12px;
