@@ -161,6 +161,25 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"]{
   border: initial !important;
   border-radius: initial !important;
 }
+
+.stTabs [data-baseweb="tab-list"] {
+  gap: 20px;
+}
+.stTabs [data-baseweb="tab"] {
+  height: 50px;
+  white-space: pre-wrap;
+  background-color: white;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
+  padding-left: 20px;
+  padding-right: 20px;
+  font-weight: 600;
+}
+.stTabs [aria-selected="true"] {
+  background-color: #fff;
+  color: #0054A6;
+  border-bottom: 3px solid #0054A6;
+}
 </style>
 """, unsafe_allow_html=True)
 
