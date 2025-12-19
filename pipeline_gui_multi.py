@@ -66,6 +66,48 @@ section[data-testid="stVerticalBlock"] > div:has(h3) {
         0 30px 60px rgba(0,0,0,0.08),
         inset 0 1px 0 rgba(255,255,255,0.6);
 }
+/* =========================
+   HERO HEADER PALING ATAS
+========================= */
+
+/* blok pertama setelah login */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) {
+    background: linear-gradient(135deg, #0054A6, #1e88e5);
+    border-radius: 22px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+
+    box-shadow: 0 30px 60px rgba(0, 84, 166, 0.35);
+}
+
+/* judul */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) h3 {
+    color: white !important;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* deskripsi */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) p {
+    color: rgba(255,255,255,0.9);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* tombol logout */
+section[data-testid="stVerticalBlock"]:nth-of-type(2) button {
+    background: rgba(255,255,255,0.18) !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    padding: 6px 14px !important;
+    border: none !important;
+}
+
+section[data-testid="stVerticalBlock"]:nth-of-type(2) button:hover {
+    background: rgba(255,255,255,0.3) !important;
+}
+
 
 /* =============================
    DASHBOARD CARD (WOW CORE)
