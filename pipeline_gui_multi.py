@@ -217,16 +217,38 @@ if search:
 # =============================
 # HOME
 # =============================
+st.markdown("""
+<style>
+/* hanya button kategori */
+div[data-testid="stButton"] > button[key^="kat_btn_"] {
+    background: #dc2626 !important; /* merah */
+    color: white !important;
+    border-radius: 16px !important;
+    height: 160px !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+/* hover */
+div[data-testid="stButton"] > button[key^="kat_btn_"]:hover {
+    background: #b91c1c !important;
+    transform: translateY(-6px);
+}
+</style>
+""", unsafe_allow_html=True)
+
 if st.session_state.current_level == "home":
     cols = st.columns(5)
     for i, kat in enumerate(df["Kategori"].unique()):
-        d = df[df["Kategori"]==kat].iloc[0]
-        with cols[i%5]:
-            if st.button(f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}"):
+        d = df[df["Kategori"] == kat].iloc[0]
+        with cols[i % 5]:
+            if st.button(
+                f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}",
+                key=f"kat_btn_{kat}"
+            ):
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
-
     st.stop()
 
 # =============================
