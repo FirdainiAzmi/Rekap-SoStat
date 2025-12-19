@@ -139,6 +139,7 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"]{
   border: initial !important;
   border-radius: initial !important;
 }
+
 div[data-testid="column"] div[data-testid="stButton"] > button{
   height: 160px !important;
   width: 100% !important;
