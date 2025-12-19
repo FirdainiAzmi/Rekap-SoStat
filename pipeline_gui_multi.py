@@ -28,36 +28,119 @@ st.set_page_config(
 # =============================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 .stApp {
-    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    background: radial-gradient(circle at top,
+        #f8fbff 0%,
+        #e9f0f7 45%,
+        #d9e2ec 100%);
     font-family: 'Poppins', sans-serif;
 }
 
 #MainMenu, header, footer {visibility:hidden;}
 
-/* ===== CARD BUTTON (HANYA DASHBOARD) ===== */
-div.stButton > button:first-child {
-    background:white;
-    border:none;
-    height:160px;
-    width:100%;
-    border-radius:16px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.05);
-    font-size:15px;
-    font-weight:600;
-    padding:20px;
-    transition:0.3s;
+/* =============================
+   HERO / HEADER FEEL
+============================= */
+h3, h2, h1 {
+    letter-spacing: -0.3px;
 }
 
+/* =============================
+   DASHBOARD CARD (WOW)
+============================= */
+div.stButton > button:first-child {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    border: 1px solid rgba(255,255,255,0.5);
+    height: 165px;
+    width: 100%;
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.6);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.45;
+    padding: 20px;
+    color: #1e293b;
+
+    transition: all 0.35s ease;
+}
+
+/* isi button */
+div.stButton > button:first-child > div {
+    width: 100%;
+}
+
+/* Hover WOW */
 div.stButton > button:first-child:hover {
-    transform:translateY(-8px);
-    background:linear-gradient(135deg,#0054A6,#007bff);
-    color:white;
+    transform: translateY(-10px) scale(1.02);
+    background: linear-gradient(135deg, #0054A6, #007bff);
+    color: white;
+    box-shadow:
+        0 25px 45px rgba(0,84,166,0.25);
+}
+
+/* =============================
+   SEARCH BOX
+============================= */
+input {
+    border-radius: 14px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+}
+
+/* =============================
+   FILE CARD (DETAIL VIEW)
+============================= */
+a > div {
+    transition: all 0.25s ease;
+}
+
+a > div:hover {
+    transform: translateX(6px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* =============================
+   TABS
+============================= */
+.stTabs [data-baseweb="tab"] {
+    background: white;
+    border-radius: 14px 14px 0 0;
+    font-weight: 600;
+    padding: 10px 18px;
+}
+
+/* =============================
+   EXPANDER
+============================= */
+.st-expander {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+}
+
+/* =============================
+   FOOTER
+============================= */
+footer {
+    opacity: 0.8;
 }
 </style>
 """, unsafe_allow_html=True)
+True)
 
 # =============================
 # LOGIN PAGE
