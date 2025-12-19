@@ -66,11 +66,32 @@ if not st.session_state.is_logged_in:
 with st.form("logout_form"):
     col1, col2 = st.columns([6, 1])
     with col1:
-        st.markdown(
-            "### 📊 Selamat datang di Portal Data Statistik Sosial⚡\n"
-            "Portal ini merupakan dashboard penyimpanan terpusat aset digital "
-            "kegiatan Sosial Statistik."
-        )
+        st.markdown("""
+        <div class="hero-box">
+          <h3>📊 Selamat datang di Portal Data Statistik Sosial ⚡</h3>
+          <p>
+            Portal ini merupakan dashboard penyimpanan terpusat aset digital
+            kegiatan Sosial Statistik.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <style>
+        .hero-box {
+          background: linear-gradient(135deg, #f7fff7 0%, #c3cfe2 100%);
+          padding: 16px 20px;
+          border-radius: 14px;
+          margin-bottom: 12px;
+        }
+        
+        /* optional: teks di dalamnya */
+        .hero-box h3,
+        .hero-box p {
+          color: #1a535c;
+        }
+        </style>
+        """, unsafe_allow_html=True)
     with col2:
         if st.form_submit_button("Logout"):
             st.session_state.is_logged_in = False
