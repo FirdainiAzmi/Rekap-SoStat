@@ -161,21 +161,22 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-required_cols = ["Kategori", "Icon", "Deskripsi", "Sub_Menu", "Nama_Kegiatan", "Nama_File", "Link_File"]
+# OPTIONAL: cek kolom wajib (SUDAH DISESUAIKAN UNTUK 3 LEVEL MENU)
+required_cols = ["Kategori", "Icon", "Deskripsi", "Menu", "Sub_Menu", "Sub2_Menu", "Nama_File", "Link_File"]
 missing = [c for c in required_cols if c not in df.columns]
 if missing:
     st.error(f"Kolom ini belum ada di Google Sheets: {missing}")
     st.stop()
 
 # =============================
-# SEARCH
+# SEARCH (tetap)
 # =============================
 search_query = st.text_input(
     "", placeholder="🔍 Cari Kegiatan atau File...", label_visibility="collapsed"
 )
 
 # =============================
-# FILE CARD (versi baru untuk detail)
+# FILE CARD (detail)
 # =============================
 def render_file_card_detail(title, link):
     st.markdown(f"""
@@ -192,7 +193,7 @@ def render_file_card_detail(title, link):
     """, unsafe_allow_html=True)
 
 # =============================
-# FILE CARD (versi lama untuk search) - BISA TETAP DIPAKAI
+# FILE CARD (search) - tetap gaya awalmu
 # =============================
 def render_file_card(title, link):
     st.markdown(f"""
@@ -213,12 +214,15 @@ def render_file_card(title, link):
 # UI LOGIC (LOGIKA UTAMA TETAP)
 # =============================
 if search_query:
+    # untuk search: cari di "Nama_File" dan juga di level-level menu biar ketemu
     results = df[
-        df["Nama_Kegiatan"].str.contains(search_query, case=False, na=False) |
-        df["Nama_File"].str.contains(search_query, case=False, na=False)
+        df["Nama_File"].str.contains(search_query, case=False, na=False) |
+        df["Menu"].str.contains(search_query, case=False, na=False) |
+        df["Sub_Menu"].str.contains(search_query, case=False, na=False) |
+        df["Sub2_Menu"].str.contains(search_query, case=False, na=False)
     ]
     for _, row in results.iterrows():
-        st.markdown(f"**{row['Kategori']} > {row['Nama_Kegiatan']}**")
+        st.markdown(f"**{row['Kategori']} > {row['Menu']} > {row['Sub_Menu']} > {row['Sub2_Menu']}**")
         render_file_card(row["Nama_File"], row["Link_File"])
 
 else:
@@ -254,7 +258,7 @@ else:
         kat_icon = first["Icon"]
         kat_desc = first["Deskripsi"]
 
-        # HEADER mirip screenshot
+        # HEADER kategori
         st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
         st.markdown(f"""
         <div class="title-row">
@@ -268,32 +272,46 @@ else:
 
         st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
-        # TAB SUB MENU (unik)
-        sub_menus = df_cat["Sub_Menu"].unique()
-        tabs = st.tabs(sub_menus.tolist())
+        # =============================
+        # LEVEL 1: MENU (TAB)
+        # =============================
+        menus = df_cat["Menu"].unique()
+        tabs_menu = st.tabs(menus.tolist())
 
-        for i, tab in enumerate(tabs):
-            with tab:
-                df_sub = df_cat[df_cat["Sub_Menu"] == sub_menus[i]]
+        for i_m, tab_m in enumerate(tabs_menu):
+            with tab_m:
+                df_menu = df_cat[df_cat["Menu"] == menus[i_m]]
 
-                # KEGIATAN (unik)
-                for keg in df_sub["Nama_Kegiatan"].unique():
-                    with st.expander(keg, expanded=True):
-                        st.markdown(f"### 👉 {keg}")
-                        st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-                        st.markdown("### 📥 Arsip Dokumen")
+                # =============================
+                # LEVEL 2: SUB_MENU (TAB)
+                # =============================
+                sub_menus = df_menu["Sub_Menu"].unique()
+                tabs_sub = st.tabs(sub_menus.tolist())
 
-                        # GRID KARTU FILE (2 kolom)
-                        left, right = st.columns(2)
-                        rows = df_sub[df_sub["Nama_Kegiatan"] == keg].reset_index(drop=True)
+                for i_s, tab_s in enumerate(tabs_sub):
+                    with tab_s:
+                        df_sub = df_menu[df_menu["Sub_Menu"] == sub_menus[i_s]]
 
-                        for idx, row in rows.iterrows():
-                            if idx % 2 == 0:
-                                with left:
-                                    render_file_card_detail(row["Nama_File"], row["Link_File"])
-                            else:
-                                with right:
-                                    render_file_card_detail(row["Nama_File"], row["Link_File"])
+                        # =============================
+                        # LEVEL 3: SUB2_MENU (EXPANDER) -> LIST FILE
+                        # =============================
+                        for sub2 in df_sub["Sub2_Menu"].unique():
+                            df_sub2 = df_sub[df_sub["Sub2_Menu"] == sub2]
+
+                            # default: ketutup
+                            with st.expander(sub2, expanded=False):
+                                st.markdown("### 📥 Arsip Dokumen")
+
+                                left, right = st.columns(2)
+                                rows = df_sub2.reset_index(drop=True)
+
+                                for idx, row in rows.iterrows():
+                                    if idx % 2 == 0:
+                                        with left:
+                                            render_file_card_detail(row["Nama_File"], row["Link_File"])
+                                    else:
+                                        with right:
+                                            render_file_card_detail(row["Nama_File"], row["Link_File"])
 
         st.markdown("</div></div>", unsafe_allow_html=True)
 
