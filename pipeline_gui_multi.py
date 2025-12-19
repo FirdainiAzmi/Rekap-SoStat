@@ -122,7 +122,6 @@ st.markdown("""
 
 st.markdown("""
 <style>
-/* default: style semua button jadi merah */
 div[data-testid="stButton"] > button {
   background: white !important;
   color: #333 !important;
@@ -130,6 +129,13 @@ div[data-testid="stButton"] > button {
   border-radius: 16px !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   padding: 20px;
+}
+
+div[data-testid="stButton"] > button:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
+  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
+  color: white !important;
 }
 
 /* reset tombol non-kategori (yang kamu punya) */
