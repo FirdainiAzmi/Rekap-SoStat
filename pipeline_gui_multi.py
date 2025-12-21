@@ -179,18 +179,22 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 }
 
 /* 8. FOOTER */
-.stApp > div:first-child {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+.stApp > div:first-child{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
 }
-.footer {
-  margin-top: auto;
-  padding: 14px 0;
-  text-align: center;
-  font-size: 12px;
-  color: #94a3b8;
-  border-top: 1px solid rgba(15,23,42,.08);
+
+/* footer solid kotak */
+.footer-solid{
+  margin-top:auto;
+  width:100%;
+  background:#0B2F5B;
+  color:white;
+  padding:14px 0;
+  text-align:center;
+  font-size:12px;
+  font-weight:600;
 }
 </style>
 """, unsafe_allow_html=True)
