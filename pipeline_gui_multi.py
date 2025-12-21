@@ -37,7 +37,7 @@ if st.session_state["pending_clear_search"]:
 # PAGE CONFIG
 # =============================
 st.set_page_config(
-    page_title="Portal BPS Sidoarjo",
+    page_title="Portal Divisi Sosial Statistik",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -188,7 +188,7 @@ def login_page():
     <div style="margin-top:10vh;text-align:center">
       <div style="background:white;width:340px;padding:24px;margin:auto;
       border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,.08)">
-        <h3>🔐 Login Portal</h3>
+        <h3>🔐 Login Portal Sosial statistik</h3>
     """, unsafe_allow_html=True)
 
     with st.form("login_form"):
@@ -199,7 +199,7 @@ def login_page():
                 st.session_state.is_logged_in = True
                 st.rerun()
             else:
-                st.error("Login salah")
+                st.error("Username/Password salah")
 
     st.markdown("</div></div>", unsafe_allow_html=True)
 
