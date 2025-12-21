@@ -179,7 +179,8 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 }
 <div class="footer">
     © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-
+</div>
+""", unsafe_allow_html=True)
 </style>
 """, unsafe_allow_html=True)
 
