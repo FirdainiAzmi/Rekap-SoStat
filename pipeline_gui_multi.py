@@ -44,11 +44,11 @@ st.set_page_config(
 )
 
 # =============================
-# CSS (HANYA TAMPILAN)
+# CSS (TAMPILAN BARU - WOW EFFECT)
 # =============================
 st.markdown("""
 <style>
-/* 1. BACKGROUND BERKELAS (Opsi 1: Professional Blue) */
+/* 1. BACKGROUND BERKELAS (Professional Blue) */
 .stApp {
   background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
   background-attachment: fixed;
@@ -66,13 +66,12 @@ header[data-testid="stHeader"] {
 .title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
 .subtitle { margin: 0; color: #475569; font-weight: 500; }
 
-/* 4. KARTU TOMBOL UTAMA (HOME) - DIBUAT TIMBUL */
+/* 4. KARTU TOMBOL UTAMA (HOME) - TIMBUL */
 div[data-testid="stButton"] > button {
   background: white !important;
   color: #334155 !important;
-  border: 1px solid rgba(255,255,255,0.6) !important; /* Border halus */
+  border: 1px solid rgba(255,255,255,0.6) !important;
   border-radius: 16px !important;
-  /* Shadow ini kuncinya: bikin kartu melayang */
   box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
   padding: 20px;
   height: 160px !important;
@@ -83,17 +82,15 @@ div[data-testid="stButton"] > button {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
-/* Efek Hover (Saat mouse diarahkan) */
 div[data-testid="stButton"] > button:hover {
   transform: translateY(-5px);
-  /* Warna berubah jadi gradasi biru BPS saat hover */
   background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
   color: white !important;
   box-shadow: 0 15px 30px rgba(0, 84, 166, 0.3) !important;
   border: 1px solid transparent !important;
 }
 
-/* Reset tombol navigasi kecil agar tidak ikut besar */
+/* Reset tombol navigasi kecil */
 div[data-testid="stButton"] > button[aria-label="Logout"],
 div[data-testid="stButton"] > button[aria-label="⬅️ Kembali"],
 div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
@@ -112,7 +109,6 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   border-radius: 14px;
   padding: 18px;
   border-left: 5px solid #0B5BD3;
-  /* Shadow konsisten */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border-top: 1px solid #f1f5f9;
   border-right: 1px solid #f1f5f9;
@@ -121,25 +117,28 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  height: 100%; /* Agar tinggi seragam di grid */
   transition: transform 0.2s;
 }
 .file-card:hover {
-  transform: translateX(4px);
+  transform: translateY(-3px); /* Efek naik dikit */
+  box-shadow: 0 8px 15px rgba(0,0,0,0.08);
 }
-.file-left { display: flex; gap: 12px; align-items: center; }
-.file-title { font-weight: 700; margin: 0; font-size: 15px; color: #1e293b; }
-.file-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+.file-left { display: flex; gap: 12px; align-items: center; overflow: hidden; }
+.file-title { font-weight: 700; margin: 0; font-size: 14px; color: #1e293b; white-space: normal; line-height: 1.4; }
+.file-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
 
 /* Tombol Download */
 .dl-btn {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #EFF6FF;
   border-radius: 10px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   text-decoration: none;
   color: #1D4ED8;
   border: 1px solid #DBEAFE;
+  white-space: nowrap; /* Biar tombol gak turun */
   transition: all 0.2s;
 }
 .dl-btn:hover {
@@ -148,7 +147,7 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
 }
 
-/* 6. TABS (MENU NAVIGASI) */
+/* 6. TABS */
 .stTabs [data-baseweb="tab-list"] { gap: 10px; }
 .stTabs [data-baseweb="tab"] {
   height: 50px;
@@ -167,7 +166,7 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
 }
 
-/* 7. TEXT INPUT (SEARCH BAR) */
+/* 7. SEARCH BAR */
 div[data-testid="stTextInput"] > div > div {
   border-radius: 12px;
   border: 1px solid #cbd5e1;
@@ -217,9 +216,8 @@ with st.form("logout_form"):
         st.markdown("""
         <div style="background:linear-gradient(135deg,#0974F1,#9FCCFA);
         padding:16px 20px;border-radius:14px;margin-bottom: 12px;color:white">
-        <h3>🗃️Selamat datang di Portal Data Statistik Sosial </h3>
-        <p> Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.\n 
-        Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur. </p>
+        <h3>📊 Portal Data Statistik Sosial</h3>
+        <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.</p>
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -233,7 +231,6 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-# ✅ HAPUS 'Deskripsi' dari daftar wajib
 required_cols = ["Kategori","Icon","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
 if any(c not in df.columns for c in required_cols):
     st.error("Kolom Google Sheet belum lengkap")
@@ -270,10 +267,7 @@ if search:
                 st.session_state.nav_menu = r["Menu"]
                 st.session_state.nav_submenu = r["Sub_Menu"]
                 st.session_state.nav_sub2 = r["Sub2_Menu"]
-
-                # ✅ jangan clear langsung; tandai dulu
                 st.session_state["pending_clear_search"] = True
-
                 st.rerun()
     st.stop()
 
@@ -286,7 +280,6 @@ if st.session_state.current_level == "home":
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
-            # ✅ HAPUS bagian deskripsi di tombol
             if st.button(
                 f"{d['Icon']}\n\n{kat}", 
                 key=f"kat_btn_{kat}",
@@ -310,7 +303,6 @@ with st.form("back"):
 df_cat = df[df["Kategori"] == st.session_state.selected_category]
 first = df_cat.iloc[0]
 
-# ✅ HAPUS bagian deskripsi di header detail
 st.markdown(f"""
 <div class="title-row">
   <div class="title-ico">{first['Icon']}</div>
@@ -321,33 +313,29 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =============================
-# FILTER PANEL (AMAN)
+# FILTER PANEL
 # =============================
 with st.expander("🔎 Filter", expanded=False):
-
     menu_list = ["Semua"] + sorted(df_cat["Menu"].unique().tolist())
     default_menu = st.session_state.nav_menu
     menu_idx = menu_list.index(default_menu) if default_menu in menu_list else 0
-
     f_menu = st.selectbox("Menu", menu_list, index=menu_idx)
     df_f = df_cat if f_menu == "Semua" else df_cat[df_cat["Menu"] == f_menu]
 
     sub_list = ["Semua"] + sorted(df_f["Sub_Menu"].unique().tolist())
     default_sub = st.session_state.nav_submenu
     sub_idx = sub_list.index(default_sub) if default_sub in sub_list else 0
-
     f_sub = st.selectbox("Sub Menu", sub_list, index=sub_idx)
     df_f2 = df_f if f_sub == "Semua" else df_f[df_f["Sub_Menu"] == f_sub]
 
     sub2_list = ["Semua"] + sorted(df_f2["Sub2_Menu"].unique().tolist())
     default_sub2 = st.session_state.nav_sub2
     sub2_idx = sub2_list.index(default_sub2) if default_sub2 in sub2_list else 0
-
     f_sub2 = st.selectbox("Sub2 Menu", sub2_list, index=sub2_idx)
     df_view = df_f2 if f_sub2 == "Semua" else df_f2[df_f2["Sub2_Menu"] == f_sub2]
 
 # =============================
-# RENDER MENU → SUB → SUB2 → FILE
+# RENDER MENU → SUB → SUB2 → FILE (MODIFIKASI 2 KOLOM)
 # =============================
 menus = df_view["Menu"].unique()
 tabs_menu = st.tabs(menus.tolist())
@@ -363,21 +351,32 @@ for i, tab in enumerate(tabs_menu):
 
                 for sub2 in df_s["Sub2_Menu"].unique():
                     with st.expander(sub2, expanded=False):
-                        for _, r in df_s[df_s["Sub2_Menu"]==sub2].iterrows():
-                            st.markdown(f"""
-                            <div class="file-card">
-                              <div class="file-left">
-                                <div>📄</div>
-                                <div>
-                                  <p class="file-title">{r['Nama_File']}</p>
-                                  <p class="file-meta">Klik untuk membuka</p>
+                        
+                        # --- MODIFIKASI DIMULAI DARI SINI ---
+                        # Ambil data file untuk sub-kategori ini
+                        files = df_s[df_s["Sub2_Menu"]==sub2]
+                        
+                        # Buat Grid 2 Kolom
+                        cols = st.columns(2)
+                        
+                        # Loop dengan index untuk menentukan posisi (Kiri/Kanan)
+                        for idx, (_, r) in enumerate(files.iterrows()):
+                            with cols[idx % 2]: # idx % 2 = 0 (Kiri), 1 (Kanan)
+                                st.markdown(f"""
+                                <div class="file-card">
+                                  <div class="file-left">
+                                    <div style="font-size:24px">📄</div>
+                                    <div>
+                                      <p class="file-title">{r['Nama_File']}</p>
+                                      <p class="file-meta">Klik untuk membuka</p>
+                                    </div>
+                                  </div>
+                                  <a class="dl-btn" href="{r['Link_File']}" target="_blank">Unduh ⬇️</a>
                                 </div>
-                              </div>
-                              <a class="dl-btn" href="{r['Link_File']}" target="_blank">Unduh ⬇️</a>
-                            </div>
-                            """, unsafe_allow_html=True)
+                                """, unsafe_allow_html=True)
+                        # --- MODIFIKASI SELESAI ---
 
-# reset nav agar tidak nempel
+# reset nav
 st.session_state.nav_menu = None
 st.session_state.nav_submenu = None
 st.session_state.nav_sub2 = None
