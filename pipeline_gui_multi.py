@@ -324,6 +324,12 @@ if st.session_state.current_level == "home":
                 st.rerun()
                 
     st.stop()
+    
+st.markdown("""
+<div class="footer">
+  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
+""", unsafe_allow_html=True)
 
 # =============================
 # DETAIL PAGE
@@ -343,12 +349,6 @@ st.markdown(f"""
   <div class="title-text">
     <h1>{st.session_state.selected_category}</h1>
   </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<div class="footer">
-  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
 
