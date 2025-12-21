@@ -182,32 +182,49 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 """, unsafe_allow_html=True)
 
 # =============================
-# LOGIN PAGE
+# LOGIC LOGIN PAGE (UPDATE SECRETS)
 # =============================
 def login_page():
-    st.markdown("""
-    <div style="margin-top:10vh;text-align:center">
-      <div style="background:white;width:340px;padding:24px;margin:auto;
-      border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,.08)">
-        <h3>🔐 Login Portal Sosial statistik</h3>
-    """, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 1.2, 1]) 
+    with col2:
+        st.markdown("""
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-icon">🔐</div>
+                <h2 class="login-title">Portal Statistik Sosial</h2>
+                <p class="login-subtitle">Silakan login untuk mengakses dokumen</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    with st.form("login_form"):
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.form_submit_button("Masuk"):
-            if u == "admin" and p == "bps123":
-                st.session_state.is_logged_in = True
-                st.rerun()
-            else:
-                st.error("Username/Password salah")
+        with st.form("login_form"):
+            u = st.text_input("Username", placeholder="Masukkan username")
+            p = st.text_input("Password", type="password", placeholder="Masukkan password")
+            
+            if st.form_submit_button("Masuk Portal"):
+                # --- PERUBAHAN DI SINI ---
+                # Mengambil username & password dari st.secrets
+                try:
+                    correct_user = st.secrets["login"]["username"]
+                    correct_pass = st.secrets["login"]["password"]
+                    
+                    if u == correct_user and p == correct_pass:
+                        st.session_state.is_logged_in = True
+                        st.rerun()
+                    else:
+                        st.error("Username atau Password salah!")
+                except FileNotFoundError:
+                    st.error("File secrets.toml belum dibuat!")
+                except KeyError:
+                    st.error("Konfigurasi secrets [login] belum lengkap!")
+                # -------------------------
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-if not st.session_state.is_logged_in:
-    login_page()
-    st.stop()
-
+        st.markdown("""
+            <div style="margin-top:20px; font-size:11px; color:#cbd5e1;">
+                &copy; 2025 BPS Kabupaten Sidoarjo
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
 # =============================
 # HEADER + LOGOUT
 # =============================
