@@ -48,139 +48,135 @@ st.set_page_config(
 # =============================
 st.markdown("""
 <style>
-.page-wrap{padding:8px 8px 30px}
-.title-row{display:flex;gap:14px;align-items:center}
-.title-ico{font-size:42px}
-.title-text h1{margin:0;font-size:40px;font-weight:800;color:#0B2F5B}
-.subtitle{margin:0;color:#64748b}
+/* 1. BACKGROUND BERKELAS (Opsi 1: Professional Blue) */
+.stApp {
+  background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
+  background-attachment: fixed;
+}
 
+/* 2. HEADER */
 header[data-testid="stHeader"] {
   background-color: rgba(0,0,0,0) !important;
 }
-    
-.stApp {
-  /* Gradasi biru muda lembut ke putih */
-  background: linear-gradient(180deg, #D4E4F7 0%, #F0F4F8 100%);
-  background-attachment: fixed; /* Supaya background tidak ikut scroll */
-}
 
-.section-card{
-  background:rgba(255,255,255,.65);
-  border-radius:14px;
-  padding:14px;
-  border:1px solid rgba(15,23,42,.08);
-}
+/* 3. TYPOGRAPHY */
+.page-wrap { padding: 8px 8px 30px; }
+.title-row { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
+.title-ico { font-size: 42px; }
+.title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
+.subtitle { margin: 0; color: #475569; font-weight: 500; }
 
-.file-card{
-  background:white;
-  border-radius:14px;
-  padding:14px;
-  border-left:5px solid #0B5BD3;
-  box-shadow:0 10px 22px rgba(15,23,42,.06);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
-}
-.file-left{display:flex;gap:10px;align-items:center}
-.file-title{font-weight:800;margin:0}
-.file-meta{font-size:12px;color:#64748b}
-.dl-btn{
-  padding:8px 14px;
-  background:#EEF5FF;
-  border-radius:12px;
-  font-weight:800;
-  text-decoration:none;
-  color:#0B5BD3;
-}
-.hr{height:1px;background:rgba(15,23,42,.08);margin:12px 0}
-/* hanya tombol di dalam kat-grid */
-.kat-grid div.stButton > button {
-  background: white;
-  border: none;
-  height: 160px;
-  width: 100% !important;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  color: #333;
-  font-size: 15px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  padding: 20px;
-  white-space: pre-wrap !important; /* biar \n kebaca */
-  line-height: 1.25;
-  text-align: left; /* opsional, biar lebih “card” */
-}
-
-.kat-grid div.stButton > button:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
-  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%);
-  color: white !important;
-}
-
-/* disabled tetap default */
-.kat-grid div.stButton > button[disabled] {
-  background: initial !important;
-  color: initial !important;
-  border: initial !important;
-  box-shadow: initial !important;
-  transform: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
+/* 4. KARTU TOMBOL UTAMA (HOME) - DIBUAT TIMBUL */
 div[data-testid="stButton"] > button {
   background: white !important;
-  color: #333 !important;
-  border: none !important;
+  color: #334155 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important; /* Border halus */
   border-radius: 16px !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  /* Shadow ini kuncinya: bikin kartu melayang */
+  box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
   padding: 20px;
   height: 160px !important;
   width: 100% !important;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   font-size: 15px;
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
+/* Efek Hover (Saat mouse diarahkan) */
 div[data-testid="stButton"] > button:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.15);
+  transform: translateY(-5px);
+  /* Warna berubah jadi gradasi biru BPS saat hover */
   background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
   color: white !important;
+  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.3) !important;
+  border: 1px solid transparent !important;
 }
 
-/* reset tombol non-kategori (yang kamu punya) */
+/* Reset tombol navigasi kecil agar tidak ikut besar */
 div[data-testid="stButton"] > button[aria-label="Logout"],
 div[data-testid="stButton"] > button[aria-label="⬅️ Kembali"],
-div[data-testid="stButton"] > button[aria-label="Buka ↗"]{
+div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   background: initial !important;
   color: initial !important;
   border: initial !important;
-  border-radius: initial !important;
+  border-radius: 8px !important;
+  height: auto !important;
+  box-shadow: none !important;
+  padding: 8px 16px !important;
 }
 
-.stTabs [data-baseweb="tab-list"] {
-  gap: 20px;
+/* 5. CARD FILE (DETAIL PAGE) */
+.file-card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  border-left: 5px solid #0B5BD3;
+  /* Shadow konsisten */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  transition: transform 0.2s;
 }
+.file-card:hover {
+  transform: translateX(4px);
+}
+.file-left { display: flex; gap: 12px; align-items: center; }
+.file-title { font-weight: 700; margin: 0; font-size: 15px; color: #1e293b; }
+.file-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+/* Tombol Download */
+.dl-btn {
+  padding: 8px 16px;
+  background: #EFF6FF;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+  transition: all 0.2s;
+}
+.dl-btn:hover {
+  background: #2563EB;
+  color: white;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+/* 6. TABS (MENU NAVIGASI) */
+.stTabs [data-baseweb="tab-list"] { gap: 10px; }
 .stTabs [data-baseweb="tab"] {
   height: 50px;
   white-space: pre-wrap;
-  background-color: white;
+  background-color: rgba(255,255,255,0.7);
   border-radius: 10px 10px 0 0;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
-  padding-left: 20px;
-  padding-right: 20px;
+  border: none;
+  padding: 0 20px;
   font-weight: 600;
+  color: #64748b;
 }
 .stTabs [aria-selected="true"] {
   background-color: #fff;
   color: #0054A6;
   border-bottom: 3px solid #0054A6;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
+}
+
+/* 7. TEXT INPUT (SEARCH BAR) */
+div[data-testid="stTextInput"] > div > div {
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+div[data-testid="stTextInput"] > div > div:focus-within {
+  border-color: #0054A6;
+  box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
 }
 </style>
 """, unsafe_allow_html=True)
