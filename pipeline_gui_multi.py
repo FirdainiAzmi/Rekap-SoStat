@@ -189,8 +189,8 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 .footer-solid{
   margin-top:auto;
   width:100%;
-  background:#0B2F5B;
-  color:white;
+  background:#000;
+  color:black;
   padding:14px 0;
   text-align:center;
   font-size:12px;
