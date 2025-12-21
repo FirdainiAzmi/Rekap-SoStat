@@ -216,8 +216,9 @@ with st.form("logout_form"):
         st.markdown("""
         <div style="background:linear-gradient(135deg,#0974F1,#9FCCFA);
         padding:16px 20px;border-radius:14px;margin-bottom: 12px;color:white">
-        <h3>📊 Portal Data Statistik Sosial</h3>
-        <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.</p>
+        <h3>🗃️Selamat datang di Portal Data Statistik Sosial </h3>
+        <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.\n
+        Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.</p>
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -368,10 +369,10 @@ for i, tab in enumerate(tabs_menu):
                                     <div style="font-size:24px">📄</div>
                                     <div>
                                       <p class="file-title">{r['Nama_File']}</p>
-                                      <p class="file-meta">Klik untuk membuka</p>
+                                      <p class="file-meta">Klik tombol disamping untuk membuka file</p>
                                     </div>
                                   </div>
-                                  <a class="dl-btn" href="{r['Link_File']}" target="_blank">Unduh ⬇️</a>
+                                  <a class="dl-btn" href="{r['Link_File']}" target="_blank">Buka ⬇️</a>
                                 </div>
                                 """, unsafe_allow_html=True)
                         # --- MODIFIKASI SELESAI ---
@@ -386,6 +387,7 @@ st.session_state.nav_sub2 = None
 # =============================
 st.markdown("""
 <div style="margin-top:40px;text-align:center;font-size:12px;color:#94a3b8;">
+Developed by Firdaini Azmi & Muhammad Ariq Hibatullah
 © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
