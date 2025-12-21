@@ -374,12 +374,6 @@ with st.expander("🔎 Filter", expanded=False):
     f_sub2 = st.selectbox("Sub2 Menu", sub2_list, index=sub2_idx)
     df_view = df_f2 if f_sub2 == "Semua" else df_f2[df_f2["Sub2_Menu"] == f_sub2]
 
-st.markdown("""
-<div class="footer">
-  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
-
 # =============================
 # RENDER MENU → SUB → SUB2 → FILE (MODIFIKASI 2 KOLOM)
 # =============================
@@ -421,6 +415,12 @@ for i, tab in enumerate(tabs_menu):
                                 </div>
                                 """, unsafe_allow_html=True)
                         # --- MODIFIKASI SELESAI ---
+
+st.markdown("""
+<div class="footer">
+  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
+""", unsafe_allow_html=True)
 
 # reset nav
 st.session_state.nav_menu = None
