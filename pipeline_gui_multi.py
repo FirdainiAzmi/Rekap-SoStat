@@ -59,12 +59,10 @@ header[data-testid="stHeader"] {
 }
     
 .stApp {
-  background-color: #FFFFFF;
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(217,90%,85%,1) 0, transparent 50%), 
-    radial-gradient(at 50% 0%, hsla(189,100%,86%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(217,90%,85%,1) 0, transparent 50%);
-  background-attachment: fixed;
+  /* Warna abu-abu kebiruan modern (Cool Grey) */
+  background-color: #F1F5F9;
+  background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+  background-size: 20px 20px; /* Efek pola titik-titik halus (dot pattern) */
 }
     
 .section-card{
