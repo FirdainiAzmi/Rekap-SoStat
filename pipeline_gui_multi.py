@@ -224,7 +224,9 @@ def login_page():
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+if not st.session_state.is_logged_in:
+    login_page()
+    st.stop()
 # =============================
 # HEADER + LOGOUT
 # =============================
