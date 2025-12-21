@@ -59,10 +59,9 @@ header[data-testid="stHeader"] {
 }
     
 .stApp {
-  /* Warna abu-abu kebiruan modern (Cool Grey) */
-  background-color: #F1F5F9;
-  background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
-  background-size: 20px 20px; /* Efek pola titik-titik halus (dot pattern) */
+  /* Gradasi biru muda lembut ke putih */
+  background: linear-gradient(180deg, #D4E4F7 0%, #F0F4F8 100%);
+  background-attachment: fixed; /* Supaya background tidak ikut scroll */
 }
     
 .section-card{
