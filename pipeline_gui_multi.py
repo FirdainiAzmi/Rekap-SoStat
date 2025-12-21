@@ -222,10 +222,6 @@ with st.form("logout_form"):
         Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.</p>
         </div>
         """, unsafe_allow_html=True)
-        <div class="footer">
-        © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-        </div>
-        """, unsafe_allow_html=True)
     with col2:
         if st.form_submit_button("Logout"):
             st.session_state.is_logged_in = False
