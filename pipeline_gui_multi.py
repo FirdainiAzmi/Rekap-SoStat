@@ -43,33 +43,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-st.markdown("""
-<style>
-.footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: white;
-    color: #94a3b8;
-    text-align: center;
-    padding: 10px;
-    font-size: 12px;
-    border-top: 1px solid #e2e8f0;
-    z-index: 100;
-}
-
-.block-container {
-    padding-bottom: 60px !important;
-}
-</style>
-
-<div class="footer">
-    Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
-    © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
-
 # =============================
 # CSS (TAMPILAN BARU - WOW EFFECT)
 # =============================
@@ -205,8 +178,12 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   border-color: #0054A6;
   box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
 }
-</style>
+<div class="footer">
+    © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
 """, unsafe_allow_html=True)
+# </style>
+# """, unsafe_allow_html=True)
 
 # =============================
 # LOGIN PAGE
