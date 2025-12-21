@@ -325,6 +325,7 @@ if st.session_state.current_level == "home":
 
     st.markdown("""
     <div class="footer">
+      Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
       © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
     </div>
     """, unsafe_allow_html=True)
@@ -418,6 +419,7 @@ for i, tab in enumerate(tabs_menu):
 
 st.markdown("""
 <div class="footer">
+  Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
   © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
