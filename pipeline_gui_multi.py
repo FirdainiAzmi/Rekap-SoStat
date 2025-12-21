@@ -178,7 +178,25 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
 }
 
+/* 8. FOOTER */
+.stApp > div:first-child {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.footer {
+  margin-top: auto;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  border-top: 1px solid rgba(15,23,42,.08);
+}
 </style>
+
+<div class="footer">
+  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
 """, unsafe_allow_html=True)
 
 # =============================
