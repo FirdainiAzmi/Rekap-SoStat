@@ -277,12 +277,6 @@ search = st.text_input(
     "", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed", key="global_search"
 )
 
-st.markdown("""
-<div class="footer">
-  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
-
 if search:
     res = df[
         df["Nama_File"].str.contains(search, case=False, na=False) |
@@ -349,6 +343,12 @@ st.markdown(f"""
   <div class="title-text">
     <h1>{st.session_state.selected_category}</h1>
   </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="footer">
+  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
 
