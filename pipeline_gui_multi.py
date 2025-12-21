@@ -177,10 +177,7 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   border-color: #0054A6;
   box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
 }
-<div class="footer">
-    © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -223,6 +220,10 @@ with st.form("logout_form"):
         <h3>🗃️Selamat datang di Portal Data Statistik Sosial </h3>
         <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.\n
         Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        <div class="footer">
+        © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
         </div>
         """, unsafe_allow_html=True)
     with col2:
