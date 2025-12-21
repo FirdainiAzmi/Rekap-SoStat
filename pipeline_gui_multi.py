@@ -182,8 +182,8 @@ div[data-testid="stTextInput"] > div > div:focus-within {
     © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
-# </style>
-# """, unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
 # =============================
 # LOGIN PAGE
