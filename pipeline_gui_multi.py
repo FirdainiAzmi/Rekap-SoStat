@@ -190,8 +190,7 @@ def login_page():
         st.markdown("""
         <div class="login-container">
             <div class="login-header">
-                <div class="login-icon">🔐</div>
-                <h2 class="login-title">Portal Statistik Sosial</h2>
+                <h2 class="login-title">🔐 Portal Statistik Sosial</h2>
                 <p class="login-subtitle">Silakan login untuk mengakses dokumen</p>
             </div>
         """, unsafe_allow_html=True)
@@ -220,7 +219,7 @@ def login_page():
 
         st.markdown("""
             <div style="margin-top:20px; font-size:11px; color:#cbd5e1;">
-                &copy; 2025 BPS Kabupaten Sidoarjo
+                &copy; Developed by Firdaini Azmi & Muhammad Ariq Hibatullah
             </div>
         </div>
         """, unsafe_allow_html=True)
