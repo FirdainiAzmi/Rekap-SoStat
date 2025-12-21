@@ -73,6 +73,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+<style>
 /* 1. BACKGROUND BERKELAS (Professional Blue) */
 .stApp {
   background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
