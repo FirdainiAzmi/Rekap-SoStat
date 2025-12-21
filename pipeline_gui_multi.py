@@ -195,12 +195,6 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<div class="footer">
-  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
-
 # =============================
 # LOGIC LOGIN PAGE (UPDATE SECRETS)
 # =============================
@@ -282,6 +276,12 @@ if any(c not in df.columns for c in required_cols):
 search = st.text_input(
     "", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed", key="global_search"
 )
+
+st.markdown("""
+<div class="footer">
+  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
+""", unsafe_allow_html=True)
 
 if search:
     res = df[
