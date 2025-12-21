@@ -59,7 +59,9 @@ header[data-testid="stHeader"] {
 }
     
 .stApp {
-  background: linear-gradient(135deg, #f1faee 0%, #f1faee 100%);
+  /* Gradasi biru muda lembut ke putih */
+  background: linear-gradient(180deg, #D4E4F7 0%, #F0F4F8 100%);
+  background-attachment: fixed; /* Supaya background tidak ikut scroll */
 }
     
 .section-card{
