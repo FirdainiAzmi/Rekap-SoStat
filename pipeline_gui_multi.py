@@ -179,23 +179,20 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 }
 
 /* 8. FOOTER */
-.stApp > div:first-child{
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
+.footer-fixed{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid rgba(15,23,42,.08);
+  z-index: 999;
 }
-
-/* footer solid kotak */
-.footer-solid{
-  margin-top:auto;
-  width:100%;
-  background:#000;
-  color:black;
-  padding:14px 0;
-  text-align:center;
-  font-size:12px;
-  font-weight:600;
-}
+/* biar konten tidak ketutup footer */
+.block-container { padding-bottom: 60px; }
 </style>
 """, unsafe_allow_html=True)
 
