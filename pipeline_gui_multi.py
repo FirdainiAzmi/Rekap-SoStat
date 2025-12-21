@@ -59,11 +59,6 @@ header[data-testid="stHeader"] {
   background-color: rgba(0,0,0,0) !important;
 }
 
-st.markdown("""
-Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
-© 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-""")
-
 /* 3. TYPOGRAPHY */
 .page-wrap { padding: 8px 8px 30px; }
 .title-row { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
@@ -182,6 +177,9 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   border-color: #0054A6;
   box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
 }
+<div class="footer">
+    © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+
 </style>
 """, unsafe_allow_html=True)
 
