@@ -181,31 +181,131 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 """, unsafe_allow_html=True)
 
 # =============================
-# LOGIN PAGE
+# CSS (UPDATE: TAMBAHAN STYLE LOGIN)
+# =============================
+st.markdown("""
+<style>
+/* ... (CSS Background & Header sebelumnya TETAP DISINI) ... */
+.stApp {
+  background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
+  background-attachment: fixed;
+}
+
+/* --- STYLE KHUSUS LOGIN --- */
+
+/* 1. Container Login yang Terapung di Tengah */
+.login-container {
+    max-width: 400px;
+    margin: 5vh auto; /* Posisi vertikal */
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1); /* Shadow lembut besar */
+    border: 1px solid rgba(255,255,255,0.8);
+    text-align: center;
+}
+
+/* 2. Header di dalam Kartu Login */
+.login-header {
+    margin-bottom: 25px;
+}
+.login-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.login-title {
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #0B2F5B; /* Biru Tua BPS */
+    margin: 0;
+}
+.login-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+/* 3. Tombol Login (Full Width & Biru) */
+/* Kita target tombol submit di dalam form login secara spesifik */
+div[data-testid="stForm"] button {
+    width: 100%;
+    background-color: #0B5BD3 !important;
+    color: white !important;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: all 0.3s;
+}
+div[data-testid="stForm"] button:hover {
+    background-color: #004494 !important;
+    box-shadow: 0 5px 15px rgba(11, 91, 211, 0.3);
+}
+
+/* 4. Input Fields Login */
+div[data-testid="stTextInput"] input {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 10px;
+}
+div[data-testid="stTextInput"] input:focus {
+    border-color: #0B5BD3;
+    background-color: #fff;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# =============================
+# FUNGSI LOGIN PAGE (DESAIN BARU)
 # =============================
 def login_page():
-    st.markdown("""
-    <div style="margin-top:10vh;text-align:center">
-      <div style="background:white;width:340px;padding:24px;margin:auto;
-      border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,.08)">
-        <h3>🔐 Login Portal Sosial statistik</h3>
-    """, unsafe_allow_html=True)
+    # Menggunakan kolom kosong di kiri kanan agar form ada di tengah (responsif)
+    col1, col2, col3 = st.columns([1, 1.2, 1]) 
+    
+    with col2:
+        # Render Kartu Visual (HTML Wrapper)
+        st.markdown("""
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-icon">🔐</div>
+                <h2 class="login-title">Portal Statistik Sosial</h2>
+                <p class="login-subtitle">Silakan login untuk mengakses dokumen</p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    with st.form("login_form"):
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.form_submit_button("Masuk"):
-            if u == "admin" and p == "bps123":
-                st.session_state.is_logged_in = True
-                st.rerun()
-            else:
-                st.error("Username/Password salah")
+        # Form Streamlit (Masuk di dalam alur visual HTML di atas secara visual)
+        with st.form("login_form"):
+            # Input fields tanpa label besar (menggunakan placeholder atau label kecil)
+            st.text_input("Username", placeholder="Masukkan username", key="u_login")
+            st.text_input("Password", type="password", placeholder="Masukkan password", key="p_login")
+            
+            # Tombol submit (akan kena style CSS full-width)
+            submit = st.form_submit_button("Masuk Portal")
+            
+            if submit:
+                # Ambil value dari key widget
+                u = st.session_state.u_login
+                p = st.session_state.p_login
+                
+                if u == "admin" and p == "bps123":
+                    st.session_state.is_logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Username atau Password salah!")
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-if not st.session_state.is_logged_in:
-    login_page()
-    st.stop()
+        # Penutup Div Kartu & Footer Kecil
+        st.markdown("""
+            <div style="margin-top:20px; font-size:11px; color:#cbd5e1;">
+                &copy; 2025 BPS Kabupaten Sidoarjo
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # =============================
 # HEADER + LOGOUT
