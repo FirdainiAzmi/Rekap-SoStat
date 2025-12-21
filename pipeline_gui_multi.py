@@ -48,6 +48,31 @@ st.set_page_config(
 # =============================
 st.markdown("""
 <style>
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    color: #94a3b8;
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+    border-top: 1px solid #e2e8f0;
+    z-index: 100;
+}
+
+.block-container {
+    padding-bottom: 60px !important;
+}
+</style>
+
+<div class="footer">
+    Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
+    © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
+""", unsafe_allow_html=True)
+
 /* 1. BACKGROUND BERKELAS (Professional Blue) */
 .stApp {
   background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
@@ -381,13 +406,3 @@ for i, tab in enumerate(tabs_menu):
 st.session_state.nav_menu = None
 st.session_state.nav_submenu = None
 st.session_state.nav_sub2 = None
-
-# =============================
-# FOOTER
-# =============================
-st.markdown("""
-<div style="margin-top:40px;text-align:center;font-size:12px;color:#94a3b8;">
-Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
-© 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
