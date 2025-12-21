@@ -220,8 +220,7 @@ with st.form("logout_form"):
         <div style="background:linear-gradient(135deg,#0974F1,#9FCCFA);
         padding:16px 20px;border-radius:14px;margin-bottom: 12px;color:white">
         <h3>🗃️Selamat datang di Portal Data Statistik Sosial </h3>
-        <p> Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.\n
-        Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur .</p>
+        <p> Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.\n Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur. </p>
         </div>
         """, unsafe_allow_html=True)
     with col2:
