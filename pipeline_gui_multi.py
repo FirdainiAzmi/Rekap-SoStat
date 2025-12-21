@@ -322,14 +322,14 @@ if st.session_state.current_level == "home":
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
+
+    st.markdown("""
+    <div class="footer">
+      © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+    </div>
+    """, unsafe_allow_html=True)
                 
     st.stop()
-    
-st.markdown("""
-<div class="footer">
-  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
-""", unsafe_allow_html=True)
 
 # =============================
 # DETAIL PAGE
@@ -373,6 +373,12 @@ with st.expander("🔎 Filter", expanded=False):
     sub2_idx = sub2_list.index(default_sub2) if default_sub2 in sub2_list else 0
     f_sub2 = st.selectbox("Sub2 Menu", sub2_list, index=sub2_idx)
     df_view = df_f2 if f_sub2 == "Semua" else df_f2[df_f2["Sub2_Menu"] == f_sub2]
+
+st.markdown("""
+<div class="footer">
+  © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
+</div>
+""", unsafe_allow_html=True)
 
 # =============================
 # RENDER MENU → SUB → SUB2 → FILE (MODIFIKASI 2 KOLOM)
