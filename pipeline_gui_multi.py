@@ -234,7 +234,8 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-required_cols = ["Kategori","Icon","Deskripsi","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
+# ✅ HAPUS 'Deskripsi' dari daftar wajib
+required_cols = ["Kategori","Icon","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
 if any(c not in df.columns for c in required_cols):
     st.error("Kolom Google Sheet belum lengkap")
     st.stop()
@@ -259,8 +260,7 @@ if search:
         c1, c2 = st.columns([8,2])
         with c1:
             st.markdown(f"""
-            **{r['Nama_File']}**  
-            <span style="font-size:12px;color:#64748b">
+            **{r['Nama_File']}** <span style="font-size:12px;color:#64748b">
             {r['Kategori']} → {r['Menu']} → {r['Sub_Menu']} → {r['Sub2_Menu']}
             </span>
             """, unsafe_allow_html=True)
@@ -287,8 +287,9 @@ if st.session_state.current_level == "home":
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
+            # ✅ HAPUS bagian deskripsi di tombol
             if st.button(
-                f"{d['Icon']}\n\n{kat}\n\n{d['Deskripsi']}",
+                f"{d['Icon']}\n\n{kat}", 
                 key=f"kat_btn_{kat}",
                 use_container_width=True
             ):
@@ -310,12 +311,12 @@ with st.form("back"):
 df_cat = df[df["Kategori"] == st.session_state.selected_category]
 first = df_cat.iloc[0]
 
+# ✅ HAPUS bagian deskripsi di header detail
 st.markdown(f"""
 <div class="title-row">
   <div class="title-ico">{first['Icon']}</div>
   <div class="title-text">
     <h1>{st.session_state.selected_category}</h1>
-    <p class="subtitle">{first['Deskripsi']}</p>
   </div>
 </div>
 """, unsafe_allow_html=True)
