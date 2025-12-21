@@ -386,8 +386,6 @@ st.session_state.nav_sub2 = None
 # FOOTER
 # =============================
 st.markdown("""
-<div style="margin-top:40px;text-align:center;font-size:12px;color:#94a3b8;">
-Developed by Firdaini Azmi & Muhammad Ariq Hibatullah
+Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
 © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
-</div>
 """)
