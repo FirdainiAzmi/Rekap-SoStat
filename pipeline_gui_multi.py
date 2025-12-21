@@ -24,11 +24,10 @@ if "nav_sub2" not in st.session_state:
 if "global_search" not in st.session_state:
     st.session_state["global_search"] = ""
 
-# ✅ FLAG: untuk clear search DI RUN BERIKUTNYA (aman)
+# Flag clear search
 if "pending_clear_search" not in st.session_state:
     st.session_state["pending_clear_search"] = False
 
-# ✅ CLEAR search harus dilakukan SEBELUM widget dibuat
 if st.session_state["pending_clear_search"]:
     st.session_state["global_search"] = ""
     st.session_state["pending_clear_search"] = False
@@ -44,191 +43,41 @@ st.set_page_config(
 )
 
 # =============================
-# CSS (TAMPILAN BARU - WOW EFFECT)
+# CSS UTAMA (TAMPILAN & LOGIN)
 # =============================
 st.markdown("""
 <style>
-/* 1. BACKGROUND BERKELAS (Professional Blue) */
+/* 1. BACKGROUND BERKELAS */
 .stApp {
   background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
   background-attachment: fixed;
 }
 
-/* 2. HEADER */
+/* 2. HEADER STREAMLIT HIDDEN */
 header[data-testid="stHeader"] {
   background-color: rgba(0,0,0,0) !important;
 }
 
-/* 3. TYPOGRAPHY */
-.page-wrap { padding: 8px 8px 30px; }
-.title-row { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
-.title-ico { font-size: 42px; }
-.title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
-.subtitle { margin: 0; color: #475569; font-weight: 500; }
-
-/* 4. KARTU TOMBOL UTAMA (HOME) - TIMBUL */
-div[data-testid="stButton"] > button {
-  background: white !important;
-  color: #334155 !important;
-  border: 1px solid rgba(255,255,255,0.6) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
-  padding: 20px;
-  height: 160px !important;
-  width: 100% !important;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-
-div[data-testid="stButton"] > button:hover {
-  transform: translateY(-5px);
-  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
-  color: white !important;
-  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.3) !important;
-  border: 1px solid transparent !important;
-}
-
-/* Reset tombol navigasi kecil */
-div[data-testid="stButton"] > button[aria-label="Logout"],
-div[data-testid="stButton"] > button[aria-label="⬅️ Kembali"],
-div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
-  background: initial !important;
-  color: initial !important;
-  border: initial !important;
-  border-radius: 8px !important;
-  height: auto !important;
-  box-shadow: none !important;
-  padding: 8px 16px !important;
-}
-
-/* 5. CARD FILE (DETAIL PAGE) */
-.file-card {
-  background: white;
-  border-radius: 14px;
-  padding: 18px;
-  border-left: 5px solid #0B5BD3;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-top: 1px solid #f1f5f9;
-  border-right: 1px solid #f1f5f9;
-  border-bottom: 1px solid #f1f5f9;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  height: 100%; /* Agar tinggi seragam di grid */
-  transition: transform 0.2s;
-}
-.file-card:hover {
-  transform: translateY(-3px); /* Efek naik dikit */
-  box-shadow: 0 8px 15px rgba(0,0,0,0.08);
-}
-.file-left { display: flex; gap: 12px; align-items: center; overflow: hidden; }
-.file-title { font-weight: 700; margin: 0; font-size: 14px; color: #1e293b; white-space: normal; line-height: 1.4; }
-.file-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
-
-/* Tombol Download */
-.dl-btn {
-  padding: 6px 12px;
-  background: #EFF6FF;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 12px;
-  text-decoration: none;
-  color: #1D4ED8;
-  border: 1px solid #DBEAFE;
-  white-space: nowrap; /* Biar tombol gak turun */
-  transition: all 0.2s;
-}
-.dl-btn:hover {
-  background: #2563EB;
-  color: white;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-}
-
-/* 6. TABS */
-.stTabs [data-baseweb="tab-list"] { gap: 10px; }
-.stTabs [data-baseweb="tab"] {
-  height: 50px;
-  white-space: pre-wrap;
-  background-color: rgba(255,255,255,0.7);
-  border-radius: 10px 10px 0 0;
-  border: none;
-  padding: 0 20px;
-  font-weight: 600;
-  color: #64748b;
-}
-.stTabs [aria-selected="true"] {
-  background-color: #fff;
-  color: #0054A6;
-  border-bottom: 3px solid #0054A6;
-  box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
-}
-
-/* 7. SEARCH BAR */
-div[data-testid="stTextInput"] > div > div {
-  border-radius: 12px;
-  border: 1px solid #cbd5e1;
-  background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-}
-div[data-testid="stTextInput"] > div > div:focus-within {
-  border-color: #0054A6;
-  box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
-}
-</style>
-""", unsafe_allow_html=True)
-
-# =============================
-# CSS (UPDATE: TAMBAHAN STYLE LOGIN)
-# =============================
-st.markdown("""
-<style>
-/* ... (CSS Background & Header sebelumnya TETAP DISINI) ... */
-.stApp {
-  background: linear-gradient(180deg, #E3F2FD 0%, #F8FAFC 100%) !important;
-  background-attachment: fixed;
-}
-
-/* --- STYLE KHUSUS LOGIN --- */
-
-/* 1. Container Login yang Terapung di Tengah */
+/* 3. --- STYLE KHUSUS LOGIN PAGE (NEW) --- */
 .login-container {
     max-width: 400px;
-    margin: 5vh auto; /* Posisi vertikal */
+    margin: 5vh auto; 
     padding: 30px;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.1); /* Shadow lembut besar */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
     border: 1px solid rgba(255,255,255,0.8);
     text-align: center;
 }
-
-/* 2. Header di dalam Kartu Login */
-.login-header {
-    margin-bottom: 25px;
-}
-.login-icon {
-    font-size: 50px;
-    margin-bottom: 10px;
-    display: inline-block;
-}
+.login-header { margin-bottom: 25px; }
+.login-icon { font-size: 50px; margin-bottom: 10px; display: inline-block; }
 .login-title {
-    font-family: 'Segoe UI', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    color: #0B2F5B; /* Biru Tua BPS */
-    margin: 0;
+    font-family: 'Segoe UI', sans-serif; font-weight: 800; font-size: 22px;
+    color: #0B2F5B; margin: 0;
 }
-.login-subtitle {
-    font-size: 13px;
-    color: #64748b;
-    margin-top: 5px;
-}
+.login-subtitle { font-size: 13px; color: #64748b; margin-top: 5px; }
 
-/* 3. Tombol Login (Full Width & Biru) */
-/* Kita target tombol submit di dalam form login secara spesifik */
+/* Tombol Login Full Width */
 div[data-testid="stForm"] button {
     width: 100%;
     background-color: #0B5BD3 !important;
@@ -245,31 +94,115 @@ div[data-testid="stForm"] button:hover {
     box-shadow: 0 5px 15px rgba(11, 91, 211, 0.3);
 }
 
-/* 4. Input Fields Login */
-div[data-testid="stTextInput"] input {
-    background-color: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 10px;
+/* 4. TYPOGRAPHY DASHBOARD */
+.page-wrap { padding: 8px 8px 30px; }
+.title-row { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
+.title-ico { font-size: 42px; }
+.title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
+
+/* 5. KARTU TOMBOL MENU UTAMA */
+div[data-testid="stButton"] > button {
+  background: white !important;
+  color: #334155 !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
+  padding: 20px;
+  height: 160px !important;
+  width: 100% !important;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
-div[data-testid="stTextInput"] input:focus {
-    border-color: #0B5BD3;
-    background-color: #fff;
+div[data-testid="stButton"] > button:hover {
+  transform: translateY(-5px);
+  background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
+  color: white !important;
+  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.3) !important;
+  border: 1px solid transparent !important;
 }
 
+/* Reset tombol kecil (Logout, Kembali, Buka) agar tidak ikut besar */
+div[data-testid="stButton"] > button[aria-label="Logout"],
+div[data-testid="stButton"] > button[aria-label="⬅️ Kembali"],
+div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
+  background: initial !important;
+  color: initial !important;
+  border: initial !important;
+  border-radius: 8px !important;
+  height: auto !important;
+  box-shadow: none !important;
+  padding: 8px 16px !important;
+  width: auto !important;
+}
+
+/* 6. CARD FILE (GRID 2 KOLOM STYLE) */
+.file-card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  border-left: 5px solid #0B5BD3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  height: 100%;
+  transition: transform 0.2s;
+}
+.file-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+}
+.file-left { display: flex; gap: 12px; align-items: center; overflow: hidden; }
+.file-title { font-weight: 700; margin: 0; font-size: 14px; color: #1e293b; white-space: normal; line-height: 1.4; }
+.file-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+.dl-btn {
+  padding: 6px 12px;
+  background: #EFF6FF;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: none;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.dl-btn:hover { background: #2563EB; color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+
+/* 7. TABS & SEARCH */
+.stTabs [data-baseweb="tab-list"] { gap: 10px; }
+.stTabs [data-baseweb="tab"] {
+  height: 50px; white-space: pre-wrap; background-color: rgba(255,255,255,0.7);
+  border-radius: 10px 10px 0 0; border: none; padding: 0 20px;
+  font-weight: 600; color: #64748b;
+}
+.stTabs [aria-selected="true"] {
+  background-color: #fff; color: #0054A6; border-bottom: 3px solid #0054A6;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
+}
+div[data-testid="stTextInput"] > div > div {
+  border-radius: 12px; border: 1px solid #cbd5e1; background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+div[data-testid="stTextInput"] > div > div:focus-within {
+  border-color: #0054A6; box-shadow: 0 0 0 3px rgba(0, 84, 166, 0.1);
+}
 </style>
 """, unsafe_allow_html=True)
 
-
 # =============================
-# FUNGSI LOGIN PAGE (DESAIN BARU)
+# LOGIC LOGIN PAGE (DESAIN BARU)
 # =============================
 def login_page():
-    # Menggunakan kolom kosong di kiri kanan agar form ada di tengah (responsif)
     col1, col2, col3 = st.columns([1, 1.2, 1]) 
-    
     with col2:
-        # Render Kartu Visual (HTML Wrapper)
         st.markdown("""
         <div class="login-container">
             <div class="login-header">
@@ -279,27 +212,17 @@ def login_page():
             </div>
         """, unsafe_allow_html=True)
 
-        # Form Streamlit (Masuk di dalam alur visual HTML di atas secara visual)
         with st.form("login_form"):
-            # Input fields tanpa label besar (menggunakan placeholder atau label kecil)
-            st.text_input("Username", placeholder="Masukkan username", key="u_login")
-            st.text_input("Password", type="password", placeholder="Masukkan password", key="p_login")
+            u = st.text_input("Username", placeholder="Masukkan username")
+            p = st.text_input("Password", type="password", placeholder="Masukkan password")
             
-            # Tombol submit (akan kena style CSS full-width)
-            submit = st.form_submit_button("Masuk Portal")
-            
-            if submit:
-                # Ambil value dari key widget
-                u = st.session_state.u_login
-                p = st.session_state.p_login
-                
+            if st.form_submit_button("Masuk Portal"):
                 if u == "admin" and p == "bps123":
                     st.session_state.is_logged_in = True
                     st.rerun()
                 else:
                     st.error("Username atau Password salah!")
 
-        # Penutup Div Kartu & Footer Kecil
         st.markdown("""
             <div style="margin-top:20px; font-size:11px; color:#cbd5e1;">
                 &copy; 2025 BPS Kabupaten Sidoarjo
@@ -307,8 +230,14 @@ def login_page():
         </div>
         """, unsafe_allow_html=True)
 
+# CEK STATUS LOGIN
+if not st.session_state.is_logged_in:
+    login_page()
+    st.stop() 
+    # Kode akan berhenti di sini jika belum login, jadi konten utama tidak akan terlihat
+
 # =============================
-# HEADER + LOGOUT
+# HEADER + LOGOUT (KONTEN UTAMA)
 # =============================
 with st.form("logout_form"):
     col1, col2 = st.columns([6,1])
@@ -316,9 +245,8 @@ with st.form("logout_form"):
         st.markdown("""
         <div style="background:linear-gradient(135deg,#0974F1,#9FCCFA);
         padding:16px 20px;border-radius:14px;margin-bottom: 12px;color:white">
-        <h3>🗃️Selamat datang di Portal Data Statistik Sosial </h3>
-        <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.\n
-        Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.</p>
+        <h3>🗃️ Selamat datang di Portal Data Statistik Sosial</h3>
+        <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.</p>
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -327,7 +255,7 @@ with st.form("logout_form"):
             st.rerun()
 
 # =============================
-# DATA
+# LOAD DATA
 # =============================
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
@@ -338,7 +266,7 @@ if any(c not in df.columns for c in required_cols):
     st.stop()
 
 # =============================
-# SEARCH BAR (NAVIGASI)
+# SEARCH BAR
 # =============================
 search = st.text_input(
     "", placeholder="🔍 Cari & navigasi file...", label_visibility="collapsed", key="global_search"
@@ -351,7 +279,6 @@ if search:
         df["Sub_Menu"].str.contains(search, case=False, na=False) |
         df["Sub2_Menu"].str.contains(search, case=False, na=False)
     ]
-
     st.markdown("### Hasil Pencarian")
     for i, r in res.iterrows():
         c1, c2 = st.columns([8,2])
@@ -373,7 +300,7 @@ if search:
     st.stop()
 
 # =============================
-# HOME
+# HOME PAGE (MENU UTAMA)
 # =============================
 if st.session_state.current_level == "home":
     jumlah_kategori = df["Kategori"].nunique()
@@ -389,11 +316,10 @@ if st.session_state.current_level == "home":
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
-                
     st.stop()
 
 # =============================
-# DETAIL PAGE
+# DETAIL PAGE (FILE BROWSER)
 # =============================
 with st.form("back"):
     if st.form_submit_button("⬅️ Kembali"):
@@ -413,9 +339,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# =============================
-# FILTER PANEL
-# =============================
+# FILTER
 with st.expander("🔎 Filter", expanded=False):
     menu_list = ["Semua"] + sorted(df_cat["Menu"].unique().tolist())
     default_menu = st.session_state.nav_menu
@@ -435,9 +359,7 @@ with st.expander("🔎 Filter", expanded=False):
     f_sub2 = st.selectbox("Sub2 Menu", sub2_list, index=sub2_idx)
     df_view = df_f2 if f_sub2 == "Semua" else df_f2[df_f2["Sub2_Menu"] == f_sub2]
 
-# =============================
-# RENDER MENU → SUB → SUB2 → FILE (MODIFIKASI 2 KOLOM)
-# =============================
+# RENDER CONTENT
 menus = df_view["Menu"].unique()
 tabs_menu = st.tabs(menus.tolist())
 
@@ -453,41 +375,33 @@ for i, tab in enumerate(tabs_menu):
                 for sub2 in df_s["Sub2_Menu"].unique():
                     with st.expander(sub2, expanded=False):
                         
-                        # --- MODIFIKASI DIMULAI DARI SINI ---
-                        # Ambil data file untuk sub-kategori ini
+                        # --- LOGIKA GRID 2 KOLOM ---
                         files = df_s[df_s["Sub2_Menu"]==sub2]
-                        
-                        # Buat Grid 2 Kolom
                         cols = st.columns(2)
                         
-                        # Loop dengan index untuk menentukan posisi (Kiri/Kanan)
                         for idx, (_, r) in enumerate(files.iterrows()):
-                            with cols[idx % 2]: # idx % 2 = 0 (Kiri), 1 (Kanan)
+                            with cols[idx % 2]:
                                 st.markdown(f"""
                                 <div class="file-card">
                                   <div class="file-left">
                                     <div style="font-size:24px">📄</div>
                                     <div>
                                       <p class="file-title">{r['Nama_File']}</p>
-                                      <p class="file-meta">Klik tombol disamping untuk membuka file</p>
+                                      <p class="file-meta">Klik untuk membuka</p>
                                     </div>
                                   </div>
-                                  <a class="dl-btn" href="{r['Link_File']}" target="_blank">Buka ⬇️</a>
+                                  <a class="dl-btn" href="{r['Link_File']}" target="_blank">Unduh ⬇️</a>
                                 </div>
                                 """, unsafe_allow_html=True)
-                        # --- MODIFIKASI SELESAI ---
 
-# reset nav
+# RESET NAVIGASI SETELAH RENDER
 st.session_state.nav_menu = None
 st.session_state.nav_submenu = None
 st.session_state.nav_sub2 = None
 
-# =============================
 # FOOTER
-# =============================
 st.markdown("""
 <div style="margin-top:40px;text-align:center;font-size:12px;color:#94a3b8;">
-Developed by Firdaini Azmi & Muhammad Ariq Hibatullah
 © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
