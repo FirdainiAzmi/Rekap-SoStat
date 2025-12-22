@@ -635,6 +635,7 @@ def get_base64_of_bin_file(bin_file):
 
 # ================= HOME DASHBOARD =================
 def home_page():
+    # --- Bagian Logo & Hero (Tetap sama) ---
     try:
         img_code = get_base64_of_bin_file("logo_arsital.png")
         img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
@@ -643,17 +644,11 @@ def home_page():
 
     st.markdown("""
     <style>
-        .hero-logo{
-            width: 300px;
-            height: auto;
-            margin-bottom: 15px;
-            display: block;
-        }
+        .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
     </style>
     """, unsafe_allow_html=True)
     
-    st.markdown(
-        f"""
+    st.markdown(f"""
         <div class="hero-container">
             {img_tag}
             <div class="hero-subtitle">
@@ -662,17 +657,14 @@ def home_page():
                 </div>
                 <div style="opacity:.92; font-size:1rem">
                     Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
-                    Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.
                 </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
 
     df = st.session_state['data']
 
-    # METRICS
+    # --- Metrics (Tetap sama) ---
     if not df.empty:
         m1, m2, m3 = st.columns(3)
         with m1:
@@ -688,19 +680,52 @@ def home_page():
         st.info("📂 Database masih kosong. Silakan login ke Admin untuk mengisi data.")
         return
 
-    search = st.text_input("🔍 Cari File...", placeholder="Ketik nama dokumen...")
-    if search:
-        subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
+    # ================= PERBAIKAN SEARCH GLOBAL DI SINI =================
+    st.markdown("### 🔍 Global Search")
+    search = st.text_input("Cari File di seluruh database...", placeholder="Ketik nama dokumen...", label_visibility="collapsed")
     
+    # 1. INISIALISASI subset dari df utama
+    subset = df.copy() 
+
+    # 2. JIKA ADA INPUT PENCARIAN
+    if search:
+        # Filter data
+        subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
+        
+        st.write(f"Menampilkan {len(subset)} hasil pencarian untuk: **'{search}'**")
+        
+        if subset.empty:
+            st.warning("Tidak ditemukan file dengan nama tersebut.")
+        else:
+            # Tampilkan hasil search menggunakan style file-row
+            for _, r in subset.iterrows():
+                st.markdown(f"""
+                <div class="file-row">
+                    <div>
+                        <div style="font-size:0.8rem; color:#6366F1; font-weight:bold;">{r['Kategori']} > {r['Menu']}</div>
+                        <div style="font-weight:800; color:#111827;">📄 {r['Nama_File']}</div>
+                    </div>
+                    <a href="{r['Link_File']}" target="_blank" class="dl-link">Buka ⬇</a>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Return agar tidak menampilkan kategori di bawahnya saat sedang search
+        return 
+    # ================= AKHIR PERBAIKAN =================
+
     st.markdown("### 📂 Jelajahi Kategori")
     cols = st.columns(3)
     cats = df['Kategori'].unique()
 
     for idx, cat in enumerate(cats):
         with cols[idx % 3]:
-            row = df[df['Kategori'] == cat].iloc[0]
-            img = row['Gambar_Base64']
-            src = f"data:image/png;base64,{img}" if img else "https://cdn-icons-png.flaticon.com/512/10698/10698776.png"
+            # Handle jika gambar kosong/error
+            try:
+                row = df[df['Kategori'] == cat].iloc[0]
+                img = row['Gambar_Base64']
+                src = f"data:image/png;base64,{img}" if img else "https://cdn-icons-png.flaticon.com/512/10698/10698776.png"
+            except:
+                src = "https://cdn-icons-png.flaticon.com/512/10698/10698776.png"
 
             st.markdown(f"""
             <div class="cat-card">
