@@ -119,7 +119,7 @@ section.main > div { padding-top: 1.1rem; }
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid var(--line);
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 0.8;
   width: 100%;
   height: auto;
   box-shadow: var(--shadow1);
