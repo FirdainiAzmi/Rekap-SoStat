@@ -1,6 +1,50 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
+import re
+
+# =============================
+# HELPER: drive link -> <img ...> (untuk st.markdown unsafe_allow_html)
+# =============================
+def extract_drive_file_id(url: str):
+    if not url or url == "-":
+        return None
+    url = str(url).strip()
+    m = re.search(r"/file/d/([a-zA-Z0-9_-]+)", url)
+    if m:
+        return m.group(1)
+    m = re.search(r"[?&]id=([a-zA-Z0-9_-]+)", url)
+    if m:
+        return m.group(1)
+    return None
+
+def to_icon_html(icon_value: str):
+    """
+    Jika icon_value sudah berupa tag <img ...>, biarkan.
+    Jika icon_value berupa link Drive, ubah jadi <img src='https://drive.google.com/uc?...'>
+    Jika icon_value berupa link gambar langsung .png/.jpg/.webp, bungkus jadi <img ...>
+    Jika icon_value emoji/teks biasa, biarkan apa adanya.
+    """
+    if icon_value is None:
+        return "-"
+    s = str(icon_value).strip()
+    if s == "-" or s == "":
+        return "-"
+    if s.lower().startswith("<img"):
+        return s
+
+    file_id = extract_drive_file_id(s)
+    if file_id:
+        src = f"https://drive.google.com/uc?export=view&id={file_id}"
+        return f"<img src='{src}' width='44' style='border-radius:10px; vertical-align:middle;'>"
+
+    # direct image url
+    if re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, flags=re.IGNORECASE):
+        return f"<img src='{s}' width='44' style='border-radius:10px; vertical-align:middle;'>"
+
+    # fallback: emoji / text
+    return s
+
 
 # =============================
 # SESSION STATE
@@ -214,8 +258,6 @@ def login_page():
             p = st.text_input("Password", type="password", placeholder="Masukkan password")
             
             if st.form_submit_button("Masuk Portal"):
-                # --- PERUBAHAN DI SINI ---
-                # Mengambil username & password dari st.secrets
                 try:
                     correct_user = st.secrets["login"]["username"]
                     correct_pass = st.secrets["login"]["password"]
@@ -229,7 +271,6 @@ def login_page():
                     st.error("File secrets.toml belum dibuat!")
                 except KeyError:
                     st.error("Konfigurasi secrets [login] belum lengkap!")
-                # -------------------------
 
         st.markdown("""
             <div style="margin-top:20px; font-size:11px; color:#cbd5e1;">
@@ -237,9 +278,11 @@ def login_page():
             </div>
         </div>
         """, unsafe_allow_html=True)
+
 if not st.session_state.is_logged_in:
     login_page()
     st.stop()
+
 # =============================
 # HEADER + LOGOUT
 # =============================
@@ -269,6 +312,9 @@ required_cols = ["Kategori","Icon","Menu","Sub_Menu","Sub2_Menu","Nama_File","Li
 if any(c not in df.columns for c in required_cols):
     st.error("Kolom Google Sheet belum lengkap")
     st.stop()
+
+# ✅ tambahan kecil: ubah kolom Icon jadi HTML img kalau link drive/link image
+df["Icon"] = df["Icon"].apply(to_icon_html)
 
 # =============================
 # SEARCH BAR (NAVIGASI)
@@ -314,6 +360,7 @@ if st.session_state.current_level == "home":
     for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
+            # NOTE: label button tidak render HTML, jadi kalau Icon adalah <img...> akan tampil teks.
             if st.button(
                 f"{d['Icon']}\n\n{kat}", 
                 key=f"kat_btn_{kat}",
@@ -393,16 +440,10 @@ for i, tab in enumerate(tabs_menu):
                 for sub2 in df_s["Sub2_Menu"].unique():
                     with st.expander(sub2, expanded=False):
                         
-                        # --- MODIFIKASI DIMULAI DARI SINI ---
-                        # Ambil data file untuk sub-kategori ini
                         files = df_s[df_s["Sub2_Menu"]==sub2]
-                        
-                        # Buat Grid 2 Kolom
                         cols = st.columns(2)
-                        
-                        # Loop dengan index untuk menentukan posisi (Kiri/Kanan)
                         for idx, (_, r) in enumerate(files.iterrows()):
-                            with cols[idx % 2]: # idx % 2 = 0 (Kiri), 1 (Kanan)
+                            with cols[idx % 2]:
                                 st.markdown(f"""
                                 <div class="file-card">
                                   <div class="file-left">
@@ -415,7 +456,6 @@ for i, tab in enumerate(tabs_menu):
                                   <a class="dl-btn" href="{r['Link_File']}" target="_blank">Buka ⬇️</a>
                                 </div>
                                 """, unsafe_allow_html=True)
-                        # --- MODIFIKASI SELESAI ---
 
 st.markdown("""
 <div class="footer">
@@ -428,4 +468,3 @@ st.markdown("""
 st.session_state.nav_menu = None
 st.session_state.nav_submenu = None
 st.session_state.nav_sub2 = None
-
