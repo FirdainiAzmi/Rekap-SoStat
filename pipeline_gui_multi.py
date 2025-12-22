@@ -3,6 +3,33 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
 # =============================
+# FUNGSI BANTUAN (BARU)
+# =============================
+def convert_google_drive_link(url):
+    """
+    Mengubah link 'view' Google Drive menjadi link 'thumbnail/direct'
+    agar bisa muncul di st.image
+    """
+    if not isinstance(url, str):
+        return "https://via.placeholder.com/300x200.png?text=No+Link"
+    
+    # Jika link kosong atau strip
+    if url.strip() == "-" or url.strip() == "":
+        return "https://via.placeholder.com/300x200.png?text=No+Image"
+
+    # Jika ini link Google Drive standar
+    if "drive.google.com" in url and "/d/" in url:
+        try:
+            # Ambil ID file di antara /d/ dan /view
+            file_id = url.split('/d/')[1].split('/')[0]
+            # Kembalikan format thumbnail (lebih cepat loadingnya)
+            return f"https://drive.google.com/thumbnail?id={file_id}&sz=w800"
+        except:
+            return url # Jika gagal parsing, kembalikan link asli
+            
+    return url
+
+# =============================
 # SESSION STATE
 # =============================
 if "is_logged_in" not in st.session_state:
@@ -42,7 +69,7 @@ st.set_page_config(
 )
 
 # =============================
-# CSS (STYLE BARU)
+# CSS
 # =============================
 st.markdown("""
 <style>
@@ -104,7 +131,7 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   padding: 8px 16px !important;
 }
 
-/* 5. CARD FILE (DETAIL PAGE) */
+/* 5. CARD FILE */
 .file-card {
   background: white;
   border-radius: 14px;
@@ -195,7 +222,7 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-# ✅ PERBAIKAN DI SINI: Menghapus "Icon" dari daftar wajib
+# Cek kolom wajib (tanpa Icon)
 required_cols = ["Kategori","Link_Gambar","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
 missing_cols = [c for c in required_cols if c not in df.columns]
 if missing_cols:
@@ -239,19 +266,18 @@ if st.session_state.current_level == "home":
     cols = st.columns(4) 
     
     for i, kat in enumerate(unique_cats):
-        # Ambil baris pertama kategori ini
         d = df[df["Kategori"] == kat].iloc[0]
         
         with cols[i % 4]:
             with st.container():
-                # Tampilkan Gambar
-                img_url = d['Link_Gambar']
-                if img_url == "-" or pd.isna(img_url):
-                    img_url = "https://via.placeholder.com/300x200.png?text=No+Image"
                 
-                st.image(img_url, use_container_width=True)
+                # --- UPDATE DI SINI: PAKAI FUNGSI CONVERT ---
+                raw_link = d['Link_Gambar']
+                final_img_link = convert_google_drive_link(raw_link)
+                # --------------------------------------------
+
+                st.image(final_img_link, use_container_width=True)
                 
-                # Tombol Judul
                 if st.button(kat, key=f"btn_home_{i}", use_container_width=True):
                     st.session_state.selected_category = kat
                     st.session_state.current_level = "detail"
@@ -279,8 +305,6 @@ with st.form("back"):
 
 df_cat = df[df["Kategori"] == st.session_state.selected_category]
 
-# ✅ PERBAIKAN DI SINI: Header tidak lagi mengambil data Icon dari sheet
-# Kita ganti pakai emoji statis "📂"
 st.markdown(f"""
 <div class="title-row">
   <div class="title-ico">📂</div> 
@@ -304,7 +328,7 @@ with st.expander("🔎 Filter Data", expanded=False):
     f_sub2 = st.selectbox("Sub2 Menu", sub2_list)
     df_view = df_f2 if f_sub2 == "Semua" else df_f2[df_f2["Sub2_Menu"] == f_sub2]
 
-# TABS & FILE LIST
+# TABS
 menus = df_view["Menu"].unique()
 if len(menus) > 0:
     tabs_menu = st.tabs(menus.tolist())
