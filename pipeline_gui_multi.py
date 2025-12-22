@@ -519,12 +519,6 @@ def admin_page():
 
             st.markdown("""
             <style>
-            /* Hanya tombol dengan key=btn_hapus_permanen */
-            div[data-testid="stButton"] > button[kind="primary"][data-testid="baseButton-primary"][aria-label="🗑️ Hapus Permanen"]{
-              color: #000000 !important;  /* warna tulisan */
-            }
-            
-            /* Alternatif yang lebih “nempel” ke key, pakai DOM wrapper */
             div[data-testid="stButton"]:has(button[key="btn_hapus_permanen"]) button{
               color: #000000 !important;
             }
