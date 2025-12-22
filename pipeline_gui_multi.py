@@ -243,50 +243,16 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   height: 160px;
   width: 100%;
 }
-.home-card .overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  pointer-events: none; /* klik masuk ke button */
-}
-.home-card .title {
-  font-weight: 700;
-  text-align: center;
-  color: #334155;
-  line-height: 1.25;
-  font-size: 15px;
-  padding: 0 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-.home-card{
-  position: relative;
-  height: 160px;
-  width: 100%;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-/* konten (gambar + teks) di atas tombol besar */
 .home-card .content{
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;      /* center vertikal */
+  justify-content: center;
   gap: 8px;
-  pointer-events: none;         /* biar kliknya masuk ke tombol */
+  pointer-events: none;
 }
-
 .home-card .cat-title{
   font-weight: 800;
   text-align: center;
@@ -295,13 +261,11 @@ st.markdown("""
   font-size: 15px;
   padding: 0 10px;
 }
-
-/* opsional: supaya gambar keliatan rapi */
 .home-card img{
   border-radius: 14px;
 }
 </style>
-
+""", unsafe_allow_html=True)
 
 # =============================
 # LOGIC LOGIN PAGE (UPDATE SECRETS)
@@ -413,9 +377,6 @@ if search:
     st.stop()
 
 # =============================
-# HOME (KOTAK BESAR 160px + GAMBAR + JUDUL)
-# =============================
-# =============================
 # HOME (Opsi B: tombol besar + gambar besar + judul di bawah)
 # =============================
 if st.session_state.current_level == "home":
@@ -435,20 +396,16 @@ if st.session_state.current_level == "home":
                 st.session_state.current_level = "detail"
                 st.rerun()
 
-            # overlay konten "di dalam tombol"
+            # konten "di dalam tombol"
             st.markdown("<div class='content'>", unsafe_allow_html=True)
-
-            # gambar dibesarkan (atur width sesuai selera: 80-110)
             if img_url:
-                st.image(img_url, width=95)   # <<< BESARIN DI SINI
+                st.image(img_url, width=95)  # BESARIN DI SINI
             else:
                 st.markdown("<div style='font-size:60px;'>📊</div>", unsafe_allow_html=True)
-
-            # teks di bawah gambar
             st.markdown(f"<div class='cat-title'>{kat}</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-            st.markdown("</div>", unsafe_allow_html=True)  # end content
-            st.markdown("</div>", unsafe_allow_html=True)  # end home-card
+            st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("""
     <div class="footer">
@@ -456,9 +413,8 @@ if st.session_state.current_level == "home":
       © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
     </div>
     """, unsafe_allow_html=True)
-
+                
     st.stop()
-
 
 # =============================
 # DETAIL PAGE
