@@ -517,8 +517,22 @@ def admin_page():
             if not pick.empty:
                 st.caption(f"Link: {pick.iloc[0]['Link_File']}")
 
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🗑️ Hapus Permanen", type="primary", use_container_width=True):
+            st.markdown("""
+            <style>
+            /* Hanya tombol dengan key=btn_hapus_permanen */
+            div[data-testid="stButton"] > button[kind="primary"][data-testid="baseButton-primary"][aria-label="🗑️ Hapus Permanen"]{
+              color: #000000 !important;  /* warna tulisan */
+            }
+            
+            /* Alternatif yang lebih “nempel” ke key, pakai DOM wrapper */
+            div[data-testid="stButton"]:has(button[key="btn_hapus_permanen"]) button{
+              color: #000000 !important;
+            }
+            </style>
+            <br>
+            """, unsafe_allow_html=True)
+
+            if st.button("🗑️ Hapus Permanen", type="primary", use_container_width=True, key="btn_hapus_permanen"):
                 idx = df[
                     (df['Kategori'] == del_kat) &
                     (df['Menu'].fillna("-") == del_menu) &
