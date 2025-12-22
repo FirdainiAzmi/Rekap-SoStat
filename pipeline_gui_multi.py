@@ -634,7 +634,13 @@ def home_page():
         <div class="hero-container">
             {img_tag}
             <div class="hero-subtitle">
-                Pusat database digital Badan Pusat Statistik. Kelola dan temukan data dengan mudah.
+                <div style="font-weight:800; font-size:1.1rem; margin-bottom:6px;">
+                    Selamat datang di Portal Data Statistik Sosial⚡
+                </div>
+                <div style="opacity:.92;">
+                    Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+                    Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.
+                </div>
             </div>
         </div>
         """,
