@@ -264,6 +264,41 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 </style>
 """, unsafe_allow_html=True)
 
+<style>
+.home-card{
+  position: relative;
+  height: 160px;
+  width: 100%;
+}
+
+/* konten (gambar + teks) di atas tombol besar */
+.home-card .content{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;      /* center vertikal */
+  gap: 8px;
+  pointer-events: none;         /* biar kliknya masuk ke tombol */
+}
+
+.home-card .cat-title{
+  font-weight: 800;
+  text-align: center;
+  color: #334155;
+  line-height: 1.2;
+  font-size: 15px;
+  padding: 0 10px;
+}
+
+/* opsional: supaya gambar keliatan rapi */
+.home-card img{
+  border-radius: 14px;
+}
+</style>
+
+
 # =============================
 # LOGIC LOGIN PAGE (UPDATE SECRETS)
 # =============================
@@ -376,6 +411,9 @@ if search:
 # =============================
 # HOME (KOTAK BESAR 160px + GAMBAR + JUDUL)
 # =============================
+# =============================
+# HOME (Opsi B: tombol besar + gambar besar + judul di bawah)
+# =============================
 if st.session_state.current_level == "home":
     jumlah_kategori = df["Kategori"].nunique()
     cols = st.columns(jumlah_kategori)
@@ -387,23 +425,26 @@ if st.session_state.current_level == "home":
 
             st.markdown("<div class='home-card'>", unsafe_allow_html=True)
 
-            # tombol besar (kotak)
+            # tombol besar (label kosong)
             if st.button(" ", key=f"kat_btn_{kat}", use_container_width=True):
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
 
-            # overlay isi (gambar + judul) di atas tombol besar
-            st.markdown("<div class='overlay'>", unsafe_allow_html=True)
+            # overlay konten "di dalam tombol"
+            st.markdown("<div class='content'>", unsafe_allow_html=True)
+
+            # gambar dibesarkan (atur width sesuai selera: 80-110)
             if img_url:
-                st.image(img_url, width=58)
+                st.image(img_url, width=95)   # <<< BESARIN DI SINI
             else:
-                st.markdown("<div style='font-size:40px;'>📊</div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-size:60px;'>📊</div>", unsafe_allow_html=True)
 
-            st.markdown(f"<div class='title'>{kat}</div>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            # teks di bawah gambar
+            st.markdown(f"<div class='cat-title'>{kat}</div>", unsafe_allow_html=True)
 
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)  # end content
+            st.markdown("</div>", unsafe_allow_html=True)  # end home-card
 
     st.markdown("""
     <div class="footer">
@@ -411,8 +452,9 @@ if st.session_state.current_level == "home":
       © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
     </div>
     """, unsafe_allow_html=True)
-                
+
     st.stop()
+
 
 # =============================
 # DETAIL PAGE
