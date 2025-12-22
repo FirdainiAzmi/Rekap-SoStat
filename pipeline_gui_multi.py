@@ -415,11 +415,11 @@ def admin_page():
                 sel_menu = st.selectbox("Menu Utama", list_menu, key="in_menu_sel")
                 
                 if sel_menu == "➕ Buat Menu Baru":
-                    in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Publikasi", key="in_menu_txt")
+                    in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Sakernas", key="in_menu_txt")
                 else:
                     in_menu = sel_menu
             else:
-                in_menu = st.text_input("Menu Utama", placeholder="Misal: Publikasi", key="in_menu_txt_def")
+                in_menu = st.text_input("Menu Utama", placeholder="Misal: Sakernas", key="in_menu_txt_def")
 
             # SUB MENU
             in_sub = ""
@@ -435,11 +435,11 @@ def admin_page():
                 sel_sub = st.selectbox("Sub Menu (Tahun)", list_sub, key="in_sub_sel")
                 
                 if sel_sub == "➕ Buat Sub Baru":
-                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: 2025", key="in_sub_txt")
+                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt")
                 else:
                     in_sub = sel_sub
             else:
-                in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: 2025", key="in_sub_txt_def")
+                in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt_def")
 
             # SUB MENU 2 (KEGIATAN)
             in_sub2 = ""
@@ -456,11 +456,11 @@ def admin_page():
                 sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", list_sub2, key="in_sub2_sel")
                 
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
-                    in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Semester 1", key="in_sub2_txt")
+                    in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Pelatihan Petugas", key="in_sub2_txt")
                 else:
                     in_sub2 = sel_sub2
             else:
-                in_sub2 = st.text_input("Sub Menu 2 (Judul Kegiatan)", placeholder="Misal: Semester 1", key="in_sub2_txt_def")
+                in_sub2 = st.text_input("Sub Menu 2 (Judul Kegiatan)", placeholder="Misal: Pelatihan Petugas", key="in_sub2_txt_def")
 
             st.markdown("---")
             in_nama = st.text_input("Judul File (Wajib Diisi)*", key="in_nama")
