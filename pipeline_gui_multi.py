@@ -418,7 +418,7 @@ def admin_page():
                 else:
                     in_menu = sel_menu
             else:
-                in_menu = st.text_input("Menu Utama", placeholder="Misal: Publikasi", key="txt_menu_default")
+                in_menu = st.text_input("Menu Utama", placeholder="Misal: Sakernas", key="txt_menu_default")
 
             in_sub = ""
             if is_old_cat and in_menu != "➕ Buat Menu Baru" and not df_cat[df_cat['Menu'] == in_menu].empty:
@@ -429,11 +429,11 @@ def admin_page():
                 sel_sub = st.selectbox("Sub Menu", list_sub, key="sel_sub")
 
                 if sel_sub == "➕ Buat Sub Baru":
-                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: 2025", key="txt_sub_new")
+                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: Sakernas Maret 2025", key="txt_sub_new")
                 else:
                     in_sub = sel_sub
             else:
-                in_sub = st.text_input("Sub Menu", placeholder="Misal: 2025", key="txt_sub_default")
+                in_sub = st.text_input("Sub Menu", placeholder="Misal: Sakernas Maret 2025", key="txt_sub_default")
 
             in_sub2 = ""
             valid_sub = False
@@ -450,11 +450,11 @@ def admin_page():
                 sel_sub2 = st.selectbox("Sub Menu 2", list_sub2, key="sel_sub2")
 
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
-                    in_sub2 = st.text_input("Ketik Sub Menu 2", placeholder="Misal: Sakernas Maret 2025", key="txt_sub2_new")
+                    in_sub2 = st.text_input("Ketik Sub Menu 2", placeholder="Misal: Alokasi Petugas", key="txt_sub2_new")
                 else:
                     in_sub2 = sel_sub2
             else:
-                in_sub2 = st.text_input("Sub Menu 2", placeholder="Misal: Sakernas Maret 2025", key="txt_sub2_default")
+                in_sub2 = st.text_input("Sub Menu 2", placeholder="Misal: Alokasi Petugas", key="txt_sub2_default")
 
             st.markdown("---")
             in_nama = st.text_input("Judul File (Wajib Diisi)*", key="input_nama_file")
