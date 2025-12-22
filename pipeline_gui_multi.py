@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
@@ -31,15 +32,12 @@ def icon_to_image_url(icon_value: str):
     if s == "" or s == "-":
         return None
 
-    # harus http(s)
     if not (s.startswith("http://") or s.startswith("https://")):
         return None
 
-    # direct image url
     if re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, flags=re.IGNORECASE):
         return s
 
-    # drive share link -> thumbnail url
     file_id = extract_drive_file_id(s)
     if file_id:
         return f"https://drive.google.com/thumbnail?id={file_id}&sz=w600"
@@ -234,12 +232,10 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 }
 
 /* HOME CARD KLIK (HTML) */
-.cat-wrap{
-  width: 100%;
-}
+.cat-wrap{ width: 100%; }
 
 .cat-card{
-  height: 170px;                 /* hanya untuk kotak gambar */
+  height: 170px;
   width: 100%;
   background: white;
   border-radius: 16px;
@@ -250,26 +246,21 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   text-decoration: none !important;
   transition: all 0.25s ease;
 }
-
 .cat-card:hover{
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0, 84, 166, 0.25);
 }
-
 .cat-img{
   height: 100%;
   width: 100%;
   background: #f8fafc;
 }
-
 .cat-img img{
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* ✅ ngepas tanpa kepotong */
+  object-fit: contain;
   object-position: center;
 }
-
-/* judul di bawah kotak (di luar card) */
 .cat-title-out{
   margin-top: 10px;
   font-weight: 800;
@@ -279,13 +270,14 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   font-size: 15px;
   padding: 0 10px;
 }
-
+</style>
+""", unsafe_allow_html=True)
 
 # =============================
 # LOGIC LOGIN PAGE (UPDATE SECRETS)
 # =============================
 def login_page():
-    col1, col2, col3 = st.columns([1, 1.2, 1]) 
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         st.markdown("""
         <div class="login-container">
@@ -298,12 +290,12 @@ def login_page():
         with st.form("login_form"):
             u = st.text_input("Username", placeholder="Masukkan username")
             p = st.text_input("Password", type="password", placeholder="Masukkan password")
-            
+
             if st.form_submit_button("Masuk Portal"):
                 try:
                     correct_user = st.secrets["login"]["username"]
                     correct_pass = st.secrets["login"]["password"]
-                    
+
                     if u == correct_user and p == correct_pass:
                         st.session_state.is_logged_in = True
                         st.rerun()
@@ -334,7 +326,7 @@ with st.form("logout_form"):
         st.markdown("""
         <div style="background:linear-gradient(135deg,#0974F1,#9FCCFA);
         padding:16px 20px;border-radius:14px;margin-bottom: 12px;color:white">
-        <h3>🗃️Selamat datang di Portal Data Statistik Sosial </h3>
+        <h3>🗃️Selamat datang di Portal Data Statistik Sosial</h3>
         <p>Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.<br>
         Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.</p>
         </div>
@@ -343,7 +335,6 @@ with st.form("logout_form"):
         if st.form_submit_button("Logout"):
             st.session_state.is_logged_in = False
             st.rerun()
-
 
 # =============================
 # DATA
@@ -359,13 +350,11 @@ if any(c not in df.columns for c in required_cols):
 # =============================
 # NAVIGASI DARI HOME CARD (query param)
 # =============================
-# jika user klik card, URL jadi ?kat=...
 if "kat" in st.query_params:
     kat = st.query_params.get("kat")
     if kat:
         st.session_state.selected_category = kat
         st.session_state.current_level = "detail"
-        # bersihin param biar ga nyangkut
         st.query_params.clear()
         st.rerun()
 
@@ -415,8 +404,6 @@ if st.session_state.current_level == "home":
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
             img_url = icon_to_image_url(d["Icon"])
-
-            # card clickable pakai query param
             kat_q = quote(str(kat))
 
             if img_url:
@@ -428,9 +415,8 @@ if st.session_state.current_level == "home":
                   <div class="cat-title-out">{kat}</div>
                 </div>
                 """, unsafe_allow_html=True)
-
             else:
-               st.markdown(f"""
+                st.markdown(f"""
                 <div class="cat-wrap">
                   <a class="cat-card" href="?kat={kat_q}">
                     <div class="cat-img" style="display:flex;align-items:center;justify-content:center;font-size:64px;">📊</div>
@@ -439,10 +425,9 @@ if st.session_state.current_level == "home":
                 </div>
                 """, unsafe_allow_html=True)
 
-
     st.markdown("""
     <div class="footer">
-      Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
+      Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>
       © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
     </div>
     """, unsafe_allow_html=True)
@@ -528,7 +513,7 @@ for i, tab in enumerate(tabs_menu):
 
 st.markdown("""
 <div class="footer">
-  Developed by Firdaini Azmi & Muhammad Ariq Hibatullah\n
+  Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>
   © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
 </div>
 """, unsafe_allow_html=True)
