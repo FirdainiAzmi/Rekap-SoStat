@@ -21,7 +21,7 @@ def save_data(df):
 
 # ================= KONFIGURASI HALAMAN =================
 st.set_page_config(
-    page_title="Sostat Dashboard Pro",
+    page_title="ARSITAL BPS Sidoarjo",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -349,8 +349,8 @@ def login_page():
         <div style="background:white; padding:40px; border-radius:16px;
                     box-shadow:0 18px 40px rgba(0,0,0,0.08);
                     text-align:center; border:1px solid #E5E7EB;">
-            <h2 style="color:#4F46E5; margin:0 0 6px 0;">Admin Login</h2>
-            <p style="color:#6B7280; margin:0;">Silakan masuk untuk mengelola data</p>
+            <h2 style="color:#4F46E5; margin:0 0 6px 0;">Login Page</h2>
+            <p style="color:#6B7280; margin:0;">Silakan masuk</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -657,7 +657,7 @@ def home_page():
             {img_tag}
             <div class="hero-subtitle">
                 <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
-                    Selamat datang di Portal Data Statistik Sosial⚡
+                    Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
                 </div>
                 <div style="opacity:.92; font-size:1rem">
                     Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
