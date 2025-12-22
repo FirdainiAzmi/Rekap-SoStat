@@ -361,7 +361,7 @@ def login_page():
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
             if st.form_submit_button("MASUK SISTEM", use_container_width=True, type="primary"):
-                if u==ADMIN_USERNAM and p==ADMIN_PASSWORD:
+                if u==ADMIN_USERNAME and p==ADMIN_PASSWORD:
                     st.session_state['logged_in']=True
                     st.rerun()
                 else:
