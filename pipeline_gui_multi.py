@@ -613,7 +613,7 @@ def get_base64_of_bin_file(bin_file):
 # ================= HOME DASHBOARD =================
 def home_page():
     try:
-        img_code = get_base64_of_bin_file("logo.png")
+        img_code = get_base64_of_bin_file("logo_arsital.png")
         img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
     except:
         img_tag = ""
@@ -621,7 +621,7 @@ def home_page():
     st.markdown("""
     <style>
         .hero-logo{
-            width: 230px;
+            width: 400px;
             height: auto;
             margin-bottom: 15px;
             display: block;
@@ -634,7 +634,7 @@ def home_page():
         <div class="hero-container">
             {img_tag}
             <div class="hero-subtitle">
-                <div style="font-weight:800; font-size:1.1rem; margin-bottom:6px;">
+                <div style="font-weight:800; font-size:3rem; margin-bottom:6px;">
                     Selamat datang di Portal Data Statistik Sosial⚡
                 </div>
                 <div style="opacity:.92;">
