@@ -677,6 +677,8 @@ def home_page():
         with m3:
             st.markdown(f"""<div class="stat-card"><div class="stat-number">{len(df['Menu'].unique())}</div><div class="stat-label">Topik Bahasan</div></div>""", unsafe_allow_html=True)
 
+        st.markdown("<br>", unsafe_allow_html=True)
+        
     if df.empty:
         st.info("📂 Database masih kosong. Silakan login ke Admin untuk mengisi data.")
         return
