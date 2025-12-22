@@ -290,7 +290,7 @@ def login_page():
         st.markdown("""
         <div class="login-container">
             <div class="login-header">
-                <h2 class="login-title">🔐 Portal Statistik Sosial</h2>
+                <h2 class="login-title">Portal Statistik Sosial</h2>
                 <p class="login-subtitle">Silakan login untuk mengakses dokumen</p>
             </div>
         """, unsafe_allow_html=True)
