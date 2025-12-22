@@ -234,45 +234,52 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 }
 
 /* HOME CARD KLIK (HTML) */
+.cat-wrap{
+  width: 100%;
+}
+
 .cat-card{
-  height: 160px;
+  height: 170px;                 /* hanya untuk kotak gambar */
   width: 100%;
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05);
   border: 1px solid rgba(255,255,255,0.6);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: block;
   text-decoration: none !important;
   transition: all 0.25s ease;
 }
+
 .cat-card:hover{
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0, 84, 166, 0.25);
 }
+
 .cat-img{
-  flex: 1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  height: 100%;
+  width: 100%;
   background: #f8fafc;
 }
+
 .cat-img img{
   width: 100%;
   height: 100%;
-  object-fit: cover;         /* gambar memenuhi kotak */
+  object-fit: contain;   /* ✅ ngepas tanpa kepotong */
+  object-position: center;
 }
-.cat-title{
-  padding: 10px 12px;
+
+/* judul di bawah kotak (di luar card) */
+.cat-title-out{
+  margin-top: 10px;
   font-weight: 800;
   color: #334155;
   text-align: center;
   line-height: 1.2;
   font-size: 15px;
+  padding: 0 10px;
 }
-</style>
-""", unsafe_allow_html=True)
+
 
 # =============================
 # LOGIC LOGIN PAGE (UPDATE SECRETS)
@@ -413,18 +420,24 @@ if st.session_state.current_level == "home":
 
             if img_url:
                 st.markdown(f"""
-                <a class="cat-card" href="?kat={kat_q}">
-                  <div class="cat-img"><img src="{img_url}" alt="icon"/></div>
-                  <div class="cat-title">{kat}</div>
-                </a>
+                <div class="cat-wrap">
+                  <a class="cat-card" href="?kat={kat_q}">
+                    <div class="cat-img"><img src="{img_url}" alt="icon"/></div>
+                  </a>
+                  <div class="cat-title-out">{kat}</div>
+                </div>
                 """, unsafe_allow_html=True)
+
             else:
-                st.markdown(f"""
-                <a class="cat-card" href="?kat={kat_q}">
-                  <div class="cat-img" style="font-size:64px;">📊</div>
-                  <div class="cat-title">{kat}</div>
-                </a>
+               st.markdown(f"""
+                <div class="cat-wrap">
+                  <a class="cat-card" href="?kat={kat_q}">
+                    <div class="cat-img" style="display:flex;align-items:center;justify-content:center;font-size:64px;">📊</div>
+                  </a>
+                  <div class="cat-title-out">{kat}</div>
+                </div>
                 """, unsafe_allow_html=True)
+
 
     st.markdown("""
     <div class="footer">
