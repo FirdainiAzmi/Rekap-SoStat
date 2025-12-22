@@ -242,7 +242,8 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
 
 .dl-link{
   background: linear-gradient(135deg, var(--brand1), var(--brand2));
-  color: white;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
   padding: 9px 14px;
   border-radius: 12px;
   text-decoration: none;
@@ -256,8 +257,15 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
   transform: translateY(-2px);
   box-shadow: 0 20px 40px rgba(79,70,229,.30);
   filter: saturate(1.1);
+  color: #FFFFFF !important;
+  text-decoration: none !important;
 }
-.dl-link:active{ transform: scale(.98); }
+.dl-link:visited,
+.dl-link:active{ 
+  transform: scale(.98);
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+}
 
 /* grouping title (Sub2) */
 .kegiatan-title{
@@ -621,7 +629,7 @@ def home_page():
     st.markdown("""
     <style>
         .hero-logo{
-            width: 400px;
+            width: 300px;
             height: auto;
             margin-bottom: 15px;
             display: block;
@@ -634,10 +642,10 @@ def home_page():
         <div class="hero-container">
             {img_tag}
             <div class="hero-subtitle">
-                <div style="font-weight:800; font-size:3rem; margin-bottom:6px;">
+                <div style="font-weight:800; font-size:2rem; margin-bottom:6px;">
                     Selamat datang di Portal Data Statistik Sosial⚡
                 </div>
-                <div style="opacity:.92;">
+                <div style="opacity:.92; font-size:0.5rem">
                     Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
                     Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.
                 </div>
