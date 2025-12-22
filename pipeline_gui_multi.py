@@ -56,12 +56,11 @@ section.main > div { padding-top: 1.1rem; }
 
 .stApp {
   background: linear-gradient(180deg,
-  #0A75B2 0%,
-  #248CC4 28%,
-  #56B2DE 55%,
-  #A9DDF0 78%,
-  #F6FBFF 100%
-);
+    #86BFE4 0%,
+    #A9D2EC 40%,
+    #CFE7F5 70%,
+    #F3F9FD 100%
+  );
 }
 
 /* ================= HERO ================= */
