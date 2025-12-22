@@ -117,17 +117,17 @@ div[data-testid="stButton"] > button {
   border: 1px solid rgba(255,255,255,0.6) !important;
   border-radius: 16px !important;
   box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
-  padding: 16px 18px !important;
-  height: 70px !important; /* tombol judul saja */
+  padding: 20px;
+  height: 160px !important;
   width: 100% !important;
   font-family: 'Segoe UI', sans-serif;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
 div[data-testid="stButton"] > button:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
   background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
   color: white !important;
   box-shadow: 0 15px 30px rgba(0, 84, 166, 0.3) !important;
@@ -237,15 +237,29 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   border-top: 1px solid rgba(15,23,42,.08);
 }
 
-/* HOME ICON CENTER + BUTTON OVERLAY (gambar bisa diklik) */
-.img-click-wrap{
+/* HOME CARD OVERLAY (gambar + judul di atas tombol besar) */
+.home-card {
   position: relative;
+  height: 160px;
   width: 100%;
+}
+.home-card .overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: 64px;
-  margin-bottom: 8px;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none; /* klik masuk ke button */
+}
+.home-card .title {
+  font-weight: 700;
+  text-align: center;
+  color: #334155;
+  line-height: 1.25;
+  font-size: 15px;
+  padding: 0 10px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -360,36 +374,36 @@ if search:
     st.stop()
 
 # =============================
-# HOME (ICON GAMBAR DI ATAS, JUDUL DI BAWAH)
-# + Gambar bisa diklik (button transparan di atas area ikon)
+# HOME (KOTAK BESAR 160px + GAMBAR + JUDUL)
 # =============================
 if st.session_state.current_level == "home":
-    categories = df["Kategori"].unique().tolist()
-    cols = st.columns(min(len(categories), 5))
+    jumlah_kategori = df["Kategori"].nunique()
+    cols = st.columns(jumlah_kategori)
 
-    for i, kat in enumerate(categories):
+    for i, kat in enumerate(df["Kategori"].unique()):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
             img_url = icon_to_image_url(d["Icon"])
 
-            st.markdown("<div class='img-click-wrap'>", unsafe_allow_html=True)
+            st.markdown("<div class='home-card'>", unsafe_allow_html=True)
+
+            # tombol besar (kotak)
+            if st.button(" ", key=f"kat_btn_{kat}", use_container_width=True):
+                st.session_state.selected_category = kat
+                st.session_state.current_level = "detail"
+                st.rerun()
+
+            # overlay isi (gambar + judul) di atas tombol besar
+            st.markdown("<div class='overlay'>", unsafe_allow_html=True)
             if img_url:
-                st.image(img_url, width=52)
+                st.image(img_url, width=58)
             else:
-                st.markdown("<div style='font-size:34px;'>📊</div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-size:40px;'>📊</div>", unsafe_allow_html=True)
+
+            st.markdown(f"<div class='title'>{kat}</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            # tombol transparan untuk klik gambar (label spasi)
-            if st.button(" ", key=f"img_btn_{kat}", use_container_width=True):
-                st.session_state.selected_category = kat
-                st.session_state.current_level = "detail"
-                st.rerun()
-
-            # tombol judul
-            if st.button(kat, key=f"kat_btn_{kat}", use_container_width=True):
-                st.session_state.selected_category = kat
-                st.session_state.current_level = "detail"
-                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("""
     <div class="footer">
@@ -412,19 +426,14 @@ with st.form("back"):
 df_cat = df[df["Kategori"] == st.session_state.selected_category]
 first = df_cat.iloc[0]
 
-# Header detail: ikon gambar di kiri, judul di kanan
-img_url = icon_to_image_url(first["Icon"])
-c1, c2 = st.columns([1, 12])
-with c1:
-    if img_url:
-        st.image(img_url, width=56)
-    else:
-        st.markdown("<div style='font-size:42px;'>📊</div>", unsafe_allow_html=True)
-with c2:
-    st.markdown(
-        f"<h1 style='margin:0;color:#0B2F5B'>{st.session_state.selected_category}</h1>",
-        unsafe_allow_html=True
-    )
+st.markdown(f"""
+<div class="title-row">
+  <div class="title-ico">{first['Icon']}</div>
+  <div class="title-text">
+    <h1>{st.session_state.selected_category}</h1>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 # =============================
 # FILTER PANEL
