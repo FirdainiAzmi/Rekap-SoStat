@@ -747,6 +747,8 @@ def home_page():
 def detail_page():
     cat = st.session_state['selected_category']
     df = st.session_state['data']
+    
+    # Ambil data hanya kategori yang dipilih
     subset_all = df[df['Kategori'] == cat].copy()
 
     st.button("⬅️ Kembali ke Dashboard", on_click=lambda: st.session_state.update({'current_view': 'home'}))
@@ -760,73 +762,112 @@ def detail_page():
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # SEARCH
+    # SEARCH GLOBAL
     search = st.text_input("🔍 Cari File...", placeholder="Ketik nama dokumen...")
 
+    # === LOGIKA FILTER BERJENJANG (CASCADING) ===
     f1, f2, f3 = st.columns(3)
 
+    # 1. DROPWN MENU (Level 1)
+    # Ambil semua menu unik di kategori ini
     menu_opts = ["Semua"] + sorted([x for x in subset_all['Menu'].dropna().unique().tolist() if str(x).strip() != ""])
-    sub_opts = ["Semua"] + sorted([x for x in subset_all['Sub_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
-    sub2_opts = ["Semua"] + sorted([x for x in subset_all['Sub2_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
-
+    
     with f1:
         sel_menu = st.selectbox("Filter Menu", menu_opts, index=0)
+
+    # 2. DROPDOWN SUB MENU (Level 2)
+    # Filter dataset sementara berdasarkan Menu yang dipilih di atas
+    if sel_menu != "Semua":
+        df_level2 = subset_all[subset_all['Menu'] == sel_menu]
+    else:
+        df_level2 = subset_all # Kalau 'Semua', pakai data full
+
+    # Ambil opsi Sub Menu hanya dari data yang sudah difilter menu-nya
+    sub_opts = ["Semua"] + sorted([x for x in df_level2['Sub_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
+    
     with f2:
         sel_sub = st.selectbox("Filter Sub Menu", sub_opts, index=0)
+
+    # 3. DROPDOWN SUB MENU 2 / KEGIATAN (Level 3)
+    # Filter dataset sementara berdasarkan Sub Menu yang dipilih di atas
+    if sel_sub != "Semua":
+        df_level3 = df_level2[df_level2['Sub_Menu'] == sel_sub]
+    else:
+        df_level3 = df_level2
+
+    # Ambil opsi Sub2 hanya dari data yang sudah difilter sub menu-nya
+    sub2_opts = ["Semua"] + sorted([x for x in df_level3['Sub2_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
+    
     with f3:
         sel_sub2 = st.selectbox("Filter Judul Kegiatan (Sub2)", sub2_opts, index=0)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # apply filter
-    subset = subset_all
+    # === PENERAPAN FILTER AKHIR ===
+    # Kita mulai filter dari data utama (subset_all) menggunakan variabel yang sudah dipilih user
+    subset = subset_all.copy()
+
     if sel_menu != "Semua":
         subset = subset[subset['Menu'] == sel_menu]
+    
     if sel_sub != "Semua":
         subset = subset[subset['Sub_Menu'] == sel_sub]
+        
     if sel_sub2 != "Semua":
         subset = subset[subset['Sub2_Menu'] == sel_sub2]
 
     if search:
         subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
 
+    # === TAMPILKAN DATA (Sama seperti sebelumnya) ===
     menus = subset['Menu'].dropna().unique()
 
     if len(menus) == 0:
         st.info("Tidak ada data sesuai filter/pencarian.")
         return
 
+    # Tabs logic tetap sama...
     tabs = st.tabs([str(m) for m in menus if str(m).strip() != ""])
-
+    
+    # ... (lanjutkan kode render tabs di bawahnya tetap sama dengan yang lama)
+    # Copy paste sisa kode render di bawah ini:
+    
     for i, m in enumerate([x for x in menus if str(x).strip() != ""]):
         with tabs[i]:
             sub_df = subset[subset['Menu'] == m]
+            # Pastikan ambil sub menu unik yang ada di subset hasil filter
             subs = [x for x in sub_df['Sub_Menu'].dropna().unique()]
 
             if len(subs) == 0:
-                st.caption("Tidak ada sub menu.")
+                # Cek jika ada file tanpa sub menu
+                if not sub_df.empty:
+                    # Tampilkan file langsung jika tidak ada sub menu
+                    for _, r in sub_df.iterrows():
+                         st.markdown(f"""<div class="file-row"><div><b>📄 {r['Nama_File']}</b></div><a href="{r['Link_File']}" target="_blank" class="dl-link">Buka ⬇</a></div>""", unsafe_allow_html=True)
+                else:
+                    st.caption("Tidak ada sub menu.")
                 continue
 
             for s in subs:
-                with st.expander(f"📁 {s if str(s).strip() else 'Umum'}"):
+                with st.expander(f"📁 {s if str(s).strip() else 'Umum'}", expanded=True):
                     s_df = sub_df[sub_df['Sub_Menu'] == s].copy()
 
-                    # ========= PERUBAHAN UTAMA =========
-                    # Sub2_Menu jadi "Judul Kegiatan" (grouping), bukan meta di bawah Nama_File
                     kegiatan_list = s_df['Sub2_Menu'].fillna("-").unique().tolist()
 
                     for keg in kegiatan_list:
                         keg_label = keg if str(keg).strip() else "-"
-                        st.markdown(
-                            f'<div class="kegiatan-title">🎯 {keg_label} <span class="kegiatan-pill">Kegiatan</span></div>',
-                            unsafe_allow_html=True
-                        )
+                        
+                        # Hanya tampilkan header kegiatan jika Sub2 difilter "Semua" atau sesuai pilihan
+                        if sel_sub2 == "Semua" or sel_sub2 == keg:
+                            if keg_label != "-":
+                                st.markdown(
+                                    f'<div class="kegiatan-title">🎯 {keg_label} <span class="kegiatan-pill">Kegiatan</span></div>',
+                                    unsafe_allow_html=True
+                                )
 
                         keg_df = s_df[s_df['Sub2_Menu'].fillna("-") == keg_label]
 
-                        if keg_df.empty:
-                            st.caption("Tidak ada file.")
-                            continue
+                        if keg_df.empty: continue
 
                         for _, r in keg_df.iterrows():
                             st.markdown(f"""
