@@ -4,7 +4,7 @@ import pandas as pd
 import re
 
 # =============================
-# HELPER: drive link -> <img ...> (untuk st.markdown unsafe_allow_html)
+# HELPER: LINK DRIVE -> URL GAMBAR (UNTUK st.image)
 # =============================
 def extract_drive_file_id(url: str):
     if not url or url == "-":
@@ -18,32 +18,22 @@ def extract_drive_file_id(url: str):
         return m.group(1)
     return None
 
-def to_icon_html(icon_value: str):
-    """
-    Jika icon_value sudah berupa tag <img ...>, biarkan.
-    Jika icon_value berupa link Drive, ubah jadi <img src='https://drive.google.com/uc?...'>
-    Jika icon_value berupa link gambar langsung .png/.jpg/.webp, bungkus jadi <img ...>
-    Jika icon_value emoji/teks biasa, biarkan apa adanya.
-    """
-    if icon_value is None:
-        return "-"
+def icon_to_image_url(icon_value: str):
+    """Return direct image URL for st.image(), or None."""
+    if not icon_value or icon_value == "-":
+        return None
     s = str(icon_value).strip()
-    if s == "-" or s == "":
-        return "-"
-    if s.lower().startswith("<img"):
-        return s
-
-    file_id = extract_drive_file_id(s)
-    if file_id:
-        src = f"https://drive.google.com/uc?export=view&id={file_id}"
-        return f"<img src='{src}' width='44' style='border-radius:10px; vertical-align:middle;'>"
 
     # direct image url
     if re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, flags=re.IGNORECASE):
-        return f"<img src='{s}' width='44' style='border-radius:10px; vertical-align:middle;'>"
+        return s
 
-    # fallback: emoji / text
-    return s
+    # drive share link -> direct view url
+    file_id = extract_drive_file_id(s)
+    if file_id:
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+
+    return None
 
 
 # =============================
@@ -117,17 +107,17 @@ div[data-testid="stButton"] > button {
   border: 1px solid rgba(255,255,255,0.6) !important;
   border-radius: 16px !important;
   box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
-  padding: 20px;
-  height: 160px !important;
+  padding: 16px 18px !important;
+  height: 70px !important; /* tombol judul saja */
   width: 100% !important;
   font-family: 'Segoe UI', sans-serif;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
 div[data-testid="stButton"] > button:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   background: linear-gradient(135deg, #0054A6 0%, #007bff 100%) !important;
   color: white !important;
   box-shadow: 0 15px 30px rgba(0, 84, 166, 0.3) !important;
@@ -161,11 +151,11 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  height: 100%; /* Agar tinggi seragam di grid */
+  height: 100%;
   transition: transform 0.2s;
 }
 .file-card:hover {
-  transform: translateY(-3px); /* Efek naik dikit */
+  transform: translateY(-3px);
   box-shadow: 0 8px 15px rgba(0,0,0,0.08);
 }
 .file-left { display: flex; gap: 12px; align-items: center; overflow: hidden; }
@@ -182,7 +172,7 @@ div[data-testid="stButton"] > button[aria-label="Buka ↗"] {
   text-decoration: none;
   color: #1D4ED8;
   border: 1px solid #DBEAFE;
-  white-space: nowrap; /* Biar tombol gak turun */
+  white-space: nowrap;
   transition: all 0.2s;
 }
 .dl-btn:hover {
@@ -235,6 +225,15 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   font-size: 12px;
   color: #94a3b8;
   border-top: 1px solid rgba(15,23,42,.08);
+}
+
+/* 9. HOME ICON CENTER */
+.home-icon {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:64px;
+  margin-bottom: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -313,9 +312,6 @@ if any(c not in df.columns for c in required_cols):
     st.error("Kolom Google Sheet belum lengkap")
     st.stop()
 
-# ✅ tambahan kecil: ubah kolom Icon jadi HTML img kalau link drive/link image
-df["Icon"] = df["Icon"].apply(to_icon_html)
-
 # =============================
 # SEARCH BAR (NAVIGASI)
 # =============================
@@ -352,17 +348,26 @@ if search:
     st.stop()
 
 # =============================
-# HOME
+# HOME (ICON GAMBAR DI ATAS, JUDUL DI BAWAH)
 # =============================
 if st.session_state.current_level == "home":
-    jumlah_kategori = df["Kategori"].nunique()
-    cols = st.columns(jumlah_kategori)
-    for i, kat in enumerate(df["Kategori"].unique()):
+    categories = df["Kategori"].unique().tolist()
+    cols = st.columns(min(len(categories), 5))
+
+    for i, kat in enumerate(categories):
         d = df[df["Kategori"] == kat].iloc[0]
         with cols[i % 5]:
-            # NOTE: label button tidak render HTML, jadi kalau Icon adalah <img...> akan tampil teks.
+            img_url = icon_to_image_url(d["Icon"])
+
+            st.markdown("<div class='home-icon'>", unsafe_allow_html=True)
+            if img_url:
+                st.image(img_url, width=52)
+            else:
+                st.markdown("<div style='font-size:34px;'>📊</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
             if st.button(
-                f"{d['Icon']}\n\n{kat}", 
+                kat,
                 key=f"kat_btn_{kat}",
                 use_container_width=True
             ):
@@ -391,14 +396,19 @@ with st.form("back"):
 df_cat = df[df["Kategori"] == st.session_state.selected_category]
 first = df_cat.iloc[0]
 
-st.markdown(f"""
-<div class="title-row">
-  <div class="title-ico">{first['Icon']}</div>
-  <div class="title-text">
-    <h1>{st.session_state.selected_category}</h1>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+# Header detail: ikon gambar di kiri, judul di kanan
+img_url = icon_to_image_url(first["Icon"])
+c1, c2 = st.columns([1, 12])
+with c1:
+    if img_url:
+        st.image(img_url, width=56)
+    else:
+        st.markdown("<div style='font-size:42px;'>📊</div>", unsafe_allow_html=True)
+with c2:
+    st.markdown(
+        f"<h1 style='margin:0;color:#0B2F5B'>{st.session_state.selected_category}</h1>",
+        unsafe_allow_html=True
+    )
 
 # =============================
 # FILTER PANEL
@@ -442,6 +452,7 @@ for i, tab in enumerate(tabs_menu):
                         
                         files = df_s[df_s["Sub2_Menu"]==sub2]
                         cols = st.columns(2)
+                        
                         for idx, (_, r) in enumerate(files.iterrows()):
                             with cols[idx % 2]:
                                 st.markdown(f"""
