@@ -54,6 +54,10 @@ html, body, [class*="css"]{
 header[data-testid="stHeader"]{ background: transparent; }
 section.main > div { padding-top: 1.1rem; }
 
+.stApp {
+  background: linear-gradient(135deg, #A0D9EF 0%, #20A7DB 100%);
+}
+
 /* ================= HERO ================= */
 .hero-container{
   position: relative;
@@ -642,10 +646,10 @@ def home_page():
         <div class="hero-container">
             {img_tag}
             <div class="hero-subtitle">
-                <div style="font-weight:800; font-size:2rem; margin-bottom:6px;">
+                <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
                     Selamat datang di Portal Data Statistik Sosial⚡
                 </div>
-                <div style="opacity:.92; font-size:0.5rem">
+                <div style="opacity:.92; font-size:1rem">
                     Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
                     Gunakan menu di bawah untuk mengakses folder Google Drive, spreadsheet, notulen, dan dokumentasi kegiatan secara cepat dan terstruktur.
                 </div>
@@ -766,7 +770,7 @@ def detail_page():
                 continue
 
             for s in subs:
-                with st.expander(f"📁 {s if str(s).strip() else 'Umum'}", expanded=True):
+                with st.expander(f"📁 {s if str(s).strip() else 'Umum'}"):
                     s_df = sub_df[sub_df['Sub_Menu'] == s].copy()
 
                     # ========= PERUBAHAN UTAMA =========
