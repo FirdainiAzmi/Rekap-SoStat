@@ -264,12 +264,16 @@ div[data-testid="stTextInput"] > div > div:focus-within {
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
 <style>
 .home-card{
   position: relative;
   height: 160px;
   width: 100%;
 }
+</style>
+""", unsafe_allow_html=True)
+
 
 /* konten (gambar + teks) di atas tombol besar */
 .home-card .content{
