@@ -562,8 +562,6 @@ def admin_page():
                     time.sleep(1)
                     st.rerun()
 
-
-
 # ================= EDIT PAGE (MENU BARU) =================
 def edit_page():
     st.markdown("## ✏️ Edit Data")
@@ -648,12 +646,11 @@ def home_page():
         }
     </style>
     """, unsafe_allow_html=True)
-
-    st.markdown(f"{img_tag}", unsafe_allow_html=True)
     
     st.markdown(
-        """
+        f"""
         <div class="hero-container">
+            {img_tag}
             <div class="hero-subtitle">
                 <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
                     Selamat datang di Portal Data Statistik Sosial⚡
@@ -686,6 +683,10 @@ def home_page():
         st.info("📂 Database masih kosong. Silakan login ke Admin untuk mengisi data.")
         return
 
+    search = st.text_input("🔍 Cari File...", placeholder="Ketik nama dokumen...")
+    if search:
+        subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
+    
     st.markdown("### 📂 Jelajahi Kategori")
     cols = st.columns(3)
     cats = df['Kategori'].unique()
@@ -732,8 +733,6 @@ def detail_page():
     # SEARCH
     search = st.text_input("🔍 Cari File...", placeholder="Ketik nama dokumen...")
 
-    # FILTER PANEL (di bawah search bar)
-    st.markdown('<div class="filter-panel">', unsafe_allow_html=True)
     f1, f2, f3 = st.columns(3)
 
     menu_opts = ["Semua"] + sorted([x for x in subset_all['Menu'].dropna().unique().tolist() if str(x).strip() != ""])
