@@ -372,66 +372,57 @@ def login_page():
 def admin_page():
     st.markdown("## ⚙️ Panel Admin")
 
-    tab1, tab2 = st.tabs(["📝 Input Data Baru", "🗑️ Hapus Data"])
+    # KITA BUAT 3 TAB DI SINI
+    tab1, tab2, tab3 = st.tabs(["📝 Input Data Baru", "✏️ Edit Data", "🗑️ Hapus Data"])
     df = st.session_state['data']
 
-    # --- TAB INPUT ---
+    # ================= TAB 1: INPUT DATA BARU =================
     with tab1:
-        st.info("💡 Data yang disimpan akan otomatis tertulis ke database (CSV).")
-
-        col_kiri, col_kanan = st.columns(2)
-
-        # ================= BAGIAN KIRI (KATEGORI) DIUBAH =================
-        with col_kiri:
+        st.info("💡 Tambah data file baru ke database.")
+        
+        c1, c2 = st.columns(2)
+        
+        # --- Kolom Kiri: Kategori ---
+        with c1:
             st.markdown("### 1. Pengaturan Kategori")
-
-            # Ambil list kategori yang ada
             existing_cats = df['Kategori'].dropna().unique().tolist() if not df.empty else []
-            
-            # Tambahkan opsi untuk buat baru
             opsi_kategori = existing_cats + ["➕ Buat Kategori Baru"]
+            
+            # Key unik agar tidak bentrok dengan tab lain
+            sel_kategori = st.selectbox("Pilih Kategori:", opsi_kategori, key="in_kat_select")
 
-            # Selectbox tunggal
-            sel_kategori = st.selectbox("Pilih Kategori:", opsi_kategori)
-
-            # Logika penentuan input
             final_kategori = ""
             if sel_kategori == "➕ Buat Kategori Baru":
-                final_kategori = st.text_input("Ketik Nama Kategori Baru:", placeholder="Contoh: Statistik Sosial")
+                final_kategori = st.text_input("Ketik Nama Kategori Baru:", placeholder="Contoh: Statistik Sosial", key="in_kat_text")
             else:
                 final_kategori = sel_kategori
 
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("### 📷 Gambar Cover")
-            in_img = st.file_uploader("Upload Cover (Opsional)", type=['png','jpg','jpeg'])
+            in_img = st.file_uploader("Upload Cover (Opsional)", type=['png','jpg','jpeg'], key="in_img_upload")
 
-        # ================= BAGIAN KANAN (DETAIL) DISESUAIKAN =================
-        with col_kanan:
+        # --- Kolom Kanan: Detail ---
+        with c2:
             st.markdown("### 2. Detail Dokumen")
-
-            # Logic penanda apakah ini kategori lama atau baru (untuk memfilter menu)
             is_old_cat = (sel_kategori != "➕ Buat Kategori Baru")
 
+            # MENU
             in_menu = ""
-            # Jika Kategori Lama, tampilkan pilihan Menu yang sudah ada
             if is_old_cat:
                 df_cat = df[df['Kategori'] == final_kategori]
                 list_menu = df_cat['Menu'].dropna().unique().tolist()
                 list_menu.append("➕ Buat Menu Baru")
-
-                sel_menu = st.selectbox("Menu Utama", list_menu, key="sel_menu")
-
+                sel_menu = st.selectbox("Menu Utama", list_menu, key="in_menu_sel")
+                
                 if sel_menu == "➕ Buat Menu Baru":
-                    in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Publikasi", key="txt_menu_new")
+                    in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Publikasi", key="in_menu_txt")
                 else:
                     in_menu = sel_menu
             else:
-                # Jika Kategori Baru, pasti Menu harus input manual
-                in_menu = st.text_input("Menu Utama", placeholder="Misal: Publikasi", key="txt_menu_default")
+                in_menu = st.text_input("Menu Utama", placeholder="Misal: Publikasi", key="in_menu_txt_def")
 
-            # --- SUB MENU (Logic sama) ---
+            # SUB MENU
             in_sub = ""
-            # Cek apakah Menu-nya lama (bukan 'Buat Baru') dan datanya ada
             menu_is_existing = False
             if is_old_cat and in_menu != "➕ Buat Menu Baru" and 'df_cat' in locals():
                 if not df_cat[df_cat['Menu'] == in_menu].empty:
@@ -441,21 +432,18 @@ def admin_page():
                 df_menu = df_cat[df_cat['Menu'] == in_menu]
                 list_sub = df_menu['Sub_Menu'].dropna().unique().tolist()
                 list_sub.append("➕ Buat Sub Baru")
-
-                sel_sub = st.selectbox("Sub Menu (Tahun)", list_sub, key="sel_sub")
-
+                sel_sub = st.selectbox("Sub Menu (Tahun)", list_sub, key="in_sub_sel")
+                
                 if sel_sub == "➕ Buat Sub Baru":
-                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: 2025", key="txt_sub_new")
+                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: 2025", key="in_sub_txt")
                 else:
                     in_sub = sel_sub
             else:
-                in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: 2025", key="txt_sub_default")
+                in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: 2025", key="in_sub_txt_def")
 
-            # --- SUB MENU 2 / JUDUL KEGIATAN (Logic sama) ---
+            # SUB MENU 2 (KEGIATAN)
             in_sub2 = ""
             valid_sub = False
-            
-            # Cek apakah Sub Menu-nya lama
             if menu_is_existing and in_sub != "➕ Buat Sub Baru" and 'df_menu' in locals():
                 if not df_menu[df_menu['Sub_Menu'] == in_sub].empty:
                     valid_sub = True
@@ -465,187 +453,182 @@ def admin_page():
                 list_sub2 = df_sub['Sub2_Menu'].dropna().unique().tolist()
                 list_sub2 = [x for x in list_sub2 if str(x) != 'nan']
                 list_sub2.append("➕ Buat Sub 2 Baru")
-
-                sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", list_sub2, key="sel_sub2")
-
+                sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", list_sub2, key="in_sub2_sel")
+                
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
-                    in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Semester 1", key="txt_sub2_new")
+                    in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Semester 1", key="in_sub2_txt")
                 else:
                     in_sub2 = sel_sub2
             else:
-                in_sub2 = st.text_input("Sub Menu 2 (Judul Kegiatan)", placeholder="Misal: Semester 1", key="txt_sub2_default")
+                in_sub2 = st.text_input("Sub Menu 2 (Judul Kegiatan)", placeholder="Misal: Semester 1", key="in_sub2_txt_def")
 
             st.markdown("---")
-            in_nama = st.text_input("Judul File (Wajib Diisi)*", key="input_nama_file")
-            in_link = st.text_input("Link File (Google Drive/Web)", key="input_link_file")
+            in_nama = st.text_input("Judul File (Wajib Diisi)*", key="in_nama")
+            in_link = st.text_input("Link File (Google Drive/Web)", key="in_link")
 
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        # --- TOMBOL SIMPAN ---
-        if st.button("💾 SIMPAN PERMANEN", type="primary", use_container_width=True):
+        if st.button("💾 SIMPAN DATA BARU", type="primary", use_container_width=True, key="btn_save_new"):
             if final_kategori and in_nama:
                 img_str = image_to_base64(in_img)
-
-                # Jika gambar tidak diupload, coba ambil dari data lama jika kategorinya sudah ada
+                # Ambil gambar lama jika tidak upload baru
                 if not img_str and sel_kategori != "➕ Buat Kategori Baru":
                     try:
                         prev = df[df['Kategori']==final_kategori]['Gambar_Base64'].iloc[0]
                         img_str = prev
-                    except:
-                        pass
+                    except: pass
 
                 new_row = {
                     'Kategori': final_kategori, 'Gambar_Base64': img_str,
                     'Menu': in_menu, 'Sub_Menu': in_sub, 'Sub2_Menu': in_sub2,
                     'Nama_File': in_nama, 'Link_File': in_link
                 }
-
                 updated_df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
                 st.session_state['data'] = updated_df
                 save_data(updated_df)
-
-                st.success("✅ Data tersimpan aman di Database!")
+                st.success("✅ Data berhasil disimpan!")
                 time.sleep(1)
                 st.rerun()
             else:
-                st.warning("Mohon isi Nama Kategori dan Judul File.")
+                st.warning("Nama Kategori dan Judul File wajib diisi.")
 
-    # --- TAB HAPUS (Tidak berubah, copy saja dari kode lama atau biarkan logic ini) ---
+    # ================= TAB 2: EDIT DATA (Baru ditambahkan ke sini) =================
     with tab2:
+        if df.empty:
+            st.info("Database masih kosong, belum ada yang bisa diedit.")
+        else:
+            st.info("✏️ Edit metadata file yang sudah ada.")
+            
+            ec1, ec2 = st.columns([1, 2])
+
+            with ec1:
+                st.markdown("#### Pilih File")
+                # 1. Pilih Kategori
+                ekat_list = sorted(df['Kategori'].dropna().unique().tolist())
+                esel_kat = st.selectbox("Pilih Kategori", ekat_list, key="edit_sel_kat")
+
+                # 2. Pilih File di kategori tersebut
+                df_ekat = df[df['Kategori'] == esel_kat].copy()
+                efile_list = df_ekat['Nama_File'].fillna("").tolist()
+                
+                if not efile_list:
+                    st.warning("Tidak ada file di kategori ini.")
+                    esel_file = None
+                else:
+                    esel_file = st.selectbox("Pilih File", efile_list, key="edit_sel_file")
+
+            with ec2:
+                if esel_file:
+                    # Ambil index data asli
+                    try:
+                        row_idx = df_ekat[df_ekat['Nama_File'] == esel_file].index[0]
+                        cur = df.loc[row_idx]
+
+                        st.markdown("#### Form Edit")
+                        # Prefill data lama
+                        e_menu = st.text_input("Menu", value=str(cur.get('Menu', '') if pd.notna(cur.get('Menu', '')) else ''), key="e_menu")
+                        e_sub = st.text_input("Sub Menu", value=str(cur.get('Sub_Menu', '') if pd.notna(cur.get('Sub_Menu', '')) else ''), key="e_sub")
+                        e_sub2 = st.text_input("Judul Kegiatan (Sub2)", value=str(cur.get('Sub2_Menu', '') if pd.notna(cur.get('Sub2_Menu', '')) else ''), key="e_sub2")
+                        e_nama = st.text_input("Nama File", value=str(cur.get('Nama_File', '') if pd.notna(cur.get('Nama_File', '')) else ''), key="e_nama")
+                        e_link = st.text_input("Link File", value=str(cur.get('Link_File', '') if pd.notna(cur.get('Link_File', '')) else ''), key="e_link")
+
+                        st.markdown("---")
+                        st.markdown("**Ganti Cover Kategori (Opsional)**")
+                        e_img = st.file_uploader("Upload cover baru", type=['png','jpg','jpeg'], key="e_img_up")
+
+                        if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True, key="btn_save_edit"):
+                            df_edit = df.copy()
+                            
+                            df_edit.at[row_idx, 'Menu'] = e_menu
+                            df_edit.at[row_idx, 'Sub_Menu'] = e_sub
+                            df_edit.at[row_idx, 'Sub2_Menu'] = e_sub2
+                            df_edit.at[row_idx, 'Nama_File'] = e_nama
+                            df_edit.at[row_idx, 'Link_File'] = e_link
+
+                            # Logic ganti gambar
+                            if e_img is not None:
+                                img_str_edit = image_to_base64(e_img)
+                                if img_str_edit:
+                                    # Update semua baris dengan kategori yang sama agar gambar konsisten
+                                    df_edit.loc[df_edit['Kategori'] == esel_kat, 'Gambar_Base64'] = img_str_edit
+
+                            st.session_state['data'] = df_edit
+                            save_data(df_edit)
+                            st.success("✅ Perubahan disimpan!")
+                            time.sleep(1)
+                            st.rerun()
+                    except IndexError:
+                        st.error("Terjadi kesalahan saat mengambil data file.")
+
+
+    # ================= TAB 3: HAPUS DATA =================
+    with tab3:
         if df.empty:
             st.warning("Data kosong.")
         else:
-            st.info("Pilih berjenjang: Kategori → Menu → Sub Menu → Judul Kegiatan (Sub2) → File")
+            st.info("🗑️ Hapus data secara permanen.")
 
-            a1, a2, a3 = st.columns(3)
-            b1, b2 = st.columns(2)
+            del_c1, del_c2, del_c3 = st.columns(3)
+            del_d1, del_d2 = st.columns(2)
 
             # 1) Kategori
-            list_kat = sorted(df['Kategori'].dropna().unique().tolist())
-            del_kat = a1.selectbox("Kategori", list_kat, key="del_kat")
+            d_list_kat = sorted(df['Kategori'].dropna().unique().tolist())
+            d_sel_kat = del_c1.selectbox("Kategori", d_list_kat, key="del_kat")
 
-            df_kat = df[df['Kategori'] == del_kat].copy()
-            if df_kat.empty:
-                st.warning("Tidak ada data di kategori ini.")
-                st.stop()
-
+            d_df_kat = df[df['Kategori'] == d_sel_kat].copy()
+            
             # 2) Menu
-            list_menu = sorted(df_kat['Menu'].fillna("-").unique().tolist())
-            del_menu = a2.selectbox("Menu", list_menu, key="del_menu")
-
-            df_menu = df_kat[df_kat['Menu'].fillna("-") == del_menu].copy()
-            if df_menu.empty:
-                st.warning("Tidak ada data di menu ini.")
-                st.stop()
+            if not d_df_kat.empty:
+                d_list_menu = sorted(d_df_kat['Menu'].fillna("-").unique().tolist())
+                d_sel_menu = del_c2.selectbox("Menu", d_list_menu, key="del_menu")
+                d_df_menu = d_df_kat[d_df_kat['Menu'].fillna("-") == d_sel_menu].copy()
+            else:
+                d_df_menu = pd.DataFrame()
 
             # 3) Sub Menu
-            list_sub = sorted(df_menu['Sub_Menu'].fillna("-").unique().tolist())
-            del_sub = a3.selectbox("Sub Menu", list_sub, key="del_sub")
+            if not d_df_menu.empty:
+                d_list_sub = sorted(d_df_menu['Sub_Menu'].fillna("-").unique().tolist())
+                d_sel_sub = del_c3.selectbox("Sub Menu", d_list_sub, key="del_sub")
+                d_df_sub = d_df_menu[d_df_menu['Sub_Menu'].fillna("-") == d_sel_sub].copy()
+            else:
+                d_df_sub = pd.DataFrame()
 
-            df_sub = df_menu[df_menu['Sub_Menu'].fillna("-") == del_sub].copy()
-            if df_sub.empty:
-                st.warning("Tidak ada data di sub menu ini.")
-                st.stop()
-
-            # 4) Sub2 (Judul Kegiatan)
-            list_sub2 = sorted(df_sub['Sub2_Menu'].fillna("-").unique().tolist())
-            del_sub2 = b1.selectbox("Judul Kegiatan (Sub2)", list_sub2, key="del_sub2")
-
-            df_sub2 = df_sub[df_sub['Sub2_Menu'].fillna("-") == del_sub2].copy()
-            if df_sub2.empty:
-                st.warning("Tidak ada data di judul kegiatan ini.")
-                st.stop()
+            # 4) Sub2
+            if not d_df_sub.empty:
+                d_list_sub2 = sorted(d_df_sub['Sub2_Menu'].fillna("-").unique().tolist())
+                d_sel_sub2 = del_d1.selectbox("Judul Kegiatan (Sub2)", d_list_sub2, key="del_sub2")
+                d_df_sub2 = d_df_sub[d_df_sub['Sub2_Menu'].fillna("-") == d_sel_sub2].copy()
+            else:
+                d_df_sub2 = pd.DataFrame()
 
             # 5) File
-            list_file = df_sub2['Nama_File'].fillna("-").tolist()
-            del_file = b2.selectbox("Nama File", list_file, key="del_file")
-
-            # Preview pilihan
-            pick = df_sub2[df_sub2['Nama_File'].fillna("-") == del_file]
-            if not pick.empty:
-                st.caption(f"Link: {pick.iloc[0]['Link_File']}")
+            if not d_df_sub2.empty:
+                d_list_file = d_df_sub2['Nama_File'].fillna("-").tolist()
+                d_sel_file = del_d2.selectbox("Nama File", d_list_file, key="del_file")
+            else:
+                d_sel_file = None
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            if st.button("🗑️ Hapus Permanen", type="primary", use_container_width=True, key="btn_hapus_permanen"):
-                idx = df[
-                    (df['Kategori'] == del_kat) &
-                    (df['Menu'].fillna("-") == del_menu) &
-                    (df['Sub_Menu'].fillna("-") == del_sub) &
-                    (df['Sub2_Menu'].fillna("-") == del_sub2) &
-                    (df['Nama_File'].fillna("-") == del_file)
-                ].index
+            if st.button("🚫 HAPUS FILE INI", type="primary", use_container_width=True, key="btn_delete"):
+                if d_sel_file:
+                    idx = df[
+                        (df['Kategori'] == d_sel_kat) &
+                        (df['Menu'].fillna("-") == d_sel_menu) &
+                        (df['Sub_Menu'].fillna("-") == d_sel_sub) &
+                        (df['Sub2_Menu'].fillna("-") == d_sel_sub2) &
+                        (df['Nama_File'].fillna("-") == d_sel_file)
+                    ].index
 
-                if len(idx) == 0:
-                    st.warning("Data tidak ditemukan / sudah terhapus.")
-                else:
-                    new_df = df.drop(idx).reset_index(drop=True)
-                    st.session_state['data'] = new_df
-                    save_data(new_df)
-                    st.success("✅ File berhasil dihapus permanen.")
-                    time.sleep(1)
-                    st.rerun()
+                    if len(idx) > 0:
+                        new_df = df.drop(idx).reset_index(drop=True)
+                        st.session_state['data'] = new_df
+                        save_data(new_df)
+                        st.success("✅ File berhasil dihapus.")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("Data tidak ditemukan.")
 
-    st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
-# ================= EDIT PAGE (MENU BARU) =================
-def edit_page():
-    st.markdown("## ✏️ Edit Data")
-    df = st.session_state['data']
-
-    if df.empty:
-        st.info("Database masih kosong.")
-        return
-
-    c1, c2 = st.columns([1, 2])
-
-    with c1:
-        kat_list = sorted(df['Kategori'].dropna().unique().tolist())
-        sel_kat = st.selectbox("Pilih Kategori", kat_list)
-
-        df_kat = df[df['Kategori'] == sel_kat].copy()
-        # pilih berdasarkan Nama_File biar gampang
-        file_list = df_kat['Nama_File'].fillna("").tolist()
-        sel_file = st.selectbox("Pilih File", file_list)
-
-        # ambil index row asli
-        row_idx = df_kat[df_kat['Nama_File'] == sel_file].index[0]
-
-    with c2:
-        st.markdown("### Form Edit")
-        cur = df.loc[row_idx]
-
-        # prefill
-        e_menu = st.text_input("Menu", value=str(cur.get('Menu', '') if pd.notna(cur.get('Menu', '')) else ''))
-        e_sub = st.text_input("Sub Menu", value=str(cur.get('Sub_Menu', '') if pd.notna(cur.get('Sub_Menu', '')) else ''))
-        e_sub2 = st.text_input("Judul Kegiatan (Sub2_Menu)", value=str(cur.get('Sub2_Menu', '') if pd.notna(cur.get('Sub2_Menu', '')) else ''))
-        e_nama = st.text_input("Nama File", value=str(cur.get('Nama_File', '') if pd.notna(cur.get('Nama_File', '')) else ''))
-        e_link = st.text_input("Link File", value=str(cur.get('Link_File', '') if pd.notna(cur.get('Link_File', '')) else ''))
-
-        st.markdown("#### 📷 Edit Cover Kategori (opsional)")
-        e_img = st.file_uploader("Upload cover baru (kosongkan jika tidak ingin ganti)", type=['png','jpg','jpeg'], key="edit_cover")
-
-        if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True):
-            # update row
-            df2 = df.copy()
-
-            df2.at[row_idx, 'Menu'] = e_menu
-            df2.at[row_idx, 'Sub_Menu'] = e_sub
-            df2.at[row_idx, 'Sub2_Menu'] = e_sub2
-            df2.at[row_idx, 'Nama_File'] = e_nama
-            df2.at[row_idx, 'Link_File'] = e_link
-
-            # cover kategori: kalau upload baru, update semua row kategori agar cover konsisten
-            if e_img is not None:
-                img_str = image_to_base64(e_img)
-                if img_str:
-                    df2.loc[df2['Kategori'] == sel_kat, 'Gambar_Base64'] = img_str
-
-            st.session_state['data'] = df2
-            save_data(df2)
-            st.success("✅ Berhasil disimpan!")
-            time.sleep(1)
-            st.rerun()
-            
     st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
 
 def get_base64_of_bin_file(bin_file):
@@ -908,17 +891,14 @@ if st.session_state['logged_in']:
         st.image("https://cdn-icons-png.flaticon.com/512/906/906343.png", width=50)
         st.markdown("### Admin Panel")
 
-        if st.button("🏠 Dashboard", use_container_width=True):
+        # Tombol Dashboard
+        if st.button("🏠 Dashboard Utama", use_container_width=True):
             st.session_state['current_view'] = 'home'
             st.rerun()
 
-        if st.button("⚙️ Input Data", use_container_width=True):
+        # Tombol Admin Panel (Input, Edit, Hapus jadi satu di sini)
+        if st.button("⚙️ Kelola Data (Admin)", use_container_width=True):
             st.session_state['current_view'] = 'admin'
-            st.rerun()
-
-        # ✅ MENU BARU
-        if st.button("✏️ Edit Data", use_container_width=True):
-            st.session_state['current_view'] = 'edit'
             st.rerun()
 
         st.markdown("---")
@@ -927,13 +907,14 @@ if st.session_state['logged_in']:
             st.session_state['logged_in'] = False
             st.rerun()
 
+    # Routing Halaman
     if st.session_state['current_view'] == 'home':
         home_page()
     elif st.session_state['current_view'] == 'detail':
         detail_page()
     elif st.session_state['current_view'] == 'admin':
         admin_page()
-    elif st.session_state['current_view'] == 'edit':
-        edit_page()
+    # Halaman 'edit' sudah tidak diperlukan karena masuk ke 'admin'
+    
 else:
     login_page()
