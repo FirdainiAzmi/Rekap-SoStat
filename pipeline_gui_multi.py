@@ -42,7 +42,7 @@ st.set_page_config(
 )
 
 # =============================
-# CSS (STYLE BARU UNTUK GAMBAR)
+# CSS (STYLE BARU)
 # =============================
 st.markdown("""
 <style>
@@ -60,12 +60,11 @@ header[data-testid="stHeader"] { background-color: rgba(0,0,0,0) !important; }
 .title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
 
 /* 3. PENGATURAN GAMBAR MENU UTAMA */
-/* Memaksa semua gambar memiliki tinggi yang sama agar rapi */
 div[data-testid="stImage"] img {
     height: 150px !important; 
     width: 100% !important;
     object-fit: cover !important;
-    border-radius: 12px 12px 0 0; /* Melengkung atas saja */
+    border-radius: 12px 12px 0 0;
 }
 
 /* 4. TOMBOL DI BAWAH GAMBAR */
@@ -73,8 +72,8 @@ div[data-testid="stButton"] > button {
   background: white !important;
   color: #334155 !important;
   border: 1px solid #e2e8f0 !important;
-  border-top: none !important; /* Supaya nyambung sama gambar */
-  border-radius: 0 0 12px 12px !important; /* Melengkung bawah saja */
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
   padding: 12px 0;
   width: 100% !important;
   font-family: 'Segoe UI', sans-serif;
@@ -91,7 +90,7 @@ div[data-testid="stButton"] > button:hover {
   box-shadow: 0 8px 15px rgba(0, 84, 166, 0.15);
 }
 
-/* Reset tombol navigasi kecil (Back, Logout, dll) agar tidak kena style di atas */
+/* Reset tombol navigasi kecil */
 div[data-testid="stButton"] > button[aria-label="Logout"],
 div[data-testid="stButton"] > button[aria-label="⬅️ Kembali"],
 div[data-testid="stButton"] > button[aria-label="Masuk Portal"],
@@ -185,7 +184,6 @@ with st.form("logout_form"):
         </div>
         """, unsafe_allow_html=True)
     with col2:
-        # Spacer agar tombol sejajar tengah secara vertikal
         st.markdown("<div style='height:15px'></div>", unsafe_allow_html=True)
         if st.form_submit_button("Logout"):
             st.session_state.is_logged_in = False
@@ -197,8 +195,8 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-# Pastikan kolom Link_Gambar ada
-required_cols = ["Kategori","Icon","Link_Gambar","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
+# ✅ PERBAIKAN DI SINI: Menghapus "Icon" dari daftar wajib
+required_cols = ["Kategori","Link_Gambar","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
 missing_cols = [c for c in required_cols if c not in df.columns]
 if missing_cols:
     st.error(f"Kolom Google Sheet belum lengkap. Kurang: {', '.join(missing_cols)}")
@@ -233,37 +231,32 @@ if search:
     st.stop()
 
 # =============================
-# HOME PAGE (GRID GAMBAR)
+# HOME PAGE
 # =============================
 if st.session_state.current_level == "home":
     
     unique_cats = df["Kategori"].unique()
-    
-    # Grid 4 kolom (bisa diganti 3 atau 5 sesuai selera)
     cols = st.columns(4) 
     
     for i, kat in enumerate(unique_cats):
+        # Ambil baris pertama kategori ini
         d = df[df["Kategori"] == kat].iloc[0]
         
         with cols[i % 4]:
-            # Container untuk Card
             with st.container():
-                
-                # 1. AMBIL GAMBAR DARI LINK_GAMBAR
-                # Jika kosong, pakai placeholder
+                # Tampilkan Gambar
                 img_url = d['Link_Gambar']
                 if img_url == "-" or pd.isna(img_url):
                     img_url = "https://via.placeholder.com/300x200.png?text=No+Image"
                 
                 st.image(img_url, use_container_width=True)
                 
-                # 2. TOMBOL JUDUL (Tanpa Icon Emoji)
+                # Tombol Judul
                 if st.button(kat, key=f"btn_home_{i}", use_container_width=True):
                     st.session_state.selected_category = kat
                     st.session_state.current_level = "detail"
                     st.rerun()
             
-            # Jarak antar baris
             st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
 
     st.markdown("""
@@ -285,12 +278,12 @@ with st.form("back"):
         st.rerun()
 
 df_cat = df[df["Kategori"] == st.session_state.selected_category]
-first = df_cat.iloc[0]
 
-# Header Halaman Detail (Masih pakai Icon kecil untuk judul, opsional bisa dihapus)
+# ✅ PERBAIKAN DI SINI: Header tidak lagi mengambil data Icon dari sheet
+# Kita ganti pakai emoji statis "📂"
 st.markdown(f"""
 <div class="title-row">
-  <div class="title-ico">{first['Icon']}</div> 
+  <div class="title-ico">📂</div> 
   <div class="title-text">
     <h1>{st.session_state.selected_category}</h1>
   </div>
@@ -352,7 +345,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# reset nav variables
+# reset nav
 st.session_state.nav_menu = None
 st.session_state.nav_submenu = None
 st.session_state.nav_sub2 = None
