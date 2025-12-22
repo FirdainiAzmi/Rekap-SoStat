@@ -564,6 +564,8 @@ def admin_page():
                     time.sleep(1)
                     st.rerun()
 
+    st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
+
 # ================= EDIT PAGE (MENU BARU) =================
 def edit_page():
     st.markdown("## ✏️ Edit Data")
@@ -622,7 +624,8 @@ def edit_page():
             st.success("✅ Berhasil disimpan!")
             time.sleep(1)
             st.rerun()
-
+            
+    st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
 
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
@@ -712,7 +715,7 @@ def home_page():
                 st.rerun()
             st.write("")
 
-    st.markdown("""<div class="footer">© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
+    st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
 
 
 # ================= DETAIL PAGE =================
@@ -810,6 +813,7 @@ def detail_page():
                             </div>
                             """, unsafe_allow_html=True)
 
+    st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
 
 # ================= MAIN CONTROLLER =================
 if st.session_state['logged_in']:
