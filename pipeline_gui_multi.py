@@ -119,7 +119,9 @@ section.main > div { padding-top: 1.1rem; }
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid var(--line);
-  height: 100%;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: auto;
   box-shadow: var(--shadow1);
   transition: transform .42s cubic-bezier(.2,.8,.2,1),
               box-shadow .42s cubic-bezier(.2,.8,.2,1),
