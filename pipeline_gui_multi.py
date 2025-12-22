@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 import re
+from urllib.parse import quote
 
 # =============================
 # HELPER: LINK DRIVE -> URL GAMBAR (UNTUK st.image)
@@ -41,7 +42,7 @@ def icon_to_image_url(icon_value: str):
     # drive share link -> thumbnail url
     file_id = extract_drive_file_id(s)
     if file_id:
-        return f"https://drive.google.com/thumbnail?id={file_id}&sz=w200"
+        return f"https://drive.google.com/thumbnail?id={file_id}&sz=w600"
 
     return None
 
@@ -110,7 +111,7 @@ header[data-testid="stHeader"] {
 .title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
 .subtitle { margin: 0; color: #475569; font-weight: 500; }
 
-/* 4. KARTU TOMBOL UTAMA (HOME) - TIMBUL */
+/* 4. KARTU TOMBOL UTAMA (HOME) - TIMBUL (tetap dipakai buat tombol kecil lain) */
 div[data-testid="stButton"] > button {
   background: white !important;
   color: #334155 !important;
@@ -118,11 +119,6 @@ div[data-testid="stButton"] > button {
   border-radius: 16px !important;
   box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05) !important;
   padding: 20px;
-  height: 160px !important;
-  width: 100% !important;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
@@ -237,32 +233,43 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   border-top: 1px solid rgba(15,23,42,.08);
 }
 
-/* HOME CARD OVERLAY (gambar + judul di atas tombol besar) */
-.home-card {
-  position: relative;
+/* HOME CARD KLIK (HTML) */
+.cat-card{
   height: 160px;
   width: 100%;
-}
-.home-card .content{
-  position: absolute;
-  inset: 0;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 50, 100, 0.08), 0 2px 6px rgba(0, 50, 100, 0.05);
+  border: 1px solid rgba(255,255,255,0.6);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  pointer-events: none;
+  text-decoration: none !important;
+  transition: all 0.25s ease;
 }
-.home-card .cat-title{
+.cat-card:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 84, 166, 0.25);
+}
+.cat-img{
+  flex: 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: #f8fafc;
+}
+.cat-img img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* gambar memenuhi kotak */
+}
+.cat-title{
+  padding: 10px 12px;
   font-weight: 800;
-  text-align: center;
   color: #334155;
+  text-align: center;
   line-height: 1.2;
   font-size: 15px;
-  padding: 0 10px;
-}
-.home-card img{
-  border-radius: 14px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -342,6 +349,19 @@ if any(c not in df.columns for c in required_cols):
     st.stop()
 
 # =============================
+# NAVIGASI DARI HOME CARD (query param)
+# =============================
+# jika user klik card, URL jadi ?kat=...
+if "kat" in st.query_params:
+    kat = st.query_params.get("kat")
+    if kat:
+        st.session_state.selected_category = kat
+        st.session_state.current_level = "detail"
+        # bersihin param biar ga nyangkut
+        st.query_params.clear()
+        st.rerun()
+
+# =============================
 # SEARCH BAR (NAVIGASI)
 # =============================
 search = st.text_input(
@@ -377,7 +397,7 @@ if search:
     st.stop()
 
 # =============================
-# HOME (Opsi B: tombol besar + gambar besar + judul di bawah)
+# HOME (GAMBAR SEGEDE KOTAK, JUDUL DI BAWAH, CLICKABLE)
 # =============================
 if st.session_state.current_level == "home":
     jumlah_kategori = df["Kategori"].nunique()
@@ -388,24 +408,23 @@ if st.session_state.current_level == "home":
         with cols[i % 5]:
             img_url = icon_to_image_url(d["Icon"])
 
-            st.markdown("<div class='home-card'>", unsafe_allow_html=True)
+            # card clickable pakai query param
+            kat_q = quote(str(kat))
 
-            # tombol besar (label kosong)
-            if st.button(" ", key=f"kat_btn_{kat}", use_container_width=True):
-                st.session_state.selected_category = kat
-                st.session_state.current_level = "detail"
-                st.rerun()
-
-            # konten "di dalam tombol"
-            st.markdown("<div class='content'>", unsafe_allow_html=True)
             if img_url:
-                st.image(img_url, width=95)  # BESARIN DI SINI
+                st.markdown(f"""
+                <a class="cat-card" href="?kat={kat_q}">
+                  <div class="cat-img"><img src="{img_url}" alt="icon"/></div>
+                  <div class="cat-title">{kat}</div>
+                </a>
+                """, unsafe_allow_html=True)
             else:
-                st.markdown("<div style='font-size:60px;'>📊</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='cat-title'>{kat}</div>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-            st.markdown("</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                <a class="cat-card" href="?kat={kat_q}">
+                  <div class="cat-img" style="font-size:64px;">📊</div>
+                  <div class="cat-title">{kat}</div>
+                </a>
+                """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="footer">
@@ -413,7 +432,6 @@ if st.session_state.current_level == "home":
       © 2025 Badan Pusat Statistik Kabupaten Sidoarjo
     </div>
     """, unsafe_allow_html=True)
-                
     st.stop()
 
 # =============================
