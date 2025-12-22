@@ -381,91 +381,113 @@ def admin_page():
 
         col_kiri, col_kanan = st.columns(2)
 
+        # ================= BAGIAN KIRI (KATEGORI) DIUBAH =================
         with col_kiri:
             st.markdown("### 1. Pengaturan Kategori")
 
-            existing_cats = df['Kategori'].unique().tolist() if not df.empty else []
+            # Ambil list kategori yang ada
+            existing_cats = df['Kategori'].dropna().unique().tolist() if not df.empty else []
+            
+            # Tambahkan opsi untuk buat baru
+            opsi_kategori = existing_cats + ["➕ Buat Kategori Baru"]
 
-            pilihan_mode = "Buat Baru"
-            if existing_cats:
-                pilihan_mode = st.radio("Pilih Mode Kategori:", ["Gunakan Kategori Lama", "Buat Kategori Baru"], horizontal=True)
+            # Selectbox tunggal
+            sel_kategori = st.selectbox("Pilih Kategori:", opsi_kategori)
 
+            # Logika penentuan input
             final_kategori = ""
-            if pilihan_mode == "Gunakan Kategori Lama":
-                final_kategori = st.selectbox("Pilih Kategori:", existing_cats)
-            else:
+            if sel_kategori == "➕ Buat Kategori Baru":
                 final_kategori = st.text_input("Ketik Nama Kategori Baru:", placeholder="Contoh: Statistik Sosial")
+            else:
+                final_kategori = sel_kategori
 
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("### 📷 Gambar Cover")
             in_img = st.file_uploader("Upload Cover (Opsional)", type=['png','jpg','jpeg'])
 
+        # ================= BAGIAN KANAN (DETAIL) DISESUAIKAN =================
         with col_kanan:
             st.markdown("### 2. Detail Dokumen")
 
-            is_old_cat = (pilihan_mode == "Gunakan Kategori Lama") and (final_kategori in existing_cats)
+            # Logic penanda apakah ini kategori lama atau baru (untuk memfilter menu)
+            is_old_cat = (sel_kategori != "➕ Buat Kategori Baru")
 
             in_menu = ""
+            # Jika Kategori Lama, tampilkan pilihan Menu yang sudah ada
             if is_old_cat:
                 df_cat = df[df['Kategori'] == final_kategori]
-                list_menu = df_cat['Menu'].unique().tolist()
+                list_menu = df_cat['Menu'].dropna().unique().tolist()
                 list_menu.append("➕ Buat Menu Baru")
 
                 sel_menu = st.selectbox("Menu Utama", list_menu, key="sel_menu")
 
                 if sel_menu == "➕ Buat Menu Baru":
-                    in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Statistik Sosial", key="txt_menu_new")
+                    in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Publikasi", key="txt_menu_new")
                 else:
                     in_menu = sel_menu
             else:
-                in_menu = st.text_input("Menu Utama", placeholder="Misal: Sakernas", key="txt_menu_default")
+                # Jika Kategori Baru, pasti Menu harus input manual
+                in_menu = st.text_input("Menu Utama", placeholder="Misal: Publikasi", key="txt_menu_default")
 
+            # --- SUB MENU (Logic sama) ---
             in_sub = ""
-            if is_old_cat and in_menu != "➕ Buat Menu Baru" and not df_cat[df_cat['Menu'] == in_menu].empty:
+            # Cek apakah Menu-nya lama (bukan 'Buat Baru') dan datanya ada
+            menu_is_existing = False
+            if is_old_cat and in_menu != "➕ Buat Menu Baru" and 'df_cat' in locals():
+                if not df_cat[df_cat['Menu'] == in_menu].empty:
+                    menu_is_existing = True
+            
+            if menu_is_existing:
                 df_menu = df_cat[df_cat['Menu'] == in_menu]
-                list_sub = df_menu['Sub_Menu'].unique().tolist()
+                list_sub = df_menu['Sub_Menu'].dropna().unique().tolist()
                 list_sub.append("➕ Buat Sub Baru")
 
-                sel_sub = st.selectbox("Sub Menu", list_sub, key="sel_sub")
+                sel_sub = st.selectbox("Sub Menu (Tahun)", list_sub, key="sel_sub")
 
                 if sel_sub == "➕ Buat Sub Baru":
-                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: Sakernas Maret 2025", key="txt_sub_new")
+                    in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: 2025", key="txt_sub_new")
                 else:
                     in_sub = sel_sub
             else:
-                in_sub = st.text_input("Sub Menu", placeholder="Misal: Sakernas Maret 2025", key="txt_sub_default")
+                in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: 2025", key="txt_sub_default")
 
+            # --- SUB MENU 2 / JUDUL KEGIATAN (Logic sama) ---
             in_sub2 = ""
             valid_sub = False
-            if is_old_cat and in_menu != "➕ Buat Menu Baru" and in_sub != "➕ Buat Sub Baru":
-                if 'df_menu' in locals() and not df_menu[df_menu['Sub_Menu'] == in_sub].empty:
+            
+            # Cek apakah Sub Menu-nya lama
+            if menu_is_existing and in_sub != "➕ Buat Sub Baru" and 'df_menu' in locals():
+                if not df_menu[df_menu['Sub_Menu'] == in_sub].empty:
                     valid_sub = True
 
             if valid_sub:
                 df_sub = df_menu[df_menu['Sub_Menu'] == in_sub]
-                list_sub2 = df_sub['Sub2_Menu'].unique().tolist()
+                list_sub2 = df_sub['Sub2_Menu'].dropna().unique().tolist()
                 list_sub2 = [x for x in list_sub2 if str(x) != 'nan']
                 list_sub2.append("➕ Buat Sub 2 Baru")
 
-                sel_sub2 = st.selectbox("Sub Menu 2", list_sub2, key="sel_sub2")
+                sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", list_sub2, key="sel_sub2")
 
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
-                    in_sub2 = st.text_input("Ketik Sub Menu 2", placeholder="Misal: Pelatihan Petugas", key="txt_sub2_new")
+                    in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Semester 1", key="txt_sub2_new")
                 else:
                     in_sub2 = sel_sub2
             else:
-                in_sub2 = st.text_input("Sub Menu 2", placeholder="Misal: Pelatihan Petugas", key="txt_sub2_default")
+                in_sub2 = st.text_input("Sub Menu 2 (Judul Kegiatan)", placeholder="Misal: Semester 1", key="txt_sub2_default")
 
             st.markdown("---")
             in_nama = st.text_input("Judul File (Wajib Diisi)*", key="input_nama_file")
             in_link = st.text_input("Link File (Google Drive/Web)", key="input_link_file")
 
         st.markdown("<br>", unsafe_allow_html=True)
+        
+        # --- TOMBOL SIMPAN ---
         if st.button("💾 SIMPAN PERMANEN", type="primary", use_container_width=True):
             if final_kategori and in_nama:
                 img_str = image_to_base64(in_img)
 
-                if not img_str and final_kategori in existing_cats:
+                # Jika gambar tidak diupload, coba ambil dari data lama jika kategorinya sudah ada
+                if not img_str and sel_kategori != "➕ Buat Kategori Baru":
                     try:
                         prev = df[df['Kategori']==final_kategori]['Gambar_Base64'].iloc[0]
                         img_str = prev
@@ -488,7 +510,7 @@ def admin_page():
             else:
                 st.warning("Mohon isi Nama Kategori dan Judul File.")
 
-    # --- TAB HAPUS ---
+    # --- TAB HAPUS (Tidak berubah, copy saja dari kode lama atau biarkan logic ini) ---
     with tab2:
         if df.empty:
             st.warning("Data kosong.")
@@ -565,7 +587,6 @@ def admin_page():
                     st.rerun()
 
     st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
-
 # ================= EDIT PAGE (MENU BARU) =================
 def edit_page():
     st.markdown("## ✏️ Edit Data")
