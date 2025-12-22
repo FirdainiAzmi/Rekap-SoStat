@@ -19,26 +19,31 @@ def extract_drive_file_id(url: str):
     return None
 
 def icon_to_image_url(icon_value: str):
+    """
+    Return URL gambar yang bisa dibaca st.image().
+    - Jika direct image URL (.png/.jpg/.webp) -> pakai langsung
+    - Jika link Google Drive -> pakai thumbnail endpoint (lebih stabil)
+    """
     if icon_value is None:
         return None
-
     s = str(icon_value).strip()
     if s == "" or s == "-":
         return None
 
-    # kalau sudah URL gambar langsung
-    if (s.startswith("http://") or s.startswith("https://")) and re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, re.I):
+    # harus http(s)
+    if not (s.startswith("http://") or s.startswith("https://")):
+        return None
+
+    # direct image url
+    if re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, flags=re.IGNORECASE):
         return s
 
-    # kalau link drive → ambil file_id → jadikan thumbnail URL
-    if s.startswith("http://") or s.startswith("https://"):
-        file_id = extract_drive_file_id(s)
-        if file_id:
-            return f"https://drive.google.com/thumbnail?id={file_id}&sz=w200"
+    # drive share link -> thumbnail url
+    file_id = extract_drive_file_id(s)
+    if file_id:
+        return f"https://drive.google.com/thumbnail?id={file_id}&sz=w200"
 
     return None
-
-
 
 
 # =============================
@@ -232,12 +237,14 @@ div[data-testid="stTextInput"] > div > div:focus-within {
   border-top: 1px solid rgba(15,23,42,.08);
 }
 
-/* HOME ICON CENTER */
-.home-icon {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:64px;
+/* HOME ICON CENTER + BUTTON OVERLAY (gambar bisa diklik) */
+.img-click-wrap{
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 64px;
   margin-bottom: 8px;
 }
 </style>
@@ -354,6 +361,7 @@ if search:
 
 # =============================
 # HOME (ICON GAMBAR DI ATAS, JUDUL DI BAWAH)
+# + Gambar bisa diklik (button transparan di atas area ikon)
 # =============================
 if st.session_state.current_level == "home":
     categories = df["Kategori"].unique().tolist()
@@ -364,18 +372,21 @@ if st.session_state.current_level == "home":
         with cols[i % 5]:
             img_url = icon_to_image_url(d["Icon"])
 
-            st.markdown("<div class='home-icon'>", unsafe_allow_html=True)
+            st.markdown("<div class='img-click-wrap'>", unsafe_allow_html=True)
             if img_url:
                 st.image(img_url, width=52)
             else:
                 st.markdown("<div style='font-size:34px;'>📊</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            if st.button(
-                kat,
-                key=f"kat_btn_{kat}",
-                use_container_width=True
-            ):
+            # tombol transparan untuk klik gambar (label spasi)
+            if st.button(" ", key=f"img_btn_{kat}", use_container_width=True):
+                st.session_state.selected_category = kat
+                st.session_state.current_level = "detail"
+                st.rerun()
+
+            # tombol judul
+            if st.button(kat, key=f"kat_btn_{kat}", use_container_width=True):
                 st.session_state.selected_category = kat
                 st.session_state.current_level = "detail"
                 st.rerun()
