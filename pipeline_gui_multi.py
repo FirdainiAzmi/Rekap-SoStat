@@ -201,6 +201,10 @@ section.main > div { padding-top: 1.1rem; }
 .stButton > button:active{
   transform: translateY(0px) scale(.98);
 }
+div[data-testid="stButton"] > button[kind="primary"],
+div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
+    color: #000000 !important;
+}
 
 /* ================= FILTER PANEL ================= */
 .filter-panel{
@@ -517,14 +521,7 @@ def admin_page():
             if not pick.empty:
                 st.caption(f"Link: {pick.iloc[0]['Link_File']}")
 
-            st.markdown("""
-            <style>
-            div[data-testid="stButton"]:has(button[key="btn_hapus_permanen"]) button{
-              color: #000000 !important;
-            }
-            </style>
-            <br>
-            """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
             if st.button("🗑️ Hapus Permanen", type="primary", use_container_width=True, key="btn_hapus_permanen"):
                 idx = df[
