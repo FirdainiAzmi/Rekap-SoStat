@@ -450,11 +450,11 @@ def admin_page():
                 sel_sub2 = st.selectbox("Sub Menu 2", list_sub2, key="sel_sub2")
 
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
-                    in_sub2 = st.text_input("Ketik Sub Menu 2", placeholder="Misal: Alokasi Petugas", key="txt_sub2_new")
+                    in_sub2 = st.text_input("Ketik Sub Menu 2", placeholder="Misal: Pelatihan Petugas", key="txt_sub2_new")
                 else:
                     in_sub2 = sel_sub2
             else:
-                in_sub2 = st.text_input("Sub Menu 2", placeholder="Misal: Alokasi Petugas", key="txt_sub2_default")
+                in_sub2 = st.text_input("Sub Menu 2", placeholder="Misal: Pelatihan Petugas", key="txt_sub2_default")
 
             st.markdown("---")
             in_nama = st.text_input("Judul File (Wajib Diisi)*", key="input_nama_file")
