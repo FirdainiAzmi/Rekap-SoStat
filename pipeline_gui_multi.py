@@ -3,30 +3,19 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
 # =============================
-# FUNGSI BANTUAN (BARU)
+# FUNGSI BANTUAN
 # =============================
 def convert_google_drive_link(url):
-    """
-    Mengubah link 'view' Google Drive menjadi link 'thumbnail/direct'
-    agar bisa muncul di st.image
-    """
     if not isinstance(url, str):
         return "https://via.placeholder.com/300x200.png?text=No+Link"
-    
-    # Jika link kosong atau strip
     if url.strip() == "-" or url.strip() == "":
         return "https://via.placeholder.com/300x200.png?text=No+Image"
-
-    # Jika ini link Google Drive standar
     if "drive.google.com" in url and "/d/" in url:
         try:
-            # Ambil ID file di antara /d/ dan /view
             file_id = url.split('/d/')[1].split('/')[0]
-            # Kembalikan format thumbnail (lebih cepat loadingnya)
             return f"https://drive.google.com/thumbnail?id={file_id}&sz=w800"
         except:
-            return url # Jika gagal parsing, kembalikan link asli
-            
+            return url
     return url
 
 # =============================
@@ -39,21 +28,17 @@ if "current_level" not in st.session_state:
 if "selected_category" not in st.session_state:
     st.session_state.selected_category = None
 
-# navigasi dari search
+# navigasi & search state
 if "nav_menu" not in st.session_state:
     st.session_state.nav_menu = None
 if "nav_submenu" not in st.session_state:
     st.session_state.nav_submenu = None
 if "nav_sub2" not in st.session_state:
     st.session_state.nav_sub2 = None
-
-# key widget search
 if "global_search" not in st.session_state:
     st.session_state["global_search"] = ""
-
 if "pending_clear_search" not in st.session_state:
     st.session_state["pending_clear_search"] = False
-
 if st.session_state["pending_clear_search"]:
     st.session_state["global_search"] = ""
     st.session_state["pending_clear_search"] = False
@@ -69,7 +54,7 @@ st.set_page_config(
 )
 
 # =============================
-# CSS
+# CSS (DIPERBAIKI AGAR GAMBAR TENGAH)
 # =============================
 st.markdown("""
 <style>
@@ -86,11 +71,23 @@ header[data-testid="stHeader"] { background-color: rgba(0,0,0,0) !important; }
 .title-ico { font-size: 42px; }
 .title-text h1 { margin: 0; font-size: 40px; font-weight: 800; color: #0B2F5B; }
 
-/* 3. PENGATURAN GAMBAR MENU UTAMA */
-div[data-testid="stImage"] img {
-    height: 150px !important; 
+/* 3. PENGATURAN GAMBAR MENU UTAMA (UPDATE) */
+/* Container Gambar: Paksa ke tengah */
+div[data-testid="stImage"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     width: 100% !important;
-    object-fit: cover !important;
+    background-color: white; /* Latar putih di belakang gambar */
+    border-radius: 12px 12px 0 0;
+}
+
+/* Gambarnya Sendiri */
+div[data-testid="stImage"] img {
+    height: 150px !important;       /* Tinggi kotak tetap */
+    width: 100% !important;         /* Lebar memenuhi kotak */
+    object-fit: contain !important; /* Gambar UTUH di tengah (tidak dicrop) */
+    object-position: center !important; /* Posisi pasti di tengah */
     border-radius: 12px 12px 0 0;
 }
 
@@ -99,7 +96,7 @@ div[data-testid="stButton"] > button {
   background: white !important;
   color: #334155 !important;
   border: 1px solid #e2e8f0 !important;
-  border-top: none !important;
+  border-top: none !important; /* Supaya nyambung sama gambar */
   border-radius: 0 0 12px 12px !important;
   padding: 12px 0;
   width: 100% !important;
@@ -222,7 +219,6 @@ with st.form("logout_form"):
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(ttl=60).fillna("-")
 
-# Cek kolom wajib (tanpa Icon)
 required_cols = ["Kategori","Link_Gambar","Menu","Sub_Menu","Sub2_Menu","Nama_File","Link_File"]
 missing_cols = [c for c in required_cols if c not in df.columns]
 if missing_cols:
@@ -271,13 +267,12 @@ if st.session_state.current_level == "home":
         with cols[i % 4]:
             with st.container():
                 
-                # --- UPDATE DI SINI: PAKAI FUNGSI CONVERT ---
+                # --- GAMBAR ---
                 raw_link = d['Link_Gambar']
                 final_img_link = convert_google_drive_link(raw_link)
-                # --------------------------------------------
-
                 st.image(final_img_link, use_container_width=True)
                 
+                # --- TOMBOL ---
                 if st.button(kat, key=f"btn_home_{i}", use_container_width=True):
                     st.session_state.selected_category = kat
                     st.session_state.current_level = "detail"
@@ -369,7 +364,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# reset nav
 st.session_state.nav_menu = None
 st.session_state.nav_submenu = None
 st.session_state.nav_sub2 = None
