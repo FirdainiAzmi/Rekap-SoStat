@@ -467,25 +467,76 @@ def admin_page():
         if df.empty:
             st.warning("Data kosong.")
         else:
-            c1, c2, c3 = st.columns(3)
-            list_kat = df['Kategori'].unique()
-            del_kat = c1.selectbox("Filter Kategori", list_kat)
+            st.info("Pilih berjenjang: Kategori → Menu → Sub Menu → Judul Kegiatan (Sub2) → File")
 
-            df_1 = df[df['Kategori']==del_kat]
-            if not df_1.empty:
-                del_file = c2.selectbox("Pilih File Hapus", df_1['Nama_File'].unique())
+            a1, a2, a3 = st.columns(3)
+            b1, b2 = st.columns(2)
 
-                c3.markdown("<br>", unsafe_allow_html=True)
-                if c3.button("🗑️ Hapus Permanen", type="primary"):
-                    idx = df[(df['Kategori']==del_kat) & (df['Nama_File']==del_file)].index
+            # 1) Kategori
+            list_kat = sorted(df['Kategori'].dropna().unique().tolist())
+            del_kat = a1.selectbox("Kategori", list_kat, key="del_kat")
 
+            df_kat = df[df['Kategori'] == del_kat].copy()
+            if df_kat.empty:
+                st.warning("Tidak ada data di kategori ini.")
+                st.stop()
+
+            # 2) Menu
+            list_menu = sorted(df_kat['Menu'].fillna("-").unique().tolist())
+            del_menu = a2.selectbox("Menu", list_menu, key="del_menu")
+
+            df_menu = df_kat[df_kat['Menu'].fillna("-") == del_menu].copy()
+            if df_menu.empty:
+                st.warning("Tidak ada data di menu ini.")
+                st.stop()
+
+            # 3) Sub Menu
+            list_sub = sorted(df_menu['Sub_Menu'].fillna("-").unique().tolist())
+            del_sub = a3.selectbox("Sub Menu", list_sub, key="del_sub")
+
+            df_sub = df_menu[df_menu['Sub_Menu'].fillna("-") == del_sub].copy()
+            if df_sub.empty:
+                st.warning("Tidak ada data di sub menu ini.")
+                st.stop()
+
+            # 4) Sub2 (Judul Kegiatan)
+            list_sub2 = sorted(df_sub['Sub2_Menu'].fillna("-").unique().tolist())
+            del_sub2 = b1.selectbox("Judul Kegiatan (Sub2)", list_sub2, key="del_sub2")
+
+            df_sub2 = df_sub[df_sub['Sub2_Menu'].fillna("-") == del_sub2].copy()
+            if df_sub2.empty:
+                st.warning("Tidak ada data di judul kegiatan ini.")
+                st.stop()
+
+            # 5) File
+            list_file = df_sub2['Nama_File'].fillna("-").tolist()
+            del_file = b2.selectbox("Nama File", list_file, key="del_file")
+
+            # Preview pilihan
+            pick = df_sub2[df_sub2['Nama_File'].fillna("-") == del_file]
+            if not pick.empty:
+                st.caption(f"Link: {pick.iloc[0]['Link_File']}")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🗑️ Hapus Permanen", type="primary", use_container_width=True):
+                idx = df[
+                    (df['Kategori'] == del_kat) &
+                    (df['Menu'].fillna("-") == del_menu) &
+                    (df['Sub_Menu'].fillna("-") == del_sub) &
+                    (df['Sub2_Menu'].fillna("-") == del_sub2) &
+                    (df['Nama_File'].fillna("-") == del_file)
+                ].index
+
+                if len(idx) == 0:
+                    st.warning("Data tidak ditemukan / sudah terhapus.")
+                else:
                     new_df = df.drop(idx).reset_index(drop=True)
                     st.session_state['data'] = new_df
                     save_data(new_df)
-
-                    st.success("File dihapus dari sistem.")
+                    st.success("✅ File berhasil dihapus permanen.")
                     time.sleep(1)
                     st.rerun()
+
 
 
 # ================= EDIT PAGE (MENU BARU) =================
