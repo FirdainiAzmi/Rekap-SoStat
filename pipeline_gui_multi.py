@@ -55,7 +55,7 @@ header[data-testid="stHeader"]{ background: transparent; }
 section.main > div { padding-top: 1.1rem; }
 
 .stApp {
-  background: linear-gradient(135deg, #f5f7f6 100%, #5ca0f2 0%);
+  background: linear-gradient(135deg, #5ca0f2 0%, #f5f7f6 100%);
 }
 
 /* ================= HERO ================= */
