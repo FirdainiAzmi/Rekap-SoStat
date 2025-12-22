@@ -181,8 +181,8 @@ section.main > div { padding-top: 1.1rem; }
   font-weight: 800;
   font-size: 1.02rem;
   text-align: center;
-  padding: 14px 12px 18px;
-  min-height: 56px;
+  padding: 0 12px;
+  height: 56px;
   display:flex;
   align-items:center;
   justify-content:center;
