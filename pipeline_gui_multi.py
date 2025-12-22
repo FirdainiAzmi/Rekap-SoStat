@@ -353,10 +353,13 @@ def login_page():
         """, unsafe_allow_html=True)
 
         with st.form("login"):
+            ADMIN_USERNAME = st.secrets.get("username")
+            ADMIN_PASSWORD = st.secrets.get("password")
+            
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
             if st.form_submit_button("MASUK SISTEM", use_container_width=True, type="primary"):
-                if u=="admin" and p=="admin":
+                if u==ADMIN_USERNAM and p==ADMIN_PASSWORD:
                     st.session_state['logged_in']=True
                     st.rerun()
                 else:
@@ -646,10 +649,11 @@ def home_page():
     </style>
     """, unsafe_allow_html=True)
 
+    st.markdown(f"{img_tag}", unsafe_allow_html=True)
+    
     st.markdown(
-        f"""
+        """
         <div class="hero-container">
-            {img_tag}
             <div class="hero-subtitle">
                 <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
                     Selamat datang di Portal Data Statistik Sosial⚡
