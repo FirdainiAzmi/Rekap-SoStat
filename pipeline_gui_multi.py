@@ -19,29 +19,25 @@ def extract_drive_file_id(url: str):
     return None
 
 def icon_to_image_url(icon_value: str):
-    """
-    HANYA return URL jika memang http/https.
-    Ini mencegah st.image() menganggap string seperti 'desa cantik.jpg' sebagai file lokal.
-    """
-    if not icon_value or icon_value == "-":
+    if icon_value is None:
         return None
 
     s = str(icon_value).strip()
-
-    # HARUS URL http/https
-    if not (s.startswith("http://") or s.startswith("https://")):
+    if s == "" or s == "-":
         return None
 
-    # direct image url
-    if re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, flags=re.IGNORECASE):
+    # kalau sudah URL gambar langsung
+    if (s.startswith("http://") or s.startswith("https://")) and re.search(r"\.(png|jpg|jpeg|webp)(\?.*)?$", s, re.I):
         return s
 
-    # drive share link -> direct view
-    file_id = extract_drive_file_id(s)
-    if file_id:
-        return f"https://drive.google.com/uc?export=view&id={file_id}"
+    # kalau link drive → ambil file_id → jadikan thumbnail URL
+    if s.startswith("http://") or s.startswith("https://"):
+        file_id = extract_drive_file_id(s)
+        if file_id:
+            return f"https://drive.google.com/thumbnail?id={file_id}&sz=w200"
 
     return None
+
 
 
 # =============================
