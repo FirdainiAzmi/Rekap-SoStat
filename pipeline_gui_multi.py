@@ -671,30 +671,21 @@ def home_page():
         img_orang_src = ""
 
     # CSS
-    st.markdown("""
+   st.markdown("""
     <style>
       .hero-grid{
         display:grid;
-        grid-template-columns: 1fr 420px; /* kolom kanan fixed biar gak turun */
+        grid-template-columns: 1fr 420px;
         gap: 28px;
-        align-items: start;              /* sejajar atas dengan teks */
+        align-items: start;
       }
-    
-      .hero-col1{ min-width: 0; }        /* aman buat text wrap */
-    
       .hero-col2{
         display:flex;
-        justify-content:flex-end;         /* nempel kanan */
-        align-items:flex-start;           /* sejajar atas */
+        justify-content:flex-end;
+        align-items:flex-start;
       }
+      .hero-logo-orang{ width: 320px; height:auto; display:block; }
     
-      .hero-logo-orang{
-        width: 320px;
-        height: auto;
-        display:block;
-      }
-    
-      /* responsif: layar kecil -> turun ke bawah */
       @media (max-width: 980px){
         .hero-grid{ grid-template-columns: 1fr; }
         .hero-col2{ justify-content:center; }
@@ -702,6 +693,7 @@ def home_page():
       }
     </style>
     """, unsafe_allow_html=True)
+
     
     st.markdown(f"""
     <div class="hero-container">
@@ -711,7 +703,7 @@ def home_page():
           {img_tag}
           <div class="hero-subtitle">
             <div style="font-weight:800; font-size:1.8rem; margin: 10px 0 6px 0;">
-              Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo ⚡
+              Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
             </div>
             <div style="opacity:.92; font-size:1rem; line-height:1.55;">
               Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
