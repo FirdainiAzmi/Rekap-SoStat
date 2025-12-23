@@ -697,9 +697,17 @@ def home_page():
       gap: 28px;
       align-items: start;
     }}
-    
+
+    .hero-col1{{
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
+        linear-gradient(135deg, var(--brand1), var(--brand2));
+    }}
     .hero-col2{{
       display:flex;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
+        linear-gradient(135deg, var(--brand1), var(--brand2));
       justify-content:flex-end;
       align-items:flex-start;
     }}
