@@ -764,6 +764,8 @@ def home_page():
         </div>
       </div>
     </div>
+    <br>
+    <br>
     """, height=HERO_H)
 
 
@@ -821,11 +823,11 @@ def home_page():
     # ================= AKHIR PERBAIKAN =================
 
     st.markdown("### 📂 Jelajahi Kategori")
-    cols = st.columns(3)
+    cols = st.columns(4)
     cats = df['Kategori'].unique()
 
     for idx, cat in enumerate(cats):
-        with cols[idx % 3]:
+        with cols[idx % 4]:
             # Handle jika gambar kosong/error
             try:
                 row = df[df['Kategori'] == cat].iloc[0]
