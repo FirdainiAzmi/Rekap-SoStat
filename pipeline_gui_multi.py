@@ -673,54 +673,77 @@ def home_page():
     # CSS
     import streamlit.components.v1 as components
 
+    HERO_H = 460  # naikin kalau masih kepotong (mis. 520)
+
     components.html(f"""
     <style>
+    :root{{
+      --brand1:#0B2F5B;   /* biru tua */
+      --brand2:#15407A;   /* biru tua 2 */
+    }}
+    
     .hero-container{{
       position: relative;
       overflow: hidden;
       background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
+        radial-gradient(900px 500px at 12% 10%, rgba(255,255,255,.10), transparent 55%),
+        radial-gradient(700px 420px at 85% 25%, rgba(56,189,248,.12), transparent 60%),
         linear-gradient(135deg, var(--brand1), var(--brand2));
-      padding: 42px 40px;
+      padding: 44px 44px;
       border-radius: 22px;
       color: white;
-      box-shadow: 0 22px 60px rgba(79,70,229,.28);
+      box-shadow: 0 26px 70px rgba(2, 6, 23, .35);
       margin-bottom: 26px;
     }}
     
     .hero-grid{{
       display:grid;
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
-        linear-gradient(135deg, var(--brand1), var(--brand2));
-      grid-template-columns: 1fr 420px;
-      gap: 28px;
-      align-items: start;
-    }}
-
-    .hero-col1{{
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
-        linear-gradient(135deg, var(--brand1), var(--brand2));
-    }}
-    .hero-col2{{
-      display:flex;
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
-        linear-gradient(135deg, var(--brand1), var(--brand2));
-      justify-content:flex-end;
-      align-items:flex-start;
+      grid-template-columns: 1.2fr .8fr;  /* kiri lebih besar */
+      gap: 34px;
+      align-items: center;
     }}
     
-    .hero-logo-orang{{
-      width: 320px;
+    .hero-col1{{ min-width: 0; }}
+    
+    .hero-col2{{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+    }}
+    
+    .hero-col1 img{{
+      max-width: 340px;
       height: auto;
       display:block;
     }}
     
+    .hero-col2 img{{
+      width: min(380px, 100%);
+      height: auto;
+      display:block;
+    }}
+    
+    .hero-title{{
+      font-weight: 900;
+      font-size: 2.15rem;
+      line-height: 1.15;
+      margin: 14px 0 10px 0;
+      text-shadow: 0 10px 30px rgba(0,0,0,.25);
+      word-break: break-word;
+    }}
+    
+    .hero-desc{{
+      opacity: .92;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      max-width: 720px;
+    }}
+    
     @media (max-width: 980px){{
+      .hero-container{{ padding: 34px 26px; }}
       .hero-grid{{ grid-template-columns: 1fr; }}
       .hero-col2{{ justify-content:center; }}
+      .hero-title{{ font-size: 1.7rem; text-align:left; }}
     }}
     </style>
     
@@ -728,20 +751,21 @@ def home_page():
       <div class="hero-grid">
         <div class="hero-col1">
           {img_tag}
-          <div style="margin-top:10px;">
-            <div style="font-weight:800;font-size:1.8rem;margin:10px 0 6px 0;">
-              Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
-            </div>
-            <div style="opacity:.92;font-size:1rem;line-height:1.55;">
-              Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
-            </div>
+          <div class="hero-title">
+            Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
+          </div>
+          <div class="hero-desc">
+            Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
           </div>
         </div>
     
-        <div class="hero-col2">{img_orang_src}</div>
+        <div class="hero-col2">
+          {img_orang_src}
+        </div>
       </div>
     </div>
-    """, height=320)
+    """, height=HERO_H)
+
 
 
 
