@@ -675,36 +675,49 @@ def home_page():
 
     components.html(f"""
     <style>
-    .hero-container{
+    .hero-container{{
       position: relative;
       overflow: hidden;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
-                  linear-gradient(135deg, var(--brand1), var(--brand2));
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
+        linear-gradient(135deg, var(--brand1), var(--brand2));
       padding: 42px 40px;
       border-radius: 22px;
       color: white;
       box-shadow: 0 22px 60px rgba(79,70,229,.28);
       margin-bottom: 26px;
-      transform: translateZ(0);
-    }
+    }}
+    
+    .hero-grid{{
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+      align-items: start;
+    }}
+    
+    .hero-col2{{
+      display:flex;
+      justify-content:flex-end;
+      align-items:flex-start;
+    }}
+    
+    .hero-logo-orang{{
+      width: 320px;
+      height: auto;
+      display:block;
+    }}
+    
+    @media (max-width: 980px){{
+      .hero-grid{{ grid-template-columns: 1fr; }}
+      .hero-col2{{ justify-content:center; }}
+    }}
     </style>
     
     <div class="hero-container">
-      <style>
-        .hero-grid{{
-          display:grid;
-          grid-template-columns:1fr 420px;
-          gap:28px;align-items:start; 
-        }}
-        .hero-col2{{display:flex;justify-content:flex-end;align-items:flex-start;}}
-        .hero-logo-orang{{width:320px;height:auto;display:block;}}
-        @media (max-width:980px){{.hero-grid{{grid-template-columns:1fr;}}.hero-col2{{justify-content:center;}}}}
-      </style>
-    
       <div class="hero-grid">
         <div class="hero-col1">
           {img_tag}
-          <div style="color:white;">
+          <div style="margin-top:10px;">
             <div style="font-weight:800;font-size:1.8rem;margin:10px 0 6px 0;">
               Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
             </div>
