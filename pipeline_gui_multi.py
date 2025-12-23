@@ -1009,7 +1009,7 @@ if st.session_state['logged_in']:
         st.markdown("---")
 
         st.markdown"""
-        panduan lengkap bagaimana cara menggunakan ArsiTal tersedia [di sini] (https://drive.google.com/file/d/1ZtCEHJp6hw9r8iIFOgA_QTaH2FH0Umoq/view?usp=sharing).
+            Panduan lengkap bagaimana cara menggunakan ArsiTal tersedia [di sini] (https://drive.google.com/file/d/1ZtCEHJp6hw9r8iIFOgA_QTaH2FH0Umoq/view?usp=sharing).
         """
         
         if st.button("🚪 Logout", use_container_width=True):
