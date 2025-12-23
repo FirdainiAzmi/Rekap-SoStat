@@ -673,7 +673,7 @@ def home_page():
     # CSS
     import streamlit.components.v1 as components
 
-    HERO_H = 400
+    HERO_H = 450
 
     components.html(f"""
     <style>
