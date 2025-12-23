@@ -660,14 +660,10 @@ def home_page():
     try:
         # 1. Gambar Kiri (Logo Arsital)
         img_code = get_base64_of_bin_file("logo_arsital.png")
-        # Ini kita buat jadi TAG HTML LENGKAP karena langsung ditempel di HTML bawah
         img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
         
         # 2. Gambar Kanan (Logo Orang)
         img_code2 = get_base64_of_bin_file("logo_orang.png")
-        # PERBAIKAN 1: Gunakan img_code2
-        # PERBAIKAN 2: Jangan pakai tag <img> di sini, cukup simpan datanya saja
-        # Supaya nanti bisa masuk ke src="{img_orang_src}" tanpa dobel tag
         img_orang_src = f"data:image/png;base64,{img_code2}"
 
     except:
@@ -693,7 +689,6 @@ def home_page():
                     <div style="opacity:.92; font-size:1rem">
                         Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
                     </div>
-                </div>
             </div>
 
             <div style="flex-shrink: 0;">
