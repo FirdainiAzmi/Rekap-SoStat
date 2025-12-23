@@ -853,7 +853,7 @@ def detail_page():
                 continue
 
             for s in subs:
-                with st.expander(f"📁 {s if str(s).strip() else 'Umum'}", expanded=True):
+                with st.expander(f"📁 {s if str(s).strip() else 'Umum'}"):
                     s_df = sub_df[sub_df['Sub_Menu'] == s].copy()
 
                     kegiatan_list = s_df['Sub2_Menu'].fillna("-").unique().tolist()
