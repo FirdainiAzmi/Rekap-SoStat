@@ -673,55 +673,60 @@ def home_page():
     # CSS
     st.markdown("""
     <style>
-      .hero-logo{ width: 300px; height: auto; display:block; margin-bottom: 14px; }
-      .hero-logo-orang{ width: 300px; height: auto; display:block; }
-    
-      /* ✅ 2 kolom */
       .hero-grid{
-        display: grid;
-        grid-template-columns: 1.35fr 0.65fr;  /* kolom 1 lebih besar */
-        gap: 24px;
-        align-items: center;
+        display:grid;
+        grid-template-columns: 1fr 420px; /* kolom kanan fixed biar gak turun */
+        gap: 28px;
+        align-items: start;              /* sejajar atas dengan teks */
       }
     
-      .hero-col1{
-        display:flex;
-        flex-direction: column;   /* logo lalu teks di bawah */
-        align-items: flex-start;  /* rata kiri */
-      }
+      .hero-col1{ min-width: 0; }        /* aman buat text wrap */
     
       .hero-col2{
         display:flex;
-        justify-content: flex-end; /* logo orang ke kanan */
-        align-items: center;
+        justify-content:flex-end;         /* nempel kanan */
+        align-items:flex-start;           /* sejajar atas */
       }
     
-      /* ✅ responsif */
-      @media (max-width: 900px){
+      .hero-logo-orang{
+        width: 320px;
+        height: auto;
+        display:block;
+      }
+    
+      /* responsif: layar kecil -> turun ke bawah */
+      @media (max-width: 980px){
         .hero-grid{ grid-template-columns: 1fr; }
-        .hero-col1{ align-items: center; text-align:center; }
-        .hero-col2{ justify-content: center; }
-        .hero-logo, .hero-logo-orang{ width: 240px; }
+        .hero-col2{ justify-content:center; }
+        .hero-logo-orang{ width: 240px; }
       }
     </style>
     """, unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="hero-container">
-      <div class="hero-row">
-        <div class="hero-left">{img_tag}</div>
-        <div class="hero-mid hero-subtitle">
-          <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
-            Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
-          </div>
-          <div style="opacity:.92; font-size:1rem">
-            Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+      <div class="hero-grid">
+    
+        <div class="hero-col1">
+          {img_tag}
+          <div class="hero-subtitle">
+            <div style="font-weight:800; font-size:1.8rem; margin: 10px 0 6px 0;">
+              Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo ⚡
+            </div>
+            <div style="opacity:.92; font-size:1rem; line-height:1.55;">
+              Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+            </div>
           </div>
         </div>
-        <div class="hero-right">{img_orang_src}</div>
+    
+        <div class="hero-col2">
+          {img_orang_src}
+        </div>
+    
       </div>
     </div>
     """, unsafe_allow_html=True)
+
 
     df = st.session_state['data']
 
