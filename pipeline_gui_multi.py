@@ -709,17 +709,24 @@ def home_page():
     # HTML STRUCTURE
     st.markdown(f"""
     <div class="hero-container">
-      <div class="hero-row">
-        <div class="hero-left">{img_tag}</div>
-        <div class="hero-mid hero-subtitle">
-          <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
-            Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
-          </div>
-          <div style="opacity:.92; font-size:1rem">
-            Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+      <div class="hero-grid">
+    
+        <div class="hero-col1">
+          {img_tag}
+          <div class="hero-subtitle">
+            <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
+              Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
+            </div>
+            <div style="opacity:.92; font-size:1rem">
+              Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+            </div>
           </div>
         </div>
-        <div class="hero-right">{img_orang_src}</div>
+    
+        <div class="hero-col2">
+          {img_orang_src}
+        </div>
+    
       </div>
     </div>
     """, unsafe_allow_html=True)
