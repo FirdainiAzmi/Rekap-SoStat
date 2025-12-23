@@ -671,53 +671,35 @@ def home_page():
         img_orang_src = ""
 
     # CSS
-    st.markdown("""
-        <style>
-          .hero-grid{
-            display:grid;
-            grid-template-columns: 1fr 420px;
-            gap: 28px;
-            align-items: start;
-          }
-          .hero-col2{
-            display:flex;
-            justify-content:flex-end;
-            align-items:flex-start;
-          }
-          .hero-logo-orang{ width: 320px; height:auto; display:block; }
-        
-          @media (max-width: 980px){
-            .hero-grid{ grid-template-columns: 1fr; }
-            .hero-col2{ justify-content:center; }
-            .hero-logo-orang{ width: 240px; }
-          }
-    </style>
-    """, unsafe_allow_html=True)
+    import streamlit.components.v1 as components
+
+    components.html(f"""
+    <div class="hero-container">
+      <style>
+        .hero-grid{{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start;}}
+        .hero-col2{{display:flex;justify-content:flex-end;align-items:flex-start;}}
+        .hero-logo-orang{{width:320px;height:auto;display:block;}}
+        @media (max-width:980px){{.hero-grid{{grid-template-columns:1fr;}}.hero-col2{{justify-content:center;}}}}
+      </style>
     
-        
-    st.markdown(f"""
-        <div class="hero-container">
-          <div class="hero-grid">
-        
-            <div class="hero-col1">
-              {img_tag}
-              <div class="hero-subtitle">
-                <div style="font-weight:800; font-size:1.8rem; margin: 10px 0 6px 0;">
-                  Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
-                </div>
-                <div style="opacity:.92; font-size:1rem; line-height:1.55;">
-                  Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
-                </div>
-              </div>
+      <div class="hero-grid">
+        <div class="hero-col1">
+          {img_tag}
+          <div style="color:white;">
+            <div style="font-weight:800;font-size:1.8rem;margin:10px 0 6px 0;">
+              Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
             </div>
-        
-            <div class="hero-col2">
-              {img_orang_src}
+            <div style="opacity:.92;font-size:1rem;line-height:1.55;">
+              Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
             </div>
-        
           </div>
+        </div>
+    
+        <div class="hero-col2">{img_orang_src}</div>
+      </div>
     </div>
-    """, unsafe_allow_html=True)
+    """, height=320)
+
 
 
     df = st.session_state['data']
