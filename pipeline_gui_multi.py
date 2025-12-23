@@ -664,7 +664,7 @@ def home_page():
         
         # 2. Gambar Kanan (Logo Orang)
         img_code2 = get_base64_of_bin_file("logo_orang.png")
-        img_orang_src = f"data:image/png;base64,{img_code2}"
+        img_orang_src = f'<img src="data:image/png;base64,{img_code2}" class="hero-logo-orang">'
 
     except:
         img_tag = ""
@@ -674,6 +674,7 @@ def home_page():
     st.markdown("""
     <style>
         .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
+        .hero-logo-orang{width: 300px; height: auto; margin-bottom: 15px; display: block; }
     </style>
     """, unsafe_allow_html=True)
     
@@ -689,6 +690,7 @@ def home_page():
                     Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
                 </div>
             </div>
+            {img_orang_src}
         </div>
     """, unsafe_allow_html=True)
 
