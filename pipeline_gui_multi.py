@@ -691,10 +691,6 @@ def home_page():
                     </div>
             </div>
 
-            <div style="flex-shrink: 0;">
-                <img src="{img_orang_src}" style="width: 150px; height: auto; border-radius: 10px;">
-            </div>
-
         </div>
         """, unsafe_allow_html=True)
 
