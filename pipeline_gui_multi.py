@@ -342,6 +342,18 @@ if 'selected_category' not in st.session_state: st.session_state['selected_categ
 
 # ================= LOGIN =================
 def login_page():
+    try:
+        img_code = get_base64_of_bin_file("logo_arsital.png")
+        img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
+    except:
+        img_tag = ""
+
+    st.markdown(f"""
+    <style>
+        .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
+    </style>
+    {img_tag}
+    """, unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         st.markdown("<br><br><br>", unsafe_allow_html=True)
