@@ -689,7 +689,7 @@ def home_page():
         radial-gradient(900px 500px at 12% 10%, rgba(255,255,255,.10), transparent 55%),
         radial-gradient(700px 420px at 85% 25%, rgba(56,189,248,.12), transparent 60%),
         linear-gradient(135deg, var(--brand1), var(--brand2));
-      padding: 44px 44px;
+      padding: 40px 40px;
       border-radius: 22px;
       color: white;
       box-shadow: 0 26px 70px rgba(2, 6, 23, .35);
