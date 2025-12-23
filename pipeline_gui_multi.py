@@ -352,7 +352,9 @@ def login_page():
     <style>
         .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
     </style>
+    <div>
     {img_tag}
+    </div>
     """, unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
