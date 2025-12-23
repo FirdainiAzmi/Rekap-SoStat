@@ -673,25 +673,36 @@ def home_page():
     # CSS
     st.markdown("""
     <style>
-        .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
-        .hero-logo-orang{width: 300px; height: auto; margin-bottom: 15px; display: block; }
-        .hero-row{
-          display:flex;
-          align-items:center;
-          justify-content:space-between;
-          gap: 24px;
-          flex-wrap: wrap;              /* biar aman di layar kecil */
-        }
-        .hero-left{ flex: 0 0 auto; }
-        .hero-mid{ flex: 1 1 420px; min-width: 280px; }
-        .hero-right{ flex: 0 0 auto; margin-left:auto; }
+      .hero-logo{ width: 300px; height: auto; display:block; margin-bottom: 14px; }
+      .hero-logo-orang{ width: 300px; height: auto; display:block; }
     
-        /* ✅ kalau layar kecil, center semua */
-        @media (max-width: 900px){
-          .hero-row{ justify-content:center; text-align:center; }
-          .hero-right{ margin-left:0; }
-          .hero-mid{ flex-basis: 100%; }
-        }
+      /* ✅ 2 kolom */
+      .hero-grid{
+        display: grid;
+        grid-template-columns: 1.35fr 0.65fr;  /* kolom 1 lebih besar */
+        gap: 24px;
+        align-items: center;
+      }
+    
+      .hero-col1{
+        display:flex;
+        flex-direction: column;   /* logo lalu teks di bawah */
+        align-items: flex-start;  /* rata kiri */
+      }
+    
+      .hero-col2{
+        display:flex;
+        justify-content: flex-end; /* logo orang ke kanan */
+        align-items: center;
+      }
+    
+      /* ✅ responsif */
+      @media (max-width: 900px){
+        .hero-grid{ grid-template-columns: 1fr; }
+        .hero-col1{ align-items: center; text-align:center; }
+        .hero-col2{ justify-content: center; }
+        .hero-logo, .hero-logo-orang{ width: 240px; }
+      }
     </style>
     """, unsafe_allow_html=True)
     
