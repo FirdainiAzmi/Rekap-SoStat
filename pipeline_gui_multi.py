@@ -660,26 +660,38 @@ def home_page():
     try:
         img_code = get_base64_of_bin_file("logo_arsital.png")
         img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
+        img_code2 = get_base64_of_bin_file("logo_orang.png")
+        img_orang= f'<img src="data:image/png;base64,{img_code}" class="hero-logo3">'
     except:
         img_tag = ""
+        img_orang = ""
 
     st.markdown("""
     <style>
         .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
+        .hero-logo3{ width: 300px; height: auto; margin-bottom: 0px; display: block; }
     </style>
     """, unsafe_allow_html=True)
     
     st.markdown(f"""
-        <div class="hero-container">
-            {img_tag}
-            <div class="hero-subtitle">
-                <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
-                    Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
-                </div>
-                <div style="opacity:.92; font-size:1rem">
-                    Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+        <div class="hero-container" style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+            
+            <div style="flex: 1;">
+                {img_tag}
+                <div class="hero-subtitle">
+                    <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
+                        Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo⚡
+                    </div>
+                    <div style="opacity:.92; font-size:1rem">
+                        Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+                    </div>
                 </div>
             </div>
+
+            <div style="flex-shrink: 0;">
+                <img src="{img_orang}" style="width: 150px; height: auto; border-radius: 10px;">
+            </div>
+
         </div>
         """, unsafe_allow_html=True)
 
