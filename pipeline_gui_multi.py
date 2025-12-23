@@ -690,6 +690,9 @@ def home_page():
     
     .hero-grid{{
       display:grid;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
+        linear-gradient(135deg, var(--brand1), var(--brand2));
       grid-template-columns: 1fr 420px;
       gap: 28px;
       align-items: start;
