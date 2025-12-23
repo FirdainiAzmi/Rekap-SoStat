@@ -656,29 +656,37 @@ def get_base64_of_bin_file(bin_file):
 
 # ================= HOME DASHBOARD =================
 def home_page():
-    # --- Bagian Logo & Hero (Tetap sama) ---
+    # --- Bagian Logo & Hero ---
     try:
+        # 1. Gambar Kiri (Logo Arsital)
         img_code = get_base64_of_bin_file("logo_arsital.png")
+        # Ini kita buat jadi TAG HTML LENGKAP karena langsung ditempel di HTML bawah
         img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
+        
+        # 2. Gambar Kanan (Logo Orang)
         img_code2 = get_base64_of_bin_file("logo_orang.png")
-        img_orang= f'<img src="data:image/png;base64,{img_code}" class="hero-logo3">'
+        # PERBAIKAN 1: Gunakan img_code2
+        # PERBAIKAN 2: Jangan pakai tag <img> di sini, cukup simpan datanya saja
+        # Supaya nanti bisa masuk ke src="{img_orang_src}" tanpa dobel tag
+        img_orang_src = f"data:image/png;base64,{img_code2}"
+
     except:
         img_tag = ""
-        img_orang = ""
+        img_orang_src = ""
 
+    # CSS
     st.markdown("""
     <style>
         .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
-        .hero-logo3{ width: 300px; height: auto; margin-bottom: 0px; display: block; }
     </style>
     """, unsafe_allow_html=True)
     
+    # HTML STRUCTURE
     st.markdown(f"""
         <div class="hero-container" style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
             
             <div style="flex: 1;">
-                {img_tag}
-                <div class="hero-subtitle">
+                {img_tag}  <div class="hero-subtitle">
                     <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
                         Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo⚡
                     </div>
@@ -689,7 +697,7 @@ def home_page():
             </div>
 
             <div style="flex-shrink: 0;">
-                <img src="{img_orang}" style="width: 150px; height: auto; border-radius: 10px;">
+                <img src="{img_orang_src}" style="width: 150px; height: auto; border-radius: 10px;">
             </div>
 
         </div>
