@@ -678,29 +678,19 @@ def home_page():
     """, unsafe_allow_html=True)
     
     # HTML STRUCTURE
-     st.markdown(f"""
-
+    st.markdown(f"""
         <div class="hero-container">
-
             {img_tag}
-
             <div class="hero-subtitle">
-
                 <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
-
                     Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
-
                 </div>
-
                 <div style="opacity:.92; font-size:1rem">
-
                     Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
-
                 </div>
-
             </div>
-
         </div>
+    """, unsafe_allow_html=True)
 
     df = st.session_state['data']
 
