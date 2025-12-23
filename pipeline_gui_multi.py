@@ -671,7 +671,7 @@ def home_page():
         img_orang_src = ""
 
     # CSS
-       st.markdown("""
+    st.markdown("""
         <style>
           .hero-grid{
             display:grid;
@@ -691,11 +691,11 @@ def home_page():
             .hero-col2{ justify-content:center; }
             .hero-logo-orang{ width: 240px; }
           }
-        </style>
-        """, unsafe_allow_html=True)
+    </style>
+    """, unsafe_allow_html=True)
     
         
-        st.markdown(f"""
+    st.markdown(f"""
         <div class="hero-container">
           <div class="hero-grid">
         
@@ -716,8 +716,8 @@ def home_page():
             </div>
         
           </div>
-        </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 
     df = st.session_state['data']
