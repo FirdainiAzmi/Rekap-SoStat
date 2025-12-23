@@ -675,23 +675,44 @@ def home_page():
     <style>
         .hero-logo{ width: 300px; height: auto; margin-bottom: 15px; display: block; }
         .hero-logo-orang{width: 300px; height: auto; margin-bottom: 15px; display: block; }
+        .hero-row{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap: 24px;
+          flex-wrap: wrap;              /* biar aman di layar kecil */
+        }
+        .hero-left{ flex: 0 0 auto; }
+        .hero-mid{ flex: 1 1 420px; min-width: 280px; }
+        .hero-right{ flex: 0 0 auto; margin-left:auto; }
+    
+        /* ✅ kalau layar kecil, center semua */
+        @media (max-width: 900px){
+          .hero-row{ justify-content:center; text-align:center; }
+          .hero-right{ margin-left:0; }
+          .hero-mid{ flex-basis: 100%; }
+        }
     </style>
     """, unsafe_allow_html=True)
     
     # HTML STRUCTURE
     st.markdown(f"""
-        <div class="hero-container">
-            {img_tag}
-            <div class="hero-subtitle">
-                <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
-                    Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
-                </div>
-                <div style="opacity:.92; font-size:1rem">
-                    Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
-                </div>
+      <div class="hero-container">
+        <div class="hero-row">
+          <div class="hero-left">{img_tag}</div>
+    
+          <div class="hero-mid hero-subtitle">
+            <div style="font-weight:800; font-size:1.5rem; margin-bottom:6px;">
+              Selamat datang di Arsip Digial BPS Kabupaten Sidoarjo⚡
             </div>
-            {img_orang_src}
+            <div style="opacity:.92; font-size:1rem">
+              Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
+            </div>
+          </div>
+    
+          <div class="hero-right">{img_orang_src}</div>
         </div>
+      </div>
     """, unsafe_allow_html=True)
 
     df = st.session_state['data']
