@@ -674,9 +674,28 @@ def home_page():
     import streamlit.components.v1 as components
 
     components.html(f"""
+    <style>
+    .hero-container{
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%),
+                  linear-gradient(135deg, var(--brand1), var(--brand2));
+      padding: 42px 40px;
+      border-radius: 22px;
+      color: white;
+      box-shadow: 0 22px 60px rgba(79,70,229,.28);
+      margin-bottom: 26px;
+      transform: translateZ(0);
+    }
+    </style>
+    
     <div class="hero-container">
       <style>
-        .hero-grid{{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start; background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.22), transparent 40%), linear-gradient(135deg, var(--brand1), var(--brand2));}}
+        .hero-grid{{
+          display:grid;
+          grid-template-columns:1fr 420px;
+          gap:28px;align-items:start; 
+        }}
         .hero-col2{{display:flex;justify-content:flex-end;align-items:flex-start;}}
         .hero-logo-orang{{width:320px;height:auto;display:block;}}
         @media (max-width:980px){{.hero-grid{{grid-template-columns:1fr;}}.hero-col2{{justify-content:center;}}}}
