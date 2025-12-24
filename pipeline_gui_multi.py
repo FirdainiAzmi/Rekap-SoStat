@@ -2,24 +2,24 @@ import streamlit as st
 import pandas as pd
 import time
 import base64
+import os
 
-# ================= KONFIGURASI DATABASE (GOOGLE SHEETS) =================
+# Google Sheets
 import gspread
 from google.oauth2.service_account import Credentials
 
-# untuk kompres gambar sebelum base64 (biar gak bikin sheet error)
+# Image compress
 from PIL import Image
 from io import BytesIO
 
+# ================= KONFIGURASI DATABASE =================
 COLUMNS = ['Kategori', 'Gambar_Base64', 'Menu', 'Sub_Menu', 'Sub2_Menu', 'Nama_File', 'Link_File']
-ROW_COL = "__row"  # internal
+ROW_COL = "__row"
 
+# ================= GOOGLE SHEETS HELPERS =================
 def _get_ws():
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=scopes
-    )
+    creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
     gc = gspread.authorize(creds)
     sh = gc.open_by_key(st.secrets["gsheet"]["spreadsheet_id"])
     ws = sh.worksheet(st.secrets["gsheet"]["worksheet"])
@@ -34,47 +34,68 @@ def _ensure_header(ws):
     if header[:len(COLUMNS)] != COLUMNS:
         ws.update("A1:G1", [COLUMNS])
 
-def load_data():
+def _safe_call(fn, max_retry=5):
     """
-    Load data dari Google Sheets -> DataFrame + kolom internal __row.
-    __row = nomor baris aktual di sheet (data pertama = row 2).
+    Retry/backoff untuk quota 429 dan error rate limit.
     """
-    try:
-        ws = _get_ws()
-        _ensure_header(ws)
+    last_e = None
+    for i in range(max_retry):
+        try:
+            return fn()
+        except Exception as e:
+            last_e = e
+            msg = str(e)
+            if ("429" in msg) or ("RESOURCE_EXHAUSTED" in msg) or ("RATE_LIMIT_EXCEEDED" in msg):
+                time.sleep(1.5 * (i + 1))  # backoff bertahap
+                continue
+            raise
+    raise last_e
 
-        vals = ws.get_all_values()
-        if len(vals) <= 1:
-            df = pd.DataFrame(columns=COLUMNS)
-            df[ROW_COL] = pd.Series(dtype=int)
-            return df
+def _read_all_values():
+    ws = _get_ws()
+    _ensure_header(ws)
+    return ws.get_all_values()
 
-        header = vals[0]
-        data = vals[1:]
-        df = pd.DataFrame(data, columns=header)
-
-        for c in COLUMNS:
-            if c not in df.columns:
-                df[c] = ""
-
-        df = df[COLUMNS]
-        df[ROW_COL] = list(range(2, 2 + len(df)))
-        return df
-
-    except Exception as e:
-        st.error(f"Gagal load data dari Google Sheets: {e}")
+def load_data_raw():
+    """
+    Load dari Google Sheets -> DataFrame + kolom __row.
+    """
+    vals = _safe_call(_read_all_values)
+    if len(vals) <= 1:
         df = pd.DataFrame(columns=COLUMNS)
         df[ROW_COL] = pd.Series(dtype=int)
         return df
 
+    header = vals[0]
+    data = vals[1:]
+    df = pd.DataFrame(data, columns=header)
+
+    for c in COLUMNS:
+        if c not in df.columns:
+            df[c] = ""
+
+    df = df[COLUMNS]
+    df[ROW_COL] = list(range(2, 2 + len(df)))
+    return df
+
+@st.cache_data(ttl=20, show_spinner=False)
+def load_data_cached():
+    return load_data_raw()
+
+def clear_data_cache():
+    try:
+        load_data_cached.clear()
+    except:
+        pass
+
 def save_data(df: pd.DataFrame):
     """
-    Simpan seluruh dataframe ke Google Sheets (rewrite total) DENGAN SAFE GUARD:
-    - tidak clear dulu (biar data gak hilang kalau update gagal)
-    - kalau update gagal, rollback ke data lama
+    Simpan FULL rewrite ke Google Sheets, tapi aman:
+    - update dulu
+    - kalau gagal rollback (best-effort)
     """
     ws = _get_ws()
-    _ensure_header(ws)
+    _safe_call(lambda: _ensure_header(ws))
 
     df2 = df.copy()
     if ROW_COL in df2.columns:
@@ -83,25 +104,21 @@ def save_data(df: pd.DataFrame):
     df2 = df2.fillna("")
     values = [COLUMNS] + df2[COLUMNS].astype(str).values.tolist()
 
-    # snapshot lama
-    old_vals = ws.get_all_values()
+    # snapshot lama (1x read) - ini bisa bikin quota, tapi kita minimalisir pemanggilan save
+    old_vals = _safe_call(lambda: ws.get_all_values())
 
     try:
-        # update dulu
-        ws.update("A1", values)
-
-        # hapus sisa baris lama (kalau sebelumnya lebih panjang)
+        _safe_call(lambda: ws.update("A1", values))
         old_rows = len(old_vals)
         new_rows = len(values)
         if old_rows > new_rows:
-            ws.delete_rows(new_rows + 1, old_rows)
-
+            _safe_call(lambda: ws.delete_rows(new_rows + 1, old_rows))
     except Exception as e:
-        # rollback kalau gagal
+        # rollback best-effort
         try:
+            _safe_call(lambda: ws.clear())
             if old_vals:
-                ws.clear()
-                ws.update("A1", old_vals)
+                _safe_call(lambda: ws.update("A1", old_vals))
         except:
             pass
         raise e
@@ -304,17 +321,6 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
     color: #000000 !important;
 }
 
-/* ================= FILTER PANEL ================= */
-.filter-panel{
-  background: rgba(255,255,255,.92);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 14px 16px;
-  box-shadow: var(--shadow1);
-  margin-top: 10px;
-  margin-bottom: 12px;
-}
-
 /* ================= FILE LIST ================= */
 .file-row{
   background: rgba(255,255,255,.92);
@@ -336,7 +342,6 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
   box-shadow: 0 26px 54px rgba(2,6,23,.12);
   border-color: rgba(99,102,241,.25);
 }
-.file-meta{ font-size: .82rem; color: var(--muted); margin-top: 3px; }
 
 .dl-link{
   background: linear-gradient(135deg, var(--brand1), var(--brand2));
@@ -344,7 +349,6 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
   text-decoration: none !important;
   padding: 9px 14px;
   border-radius: 12px;
-  text-decoration: none;
   font-size: .84rem;
   font-weight: 800;
   box-shadow: 0 14px 26px rgba(79,70,229,.22);
@@ -355,12 +359,6 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
   transform: translateY(-2px);
   box-shadow: 0 20px 40px rgba(79,70,229,.30);
   filter: saturate(1.1);
-  color: #FFFFFF !important;
-  text-decoration: none !important;
-}
-.dl-link:visited,
-.dl-link:active{
-  transform: scale(.98);
   color: #FFFFFF !important;
   text-decoration: none !important;
 }
@@ -388,7 +386,7 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
 /* ================= SIDEBAR ================= */
 [data-testid="stSidebar"]{
   background: rgba(255,255,255,.95);
-  border-right: 1px solid var(--line);
+  border-right: 1px solid rgba(15, 23, 42, .08);
   backdrop-filter: blur(8px);
 }
 
@@ -399,18 +397,11 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
   margin-top: 50px;
 }
 *{ scroll-behavior:smooth; }
-@media (prefers-reduced-motion: reduce){
-  *{ transition: none !important; animation: none !important; }
-}
 </style>
 """, unsafe_allow_html=True)
 
 # ================= FUNGSI BANTUAN =================
 def image_to_base64(uploaded_file, max_width=600, quality=70):
-    """
-    Kompres gambar dulu biar base64 gak kegedean dan Google Sheets gak error.
-    Output: base64 (JPEG).
-    """
     if uploaded_file is None:
         return None
     try:
@@ -428,9 +419,19 @@ def image_to_base64(uploaded_file, max_width=600, quality=70):
     except:
         return None
 
-# ================= STATE MANAGEMENT (DENGAN LOAD DATA) =================
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+# ================= STATE MANAGEMENT =================
 if 'data' not in st.session_state:
-    st.session_state['data'] = load_data()
+    # load sekali awal (cached)
+    try:
+        st.session_state['data'] = load_data_cached()
+    except Exception as e:
+        st.error(f"Gagal load data dari Google Sheets: {e}")
+        st.session_state['data'] = pd.DataFrame(columns=COLUMNS + [ROW_COL])
 
 if 'logged_in' not in st.session_state: st.session_state['logged_in'] = False
 if 'current_view' not in st.session_state: st.session_state['current_view'] = 'home'
@@ -450,11 +451,8 @@ def login_page():
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown(f"""
-        <div>
-            {img_tag}
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<div>{img_tag}</div>""", unsafe_allow_html=True)
+
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         st.markdown("<br><br><br>", unsafe_allow_html=True)
@@ -480,7 +478,7 @@ def login_page():
                 else:
                     st.error("Login Gagal")
 
-# ================= ADMIN PAGE (AUTO-SAVE) =================
+# ================= ADMIN PAGE =================
 def admin_page():
     st.markdown("## ⚙️ Panel Admin")
 
@@ -490,7 +488,6 @@ def admin_page():
     # ================= TAB 1: INPUT DATA BARU =================
     with tab1:
         st.info("💡 Tambah data file baru ke database.")
-
         c1, c2 = st.columns(2)
 
         with c1:
@@ -499,8 +496,6 @@ def admin_page():
             opsi_kategori = existing_cats + ["➕ Buat Kategori Baru"]
 
             sel_kategori = st.selectbox("Pilih Kategori:", opsi_kategori, key="in_kat_select")
-
-            final_kategori = ""
             if sel_kategori == "➕ Buat Kategori Baru":
                 final_kategori = st.text_input("Ketik Nama Kategori Baru:", placeholder="Contoh: Statistik Sosial", key="in_kat_text")
             else:
@@ -514,13 +509,12 @@ def admin_page():
             st.markdown("### 2. Detail Dokumen")
             is_old_cat = (sel_kategori != "➕ Buat Kategori Baru")
 
-            in_menu = ""
-            if is_old_cat:
+            # MENU
+            if is_old_cat and final_kategori:
                 df_cat = df[df['Kategori'] == final_kategori]
                 list_menu = df_cat['Menu'].dropna().unique().tolist()
                 list_menu.append("➕ Buat Menu Baru")
                 sel_menu = st.selectbox("Menu Utama", list_menu, key="in_menu_sel")
-
                 if sel_menu == "➕ Buat Menu Baru":
                     in_menu = st.text_input("Ketik Nama Menu Baru", placeholder="Misal: Sakernas", key="in_menu_txt")
                 else:
@@ -528,9 +522,10 @@ def admin_page():
             else:
                 in_menu = st.text_input("Menu Utama", placeholder="Misal: Sakernas", key="in_menu_txt_def")
 
+            # SUB MENU
             in_sub = ""
             menu_is_existing = False
-            if is_old_cat and in_menu != "➕ Buat Menu Baru" and 'df_cat' in locals():
+            if is_old_cat and 'df_cat' in locals() and in_menu and in_menu != "➕ Buat Menu Baru":
                 if not df_cat[df_cat['Menu'] == in_menu].empty:
                     menu_is_existing = True
 
@@ -539,7 +534,6 @@ def admin_page():
                 list_sub = df_menu['Sub_Menu'].dropna().unique().tolist()
                 list_sub.append("➕ Buat Sub Baru")
                 sel_sub = st.selectbox("Sub Menu (Tahun)", list_sub, key="in_sub_sel")
-
                 if sel_sub == "➕ Buat Sub Baru":
                     in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt")
                 else:
@@ -547,9 +541,10 @@ def admin_page():
             else:
                 in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt_def")
 
+            # SUB MENU 2
             in_sub2 = ""
             valid_sub = False
-            if menu_is_existing and in_sub != "➕ Buat Sub Baru" and 'df_menu' in locals():
+            if menu_is_existing and 'df_menu' in locals() and in_sub and in_sub != "➕ Buat Sub Baru":
                 if not df_menu[df_menu['Sub_Menu'] == in_sub].empty:
                     valid_sub = True
 
@@ -559,7 +554,6 @@ def admin_page():
                 list_sub2 = [x for x in list_sub2 if str(x) != 'nan']
                 list_sub2.append("➕ Buat Sub 2 Baru")
                 sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", list_sub2, key="in_sub2_sel")
-
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
                     in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Pelatihan Petugas", key="in_sub2_txt")
                 else:
@@ -584,15 +578,21 @@ def admin_page():
                         pass
 
                 new_row = {
-                    'Kategori': final_kategori, 'Gambar_Base64': img_str,
-                    'Menu': in_menu, 'Sub_Menu': in_sub, 'Sub2_Menu': in_sub2,
-                    'Nama_File': in_nama, 'Link_File': in_link
+                    'Kategori': final_kategori,
+                    'Gambar_Base64': img_str,
+                    'Menu': in_menu,
+                    'Sub_Menu': in_sub,
+                    'Sub2_Menu': in_sub2,
+                    'Nama_File': in_nama,
+                    'Link_File': in_link
                 }
+
                 updated_df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
                 try:
                     save_data(updated_df)
-                    st.session_state['data'] = load_data()
+                    clear_data_cache()
+                    st.session_state['data'] = load_data_cached()
                     st.success("✅ Data berhasil disimpan!")
                     time.sleep(1)
                     st.rerun()
@@ -601,83 +601,66 @@ def admin_page():
             else:
                 st.warning("Nama Kategori dan Judul File wajib diisi.")
 
-    # ================= TAB 2: EDIT DATA =================
+    # ================= TAB 2: EDIT DATA (3 dropdown -> pilih file -> form) =================
     with tab2:
         df = st.session_state['data']
         if df.empty:
             st.info("Database masih kosong, belum ada yang bisa diedit.")
         else:
             st.info("✏️ Edit metadata file yang sudah ada.")
-    
-            # ====== PILIH KATEGORI (tetap, supaya data lebih rapi) ======
-            # Kalau kamu benar-benar gak mau kategori, kamu bisa hapus blok ini
+
+            # pilih kategori dulu (biar opsi dropdown gak terlalu banyak)
             ekat_list = sorted(df['Kategori'].dropna().unique().tolist())
-            esel_kat = st.selectbox("Pilih Kategori", ekat_list, key="edit_sel_kat")
-    
-            # Data untuk kategori terpilih
+            esel_kat = st.selectbox("Pilih Kategori", ekat_list, key="edit_kat_tab2")
+
             df_kat = df[df['Kategori'] == esel_kat].copy()
             if df_kat.empty:
                 st.warning("Tidak ada data di kategori ini.")
             else:
-                # ===== 3 KOLOM DROPDOWN (CASCADING) =====
                 f1, f2, f3 = st.columns(3)
-    
-                # 1) MENU
+
+                # 1) Menu
                 menu_opts = sorted([x for x in df_kat['Menu'].dropna().unique().tolist() if str(x).strip() != ""])
                 menu_opts = ["Semua"] + menu_opts
                 with f1:
-                    sel_menu = st.selectbox("Menu", menu_opts, index=0, key="edit_menu_sel")
-    
+                    sel_menu = st.selectbox("Menu", menu_opts, index=0, key="edit_menu_tab2")
+
                 df_lv2 = df_kat if sel_menu == "Semua" else df_kat[df_kat['Menu'] == sel_menu]
-    
-                # 2) SUB MENU
+
+                # 2) Sub Menu
                 sub_opts = sorted([x for x in df_lv2['Sub_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
                 sub_opts = ["Semua"] + sub_opts
                 with f2:
-                    sel_sub = st.selectbox("Sub Menu", sub_opts, index=0, key="edit_sub_sel")
-    
+                    sel_sub = st.selectbox("Sub Menu", sub_opts, index=0, key="edit_sub_tab2")
+
                 df_lv3 = df_lv2 if sel_sub == "Semua" else df_lv2[df_lv2['Sub_Menu'] == sel_sub]
-    
-                # 3) SUB MENU 2
+
+                # 3) Sub2
                 sub2_opts = sorted([x for x in df_lv3['Sub2_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
                 sub2_opts = ["Semua"] + sub2_opts
                 with f3:
-                    sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", sub2_opts, index=0, key="edit_sub2_sel")
-    
+                    sel_sub2 = st.selectbox("Sub Menu 2", sub2_opts, index=0, key="edit_sub2_tab2")
+
                 df_lv4 = df_lv3 if sel_sub2 == "Semua" else df_lv3[df_lv3['Sub2_Menu'] == sel_sub2]
-    
+
                 st.markdown("---")
-    
-                # ===== PILIH FILE (DI BAWAH SUB2) =====
+
                 file_list = df_lv4['Nama_File'].fillna("").tolist()
                 if not file_list:
                     st.warning("Tidak ada file pada filter yang dipilih.")
                     esel_file = None
                 else:
-                    esel_file = st.selectbox("Pilih File", file_list, key="edit_sel_file_filtered")
-    
-                # ===== FORM EDIT (muncul setelah file dipilih) =====
+                    esel_file = st.selectbox("Pilih File", file_list, key="edit_file_tab2")
+
                 if esel_file:
-                    # ambil row dari df asli berdasarkan kombinasi kategori + nama_file + filter
-                    # (pakai index df_lv4 supaya akurat)
                     row_idx = df_lv4[df_lv4['Nama_File'] == esel_file].index[0]
                     cur = df.loc[row_idx]
-    
-                    # key unik per file supaya form ikut berubah saat ganti pilihan file
-                    unique_id = None
-                    if "__row" in df.columns and pd.notna(cur.get("__row", None)):
-                        unique_id = str(cur["__row"])
-                    else:
-                        unique_id = str(row_idx)
+
+                    # key unik per file supaya tidak nyangkut
+                    unique_id = str(cur[ROW_COL]) if (ROW_COL in df.columns and pd.notna(cur.get(ROW_COL, None))) else str(row_idx)
                     prefix = f"edit_{unique_id}_"
-    
+
                     st.markdown("#### Form Edit")
-    
-                    # === MENU/SUB/SUB2 tetap dropdown? ===
-                    # Kamu bilang edit dropdown hanya 3 kolom di atas,
-                    # jadi di form edit kita edit field lain saja:
-                    # Nama File, Link, Upload gambar.
-    
                     e_nama = st.text_input(
                         "Nama File",
                         value=str(cur.get('Nama_File', '') if pd.notna(cur.get('Nama_File', '')) else ''),
@@ -688,40 +671,39 @@ def admin_page():
                         value=str(cur.get('Link_File', '') if pd.notna(cur.get('Link_File', '')) else ''),
                         key=prefix + "link"
                     )
-    
+
                     st.markdown("---")
                     st.markdown("**Ganti Cover Kategori (Opsional)**")
                     e_img = st.file_uploader("Upload cover baru", type=['png','jpg','jpeg'], key=prefix + "img_up")
-    
-                    if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True, key=prefix + "btn_save_edit"):
+
+                    if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True, key=prefix + "save"):
                         df_edit = df.copy()
-    
-                        # update nama/link di row terpilih
+
                         df_edit.at[row_idx, 'Nama_File'] = e_nama
                         df_edit.at[row_idx, 'Link_File'] = e_link
-    
-                        # kalau mau: juga update Menu/Sub/Sub2 berdasarkan dropdown 3 kolom atas
-                        # (ini optional, tapi biasanya user ingin bisa ubah juga)
+
+                        # opsional: kalau filter dipilih selain "Semua", jadikan itu nilai row
                         if sel_menu != "Semua":
                             df_edit.at[row_idx, 'Menu'] = sel_menu
                         if sel_sub != "Semua":
                             df_edit.at[row_idx, 'Sub_Menu'] = sel_sub
                         if sel_sub2 != "Semua":
                             df_edit.at[row_idx, 'Sub2_Menu'] = sel_sub2
-    
-                        # ganti gambar kategori: update semua baris kategori sama
+
                         if e_img is not None:
                             img_str_edit = image_to_base64(e_img)
                             if img_str_edit:
                                 df_edit.loc[df_edit['Kategori'] == esel_kat, 'Gambar_Base64'] = img_str_edit
-    
-                        save_data(df_edit)
-                        st.session_state['data'] = load_data()
-    
-                        st.success("✅ Perubahan disimpan!")
-                        time.sleep(1)
-                        st.rerun()
 
+                        try:
+                            save_data(df_edit)
+                            clear_data_cache()
+                            st.session_state['data'] = load_data_cached()
+                            st.success("✅ Perubahan disimpan!")
+                            time.sleep(1)
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Gagal menyimpan perubahan ke Google Sheets: {e}")
 
     # ================= TAB 3: HAPUS DATA =================
     with tab3:
@@ -782,7 +764,8 @@ def admin_page():
                         new_df = df.drop(idx).reset_index(drop=True)
                         try:
                             save_data(new_df)
-                            st.session_state['data'] = load_data()
+                            clear_data_cache()
+                            st.session_state['data'] = load_data_cached()
                             st.success("✅ File berhasil dihapus.")
                             time.sleep(1)
                             st.rerun()
@@ -793,17 +776,11 @@ def admin_page():
 
     st.markdown("""<div class="footer">Developed by Firdaini Azmi & Muhammad Ariq Hibatullah<br>© 2025 Badan Pusat Statistik • Dashboard Sostat</div>""", unsafe_allow_html=True)
 
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
 # ================= HOME DASHBOARD =================
 def home_page():
     try:
         img_code = get_base64_of_bin_file("logo_arsital.png")
         img_tag = f'<img src="data:image/png;base64,{img_code}" class="hero-logo">'
-
         img_code2 = get_base64_of_bin_file("logo_orang.png")
         img_orang_src = f'<img src="data:image/png;base64,{img_code2}" class="hero-logo-orang">'
     except:
@@ -815,68 +792,23 @@ def home_page():
 
     components.html(f"""
     <style>
-    :root{{
-      --brand1:#0B2F5B;
-      --brand2:#15407A;
-    }}
-
+    :root{{ --brand1:#0B2F5B; --brand2:#15407A; }}
     .hero-container{{
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
       background:
         radial-gradient(900px 500px at 12% 10%, rgba(255,255,255,.10), transparent 55%),
         radial-gradient(700px 420px at 85% 25%, rgba(56,189,248,.12), transparent 60%),
         linear-gradient(135deg, var(--brand1), var(--brand2));
-      padding: 40px 40px;
-      border-radius: 22px;
-      color: white;
+      padding: 40px 40px; border-radius: 22px; color: white;
       box-shadow: 0 26px 70px rgba(2, 6, 23, .35);
       margin-bottom: 26px;
     }}
-
-    .hero-grid{{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 34px;
-      align-items: center;
-    }}
-
-    .hero-col1{{ min-width: 0; }}
-
-    .hero-col2{{
-      display:flex;
-      justify-content:flex-end;
-      align-items:center;
-    }}
-
-    .hero-col1 img{{
-      max-width: 340px;
-      height: auto;
-      display:block;
-    }}
-
-    .hero-col2 img{{
-      width: min(380px, 100%);
-      height: auto;
-      display:block;
-    }}
-
-    .hero-title{{
-      font-weight: 900;
-      font-size: 2.15rem;
-      line-height: 1.15;
-      margin: 14px 0 10px 0;
-      text-shadow: 0 10px 30px rgba(0,0,0,.25);
-      word-break: break-word;
-    }}
-
-    .hero-desc{{
-      opacity: .92;
-      font-size: 1.05rem;
-      line-height: 1.6;
-      max-width: 720px;
-    }}
-
+    .hero-grid{{ display:grid; grid-template-columns: 1.2fr .8fr; gap: 34px; align-items: center; }}
+    .hero-col2{{ display:flex; justify-content:flex-end; align-items:center; }}
+    .hero-col1 img{{ max-width: 340px; height: auto; display:block; }}
+    .hero-col2 img{{ width: min(380px, 100%); height: auto; display:block; }}
+    .hero-title{{ font-weight: 900; font-size: 2.15rem; line-height: 1.15; margin: 14px 0 10px 0; text-shadow: 0 10px 30px rgba(0,0,0,.25); word-break: break-word; }}
+    .hero-desc{{ opacity: .92; font-size: 1.05rem; line-height: 1.6; max-width: 720px; }}
     @media (max-width: 980px){{
       .hero-container{{ padding: 34px 26px; }}
       .hero-grid{{ grid-template-columns: 1fr; }}
@@ -889,21 +821,13 @@ def home_page():
       <div class="hero-grid">
         <div class="hero-col1">
           {img_tag}
-          <div class="hero-title">
-            Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡
-          </div>
-          <div class="hero-desc">
-            Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.
-          </div>
+          <div class="hero-title">Selamat datang di Arsip Digital BPS Kabupaten Sidoarjo ⚡</div>
+          <div class="hero-desc">Portal ini merupakan dashboard penyimpanan terpusat aset digital kegiatan Sosial Statistik.</div>
         </div>
-
-        <div class="hero-col2">
-          {img_orang_src}
-        </div>
+        <div class="hero-col2">{img_orang_src}</div>
       </div>
     </div>
-    <br>
-    <br>
+    <br><br>
     """, height=HERO_H)
 
     df = st.session_state['data']
@@ -916,7 +840,6 @@ def home_page():
             st.markdown(f"""<div class="stat-card"><div class="stat-number">{len(df)}</div><div class="stat-label">Total File</div></div>""", unsafe_allow_html=True)
         with m3:
             st.markdown(f"""<div class="stat-card"><div class="stat-number">{len(df['Menu'].unique())}</div><div class="stat-label">Topik Bahasan</div></div>""", unsafe_allow_html=True)
-
         st.markdown("<br>", unsafe_allow_html=True)
 
     if df.empty:
@@ -927,7 +850,6 @@ def home_page():
     search = st.text_input("Cari File di seluruh database...", placeholder="Ketik nama dokumen...", label_visibility="collapsed")
 
     subset = df.copy()
-
     if search:
         subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
         st.write(f"Menampilkan {len(subset)} hasil pencarian untuk: **'{search}'**")
@@ -979,7 +901,6 @@ def home_page():
 def detail_page():
     cat = st.session_state['selected_category']
     df = st.session_state['data']
-
     subset_all = df[df['Kategori'] == cat].copy()
 
     st.button("⬅️ Kembali ke Dashboard", on_click=lambda: st.session_state.update({'current_view': 'home'}))
@@ -992,7 +913,6 @@ def detail_page():
     """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     search = st.text_input("🔍 Cari File...", placeholder="Ketik nama dokumen...")
 
     f1, f2, f3 = st.columns(3)
@@ -1001,33 +921,19 @@ def detail_page():
     with f1:
         sel_menu = st.selectbox("Filter Menu", menu_opts, index=0)
 
-    if sel_menu != "Semua":
-        df_level2 = subset_all[subset_all['Menu'] == sel_menu]
-    else:
-        df_level2 = subset_all
+    df_level2 = subset_all if sel_menu == "Semua" else subset_all[subset_all['Menu'] == sel_menu]
 
     sub_opts = ["Semua"] + sorted([x for x in df_level2['Sub_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
     with f2:
         sel_sub = st.selectbox("Filter Sub Menu", sub_opts, index=0)
 
-    if sel_sub != "Semua":
-        df_level3 = df_level2[df_level2['Sub_Menu'] == sel_sub]
-    else:
-        df_level3 = df_level2
+    df_level3 = df_level2 if sel_sub == "Semua" else df_level2[df_level2['Sub_Menu'] == sel_sub]
 
     sub2_opts = ["Semua"] + sorted([x for x in df_level3['Sub2_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
     with f3:
         sel_sub2 = st.selectbox("Filter Judul Kegiatan (Sub2)", sub2_opts, index=0)
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    subset = subset_all.copy()
-    if sel_menu != "Semua":
-        subset = subset[subset['Menu'] == sel_menu]
-    if sel_sub != "Semua":
-        subset = subset[subset['Sub_Menu'] == sel_sub]
-    if sel_sub2 != "Semua":
-        subset = subset[subset['Sub2_Menu'] == sel_sub2]
+    subset = df_level3 if sel_sub2 == "Semua" else df_level3[df_level3['Sub2_Menu'] == sel_sub2]
 
     if search:
         subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
@@ -1061,7 +967,6 @@ def detail_page():
 
                     for keg in kegiatan_list:
                         keg_label = keg if str(keg).strip() else "-"
-
                         if sel_sub2 == "Semua" or sel_sub2 == keg:
                             if keg_label != "-":
                                 st.markdown(
@@ -1100,7 +1005,6 @@ if st.session_state['logged_in']:
             st.rerun()
 
         st.markdown("---")
-
         with st.expander("Manual Book"):
             st.markdown("""
                 Panduan lengkap bagaimana cara menggunakan ArsiTal tersedia [di sini](https://drive.google.com/file/d/1ZtCEHJp6hw9r8iIFOgA_QTaH2FH0Umoq/view?usp=sharing).
@@ -1111,12 +1015,10 @@ if st.session_state['logged_in']:
             st.rerun()
 
     if st.session_state['current_view'] == 'home':
-        st.session_state['data'] = load_data()
         home_page()
     elif st.session_state['current_view'] == 'detail':
         detail_page()
     elif st.session_state['current_view'] == 'admin':
-        st.session_state['data'] = load_data()
         admin_page()
 else:
     login_page()
