@@ -2,14 +2,17 @@ import streamlit as st
 import pandas as pd
 import time
 import base64
-import os
 
 # ================= KONFIGURASI DATABASE (GOOGLE SHEETS) =================
 import gspread
 from google.oauth2.service_account import Credentials
 
+# untuk kompres gambar sebelum base64 (biar gak bikin sheet error)
+from PIL import Image
+from io import BytesIO
+
 COLUMNS = ['Kategori', 'Gambar_Base64', 'Menu', 'Sub_Menu', 'Sub2_Menu', 'Nama_File', 'Link_File']
-ROW_COL = "__row"  # kolom internal (nomor baris di sheet)
+ROW_COL = "__row"  # internal
 
 def _get_ws():
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -66,8 +69,9 @@ def load_data():
 
 def save_data(df: pd.DataFrame):
     """
-    Simpan seluruh dataframe ke Google Sheets (rewrite total),
-    supaya logika kamu tetap sama (concat/edit/drop lalu save).
+    Simpan seluruh dataframe ke Google Sheets (rewrite total) DENGAN SAFE GUARD:
+    - tidak clear dulu (biar data gak hilang kalau update gagal)
+    - kalau update gagal, rollback ke data lama
     """
     ws = _get_ws()
     _ensure_header(ws)
@@ -79,8 +83,28 @@ def save_data(df: pd.DataFrame):
     df2 = df2.fillna("")
     values = [COLUMNS] + df2[COLUMNS].astype(str).values.tolist()
 
-    ws.clear()
-    ws.update("A1", values)
+    # snapshot lama
+    old_vals = ws.get_all_values()
+
+    try:
+        # update dulu
+        ws.update("A1", values)
+
+        # hapus sisa baris lama (kalau sebelumnya lebih panjang)
+        old_rows = len(old_vals)
+        new_rows = len(values)
+        if old_rows > new_rows:
+            ws.delete_rows(new_rows + 1, old_rows)
+
+    except Exception as e:
+        # rollback kalau gagal
+        try:
+            if old_vals:
+                ws.clear()
+                ws.update("A1", old_vals)
+        except:
+            pass
+        raise e
 
 # ================= KONFIGURASI HALAMAN =================
 st.set_page_config(
@@ -335,7 +359,7 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
   text-decoration: none !important;
 }
 .dl-link:visited,
-.dl-link:active{ 
+.dl-link:active{
   transform: scale(.98);
   color: #FFFFFF !important;
   text-decoration: none !important;
@@ -382,13 +406,27 @@ div[data-testid="stButton"] > button[data-testid="baseButton-primary"] {
 """, unsafe_allow_html=True)
 
 # ================= FUNGSI BANTUAN =================
-def image_to_base64(uploaded_file):
-    if uploaded_file is not None:
-        try:
-            return base64.b64encode(uploaded_file.getvalue()).decode()
-        except:
-            return None
-    return None
+def image_to_base64(uploaded_file, max_width=600, quality=70):
+    """
+    Kompres gambar dulu biar base64 gak kegedean dan Google Sheets gak error.
+    Output: base64 (JPEG).
+    """
+    if uploaded_file is None:
+        return None
+    try:
+        img = Image.open(uploaded_file)
+        img = img.convert("RGB")
+
+        if img.width > max_width:
+            ratio = max_width / float(img.width)
+            new_h = int(img.height * ratio)
+            img = img.resize((max_width, new_h))
+
+        buf = BytesIO()
+        img.save(buf, format="JPEG", quality=quality, optimize=True)
+        return base64.b64encode(buf.getvalue()).decode()
+    except:
+        return None
 
 # ================= STATE MANAGEMENT (DENGAN LOAD DATA) =================
 if 'data' not in st.session_state:
@@ -551,14 +589,15 @@ def admin_page():
                     'Nama_File': in_nama, 'Link_File': in_link
                 }
                 updated_df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-                save_data(updated_df)
 
-                # reload dari Sheets supaya __row sinkron
-                st.session_state['data'] = load_data()
-
-                st.success("✅ Data berhasil disimpan!")
-                time.sleep(1)
-                st.rerun()
+                try:
+                    save_data(updated_df)
+                    st.session_state['data'] = load_data()
+                    st.success("✅ Data berhasil disimpan!")
+                    time.sleep(1)
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Gagal menyimpan ke Google Sheets: {e}")
             else:
                 st.warning("Nama Kategori dan Judul File wajib diisi.")
 
@@ -617,12 +656,15 @@ def admin_page():
                                 if img_str_edit:
                                     df_edit.loc[df_edit['Kategori'] == esel_kat, 'Gambar_Base64'] = img_str_edit
 
-                            save_data(df_edit)
-                            st.session_state['data'] = load_data()
+                            try:
+                                save_data(df_edit)
+                                st.session_state['data'] = load_data()
+                                st.success("✅ Perubahan disimpan!")
+                                time.sleep(1)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Gagal menyimpan perubahan ke Google Sheets: {e}")
 
-                            st.success("✅ Perubahan disimpan!")
-                            time.sleep(1)
-                            st.rerun()
                     except IndexError:
                         st.error("Terjadi kesalahan saat mengambil data file.")
 
@@ -683,12 +725,14 @@ def admin_page():
 
                     if len(idx) > 0:
                         new_df = df.drop(idx).reset_index(drop=True)
-                        save_data(new_df)
-                        st.session_state['data'] = load_data()
-
-                        st.success("✅ File berhasil dihapus.")
-                        time.sleep(1)
-                        st.rerun()
+                        try:
+                            save_data(new_df)
+                            st.session_state['data'] = load_data()
+                            st.success("✅ File berhasil dihapus.")
+                            time.sleep(1)
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Gagal menghapus data di Google Sheets: {e}")
                     else:
                         st.error("Data tidak ditemukan.")
 
@@ -831,7 +875,6 @@ def home_page():
 
     if search:
         subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
-
         st.write(f"Menampilkan {len(subset)} hasil pencarian untuk: **'{search}'**")
 
         if subset.empty:
@@ -900,7 +943,6 @@ def detail_page():
     f1, f2, f3 = st.columns(3)
 
     menu_opts = ["Semua"] + sorted([x for x in subset_all['Menu'].dropna().unique().tolist() if str(x).strip() != ""])
-
     with f1:
         sel_menu = st.selectbox("Filter Menu", menu_opts, index=0)
 
@@ -910,7 +952,6 @@ def detail_page():
         df_level2 = subset_all
 
     sub_opts = ["Semua"] + sorted([x for x in df_level2['Sub_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
-
     with f2:
         sel_sub = st.selectbox("Filter Sub Menu", sub_opts, index=0)
 
@@ -920,20 +961,16 @@ def detail_page():
         df_level3 = df_level2
 
     sub2_opts = ["Semua"] + sorted([x for x in df_level3['Sub2_Menu'].dropna().unique().tolist() if str(x).strip() != ""])
-
     with f3:
         sel_sub2 = st.selectbox("Filter Judul Kegiatan (Sub2)", sub2_opts, index=0)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
     subset = subset_all.copy()
-
     if sel_menu != "Semua":
         subset = subset[subset['Menu'] == sel_menu]
-
     if sel_sub != "Semua":
         subset = subset[subset['Sub_Menu'] == sel_sub]
-
     if sel_sub2 != "Semua":
         subset = subset[subset['Sub2_Menu'] == sel_sub2]
 
@@ -941,13 +978,11 @@ def detail_page():
         subset = subset[subset['Nama_File'].astype(str).str.contains(search, case=False, na=False)]
 
     menus = subset['Menu'].dropna().unique()
-
     if len(menus) == 0:
         st.info("Tidak ada data sesuai filter/pencarian.")
         return
 
     tabs = st.tabs([str(m) for m in menus if str(m).strip() != ""])
-
     for i, m in enumerate([x for x in menus if str(x).strip() != ""]):
         with tabs[i]:
             sub_df = subset[subset['Menu'] == m]
@@ -956,7 +991,10 @@ def detail_page():
             if len(subs) == 0:
                 if not sub_df.empty:
                     for _, r in sub_df.iterrows():
-                        st.markdown(f"""<div class="file-row"><div><b>📄 {r['Nama_File']}</b></div><a href="{r['Link_File']}" target="_blank" class="dl-link">Buka ⬇</a></div>""", unsafe_allow_html=True)
+                        st.markdown(
+                            f"""<div class="file-row"><div><b>📄 {r['Nama_File']}</b></div><a href="{r['Link_File']}" target="_blank" class="dl-link">Buka ⬇</a></div>""",
+                            unsafe_allow_html=True
+                        )
                 else:
                     st.caption("Tidak ada sub menu.")
                 continue
@@ -964,7 +1002,6 @@ def detail_page():
             for s in subs:
                 with st.expander(f"📁 {s if str(s).strip() else 'Umum'}"):
                     s_df = sub_df[sub_df['Sub_Menu'] == s].copy()
-
                     kegiatan_list = s_df['Sub2_Menu'].fillna("-").unique().tolist()
 
                     for keg in kegiatan_list:
@@ -978,7 +1015,6 @@ def detail_page():
                                 )
 
                         keg_df = s_df[s_df['Sub2_Menu'].fillna("-") == keg_label]
-
                         if keg_df.empty:
                             continue
 
@@ -1019,15 +1055,12 @@ if st.session_state['logged_in']:
             st.session_state['logged_in'] = False
             st.rerun()
 
-    # Routing Halaman
     if st.session_state['current_view'] == 'home':
-        # biar selalu sinkron dengan sheet
         st.session_state['data'] = load_data()
         home_page()
     elif st.session_state['current_view'] == 'detail':
         detail_page()
     elif st.session_state['current_view'] == 'admin':
-        # biar selalu sinkron dengan sheet
         st.session_state['data'] = load_data()
         admin_page()
 else:
