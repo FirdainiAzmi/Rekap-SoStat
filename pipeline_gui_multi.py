@@ -608,65 +608,100 @@ def admin_page():
             st.info("Database masih kosong, belum ada yang bisa diedit.")
         else:
             st.info("✏️ Edit metadata file yang sudah ada.")
-
+            
             ec1, ec2 = st.columns([1, 2])
-
+    
             with ec1:
                 st.markdown("#### Pilih File")
                 ekat_list = sorted(df['Kategori'].dropna().unique().tolist())
                 esel_kat = st.selectbox("Pilih Kategori", ekat_list, key="edit_sel_kat")
-
+    
                 df_ekat = df[df['Kategori'] == esel_kat].copy()
                 efile_list = df_ekat['Nama_File'].fillna("").tolist()
-
+    
                 if not efile_list:
                     st.warning("Tidak ada file di kategori ini.")
                     esel_file = None
                 else:
                     esel_file = st.selectbox("Pilih File", efile_list, key="edit_sel_file")
-
+    
             with ec2:
                 if esel_file:
                     try:
                         row_idx = df_ekat[df_ekat['Nama_File'] == esel_file].index[0]
                         cur = df.loc[row_idx]
-
+    
+                        # ✅ kunci: bikin prefix unik berdasarkan row / file
+                        # kalau mau super aman, pakai ROW_COL (kalau ada), kalau nggak pakai row_idx
+                        unique_id = None
+                        if "__row" in df.columns and pd.notna(cur.get("__row", None)):
+                            unique_id = str(cur["__row"])
+                        else:
+                            unique_id = str(row_idx)
+    
+                        prefix = f"edit_{unique_id}_"
+    
                         st.markdown("#### Form Edit")
-                        e_menu = st.text_input("Menu", value=str(cur.get('Menu', '') if pd.notna(cur.get('Menu', '')) else ''), key="e_menu")
-                        e_sub = st.text_input("Sub Menu", value=str(cur.get('Sub_Menu', '') if pd.notna(cur.get('Sub_Menu', '')) else ''), key="e_sub")
-                        e_sub2 = st.text_input("Judul Kegiatan (Sub2)", value=str(cur.get('Sub2_Menu', '') if pd.notna(cur.get('Sub2_Menu', '')) else ''), key="e_sub2")
-                        e_nama = st.text_input("Nama File", value=str(cur.get('Nama_File', '') if pd.notna(cur.get('Nama_File', '')) else ''), key="e_nama")
-                        e_link = st.text_input("Link File", value=str(cur.get('Link_File', '') if pd.notna(cur.get('Link_File', '')) else ''), key="e_link")
-
+    
+                        # ✅ semua key jadi unik per file
+                        e_menu = st.text_input(
+                            "Menu",
+                            value=str(cur.get('Menu', '') if pd.notna(cur.get('Menu', '')) else ''),
+                            key=prefix + "menu"
+                        )
+                        e_sub = st.text_input(
+                            "Sub Menu",
+                            value=str(cur.get('Sub_Menu', '') if pd.notna(cur.get('Sub_Menu', '')) else ''),
+                            key=prefix + "sub"
+                        )
+                        e_sub2 = st.text_input(
+                            "Judul Kegiatan (Sub2)",
+                            value=str(cur.get('Sub2_Menu', '') if pd.notna(cur.get('Sub2_Menu', '')) else ''),
+                            key=prefix + "sub2"
+                        )
+                        e_nama = st.text_input(
+                            "Nama File",
+                            value=str(cur.get('Nama_File', '') if pd.notna(cur.get('Nama_File', '')) else ''),
+                            key=prefix + "nama"
+                        )
+                        e_link = st.text_input(
+                            "Link File",
+                            value=str(cur.get('Link_File', '') if pd.notna(cur.get('Link_File', '')) else ''),
+                            key=prefix + "link"
+                        )
+    
                         st.markdown("---")
                         st.markdown("**Ganti Cover Kategori (Opsional)**")
-                        e_img = st.file_uploader("Upload cover baru", type=['png','jpg','jpeg'], key="e_img_up")
-
-                        if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True, key="btn_save_edit"):
+                        e_img = st.file_uploader(
+                            "Upload cover baru",
+                            type=['png','jpg','jpeg'],
+                            key=prefix + "img_up"
+                        )
+    
+                        if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True, key=prefix + "btn_save_edit"):
                             df_edit = df.copy()
-
+    
                             df_edit.at[row_idx, 'Menu'] = e_menu
                             df_edit.at[row_idx, 'Sub_Menu'] = e_sub
                             df_edit.at[row_idx, 'Sub2_Menu'] = e_sub2
                             df_edit.at[row_idx, 'Nama_File'] = e_nama
                             df_edit.at[row_idx, 'Link_File'] = e_link
-
+    
                             if e_img is not None:
                                 img_str_edit = image_to_base64(e_img)
                                 if img_str_edit:
                                     df_edit.loc[df_edit['Kategori'] == esel_kat, 'Gambar_Base64'] = img_str_edit
-
-                            try:
-                                save_data(df_edit)
-                                st.session_state['data'] = load_data()
-                                st.success("✅ Perubahan disimpan!")
-                                time.sleep(1)
-                                st.rerun()
-                            except Exception as e:
-                                st.error(f"Gagal menyimpan perubahan ke Google Sheets: {e}")
-
+    
+                            save_data(df_edit)
+                            st.session_state['data'] = load_data()
+    
+                            st.success("✅ Perubahan disimpan!")
+                            time.sleep(1)
+                            st.rerun()
+    
                     except IndexError:
                         st.error("Terjadi kesalahan saat mengambil data file.")
+
 
     # ================= TAB 3: HAPUS DATA =================
     with tab3:
