@@ -608,14 +608,16 @@ def admin_page():
             st.info("Database masih kosong, belum ada yang bisa diedit.")
         else:
             st.info("✏️ Edit metadata file yang sudah ada.")
-            
+    
             ec1, ec2 = st.columns([1, 2])
     
             with ec1:
                 st.markdown("#### Pilih File")
+                # 1) pilih kategori dulu untuk memilih file
                 ekat_list = sorted(df['Kategori'].dropna().unique().tolist())
                 esel_kat = st.selectbox("Pilih Kategori", ekat_list, key="edit_sel_kat")
     
+                # 2) pilih file di kategori tsb
                 df_ekat = df[df['Kategori'] == esel_kat].copy()
                 efile_list = df_ekat['Nama_File'].fillna("").tolist()
     
@@ -631,34 +633,102 @@ def admin_page():
                         row_idx = df_ekat[df_ekat['Nama_File'] == esel_file].index[0]
                         cur = df.loc[row_idx]
     
-                        # ✅ kunci: bikin prefix unik berdasarkan row / file
-                        # kalau mau super aman, pakai ROW_COL (kalau ada), kalau nggak pakai row_idx
+                        # KEY DINAMIS biar gak "nyangkut"
                         unique_id = None
                         if "__row" in df.columns and pd.notna(cur.get("__row", None)):
                             unique_id = str(cur["__row"])
                         else:
                             unique_id = str(row_idx)
-    
                         prefix = f"edit_{unique_id}_"
     
-                        st.markdown("#### Form Edit")
+                        st.markdown("#### Form Edit (Cascading)")
     
-                        # ✅ semua key jadi unik per file
-                        e_menu = st.text_input(
-                            "Menu",
-                            value=str(cur.get('Menu', '') if pd.notna(cur.get('Menu', '')) else ''),
-                            key=prefix + "menu"
-                        )
-                        e_sub = st.text_input(
-                            "Sub Menu",
-                            value=str(cur.get('Sub_Menu', '') if pd.notna(cur.get('Sub_Menu', '')) else ''),
-                            key=prefix + "sub"
-                        )
-                        e_sub2 = st.text_input(
-                            "Judul Kegiatan (Sub2)",
-                            value=str(cur.get('Sub2_Menu', '') if pd.notna(cur.get('Sub2_Menu', '')) else ''),
-                            key=prefix + "sub2"
-                        )
+                        # ===== value lama dari file terpilih =====
+                        cur_kat  = str(cur.get("Kategori", "") if pd.notna(cur.get("Kategori", "")) else "")
+                        cur_menu = str(cur.get("Menu", "") if pd.notna(cur.get("Menu", "")) else "")
+                        cur_sub  = str(cur.get("Sub_Menu", "") if pd.notna(cur.get("Sub_Menu", "")) else "")
+                        cur_sub2 = str(cur.get("Sub2_Menu", "") if pd.notna(cur.get("Sub2_Menu", "")) else "")
+    
+                        # =========================================
+                        # 1) KATEGORI (dropdown + bisa buat baru)
+                        # =========================================
+                        all_kat = sorted(df["Kategori"].dropna().unique().tolist())
+                        if cur_kat and cur_kat not in all_kat:
+                            all_kat = [cur_kat] + all_kat
+                        kat_opts = all_kat + ["➕ Buat Kategori Baru"]
+    
+                        default_kat_idx = kat_opts.index(cur_kat) if cur_kat in kat_opts else 0
+                        sel_kat2 = st.selectbox("Kategori", kat_opts, index=default_kat_idx, key=prefix + "kat_sel")
+    
+                        if sel_kat2 == "➕ Buat Kategori Baru":
+                            e_kat = st.text_input("Ketik Kategori Baru", value=cur_kat, key=prefix + "kat_txt")
+                        else:
+                            e_kat = sel_kat2
+    
+                        # dataset kategori terpilih (buat opsi menu)
+                        df_kat2 = df[df["Kategori"] == e_kat].copy()
+    
+                        # =========================================
+                        # 2) MENU (ikut kategori, dropdown + buat baru)
+                        # =========================================
+                        menu_opts = []
+                        if not df_kat2.empty:
+                            menu_opts = sorted([x for x in df_kat2["Menu"].dropna().unique().tolist() if str(x).strip() != ""])
+                        if cur_menu and cur_menu not in menu_opts:
+                            menu_opts = [cur_menu] + menu_opts
+                        menu_opts.append("➕ Buat Menu Baru")
+    
+                        default_menu_idx = menu_opts.index(cur_menu) if cur_menu in menu_opts else 0
+                        sel_menu2 = st.selectbox("Menu", menu_opts, index=default_menu_idx, key=prefix + "menu_sel")
+    
+                        if sel_menu2 == "➕ Buat Menu Baru":
+                            e_menu = st.text_input("Ketik Menu Baru", value=cur_menu, key=prefix + "menu_txt")
+                        else:
+                            e_menu = sel_menu2
+    
+                        df_menu2 = df_kat2[df_kat2["Menu"] == e_menu].copy() if str(e_menu).strip() != "" else pd.DataFrame()
+    
+                        # =========================================
+                        # 3) SUB MENU (ikut kategori+menu)
+                        # =========================================
+                        sub_opts = []
+                        if not df_menu2.empty:
+                            sub_opts = sorted([x for x in df_menu2["Sub_Menu"].dropna().unique().tolist() if str(x).strip() != ""])
+                        if cur_sub and cur_sub not in sub_opts:
+                            sub_opts = [cur_sub] + sub_opts
+                        sub_opts.append("➕ Buat Sub Baru")
+    
+                        default_sub_idx = sub_opts.index(cur_sub) if cur_sub in sub_opts else 0
+                        sel_sub2_ = st.selectbox("Sub Menu", sub_opts, index=default_sub_idx, key=prefix + "sub_sel")
+    
+                        if sel_sub2_ == "➕ Buat Sub Baru":
+                            e_sub = st.text_input("Ketik Sub Menu Baru", value=cur_sub, key=prefix + "sub_txt")
+                        else:
+                            e_sub = sel_sub2_
+    
+                        df_sub2_ = df_menu2[df_menu2["Sub_Menu"] == e_sub].copy() if (not df_menu2.empty and str(e_sub).strip() != "") else pd.DataFrame()
+    
+                        # =========================================
+                        # 4) SUB2 MENU (ikut kategori+menu+sub)
+                        # =========================================
+                        sub2_opts = []
+                        if not df_sub2_.empty:
+                            sub2_opts = sorted([x for x in df_sub2_["Sub2_Menu"].dropna().unique().tolist() if str(x).strip() != ""])
+                        if cur_sub2 and cur_sub2 not in sub2_opts:
+                            sub2_opts = [cur_sub2] + sub2_opts
+                        sub2_opts.append("➕ Buat Sub 2 Baru")
+    
+                        default_sub2_idx = sub2_opts.index(cur_sub2) if cur_sub2 in sub2_opts else 0
+                        sel_sub2_2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", sub2_opts, index=default_sub2_idx, key=prefix + "sub2_sel")
+    
+                        if sel_sub2_2 == "➕ Buat Sub 2 Baru":
+                            e_sub2 = st.text_input("Ketik Sub Menu 2 Baru", value=cur_sub2, key=prefix + "sub2_txt")
+                        else:
+                            e_sub2 = sel_sub2_2
+    
+                        # =========================================
+                        # INPUT BIASA (tetap)
+                        # =========================================
                         e_nama = st.text_input(
                             "Nama File",
                             value=str(cur.get('Nama_File', '') if pd.notna(cur.get('Nama_File', '')) else ''),
@@ -672,25 +742,27 @@ def admin_page():
     
                         st.markdown("---")
                         st.markdown("**Ganti Cover Kategori (Opsional)**")
-                        e_img = st.file_uploader(
-                            "Upload cover baru",
-                            type=['png','jpg','jpeg'],
-                            key=prefix + "img_up"
-                        )
+                        e_img = st.file_uploader("Upload cover baru", type=['png','jpg','jpeg'], key=prefix + "img_up")
     
+                        # =========================================
+                        # SIMPAN (logika tetap: update row_idx)
+                        # =========================================
                         if st.button("💾 SIMPAN PERUBAHAN", type="primary", use_container_width=True, key=prefix + "btn_save_edit"):
                             df_edit = df.copy()
     
-                            df_edit.at[row_idx, 'Menu'] = e_menu
-                            df_edit.at[row_idx, 'Sub_Menu'] = e_sub
+                            # update row yang dipilih
+                            df_edit.at[row_idx, 'Kategori']  = e_kat
+                            df_edit.at[row_idx, 'Menu']      = e_menu
+                            df_edit.at[row_idx, 'Sub_Menu']  = e_sub
                             df_edit.at[row_idx, 'Sub2_Menu'] = e_sub2
                             df_edit.at[row_idx, 'Nama_File'] = e_nama
                             df_edit.at[row_idx, 'Link_File'] = e_link
     
+                            # ganti gambar: update semua baris kategori yang sama
                             if e_img is not None:
                                 img_str_edit = image_to_base64(e_img)
                                 if img_str_edit:
-                                    df_edit.loc[df_edit['Kategori'] == esel_kat, 'Gambar_Base64'] = img_str_edit
+                                    df_edit.loc[df_edit['Kategori'] == e_kat, 'Gambar_Base64'] = img_str_edit
     
                             save_data(df_edit)
                             st.session_state['data'] = load_data()
@@ -701,6 +773,7 @@ def admin_page():
     
                     except IndexError:
                         st.error("Terjadi kesalahan saat mengambil data file.")
+
 
 
     # ================= TAB 3: HAPUS DATA =================
