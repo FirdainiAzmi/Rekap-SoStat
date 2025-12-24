@@ -993,7 +993,7 @@ if st.session_state['logged_in']:
         st.markdown("---")
         with st.expander("Manual Book"):
             st.markdown("""
-                Panduan lengkap bagaimana cara menggunakan ArsiTal tersedia [di sini](https://drive.google.com/file/d/1ZtCEHJp6hw9r8iIFOgA_QTaH2FH0Umoq/view?usp=sharing).
+                Panduan lengkap bagaimana cara menggunakan ArsiTal tersedia [di sini](https://drive.google.com/drive/folders/1o3VMpvkmd6A2n3JmCJmTlGyLTT2zzhnx?usp=sharing).
             """)
 
         if st.button("🚪 Logout", use_container_width=True):
