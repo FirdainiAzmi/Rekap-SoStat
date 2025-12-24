@@ -3,3 +3,7 @@ st-gsheets-connection
 gspread
 google-auth
 streamlit
+gspread
+Pillow
+
+
