@@ -35,9 +35,6 @@ def _ensure_header(ws):
         ws.update("A1:G1", [COLUMNS])
 
 def _safe_call(fn, max_retry=5):
-    """
-    Retry/backoff untuk quota 429 dan error rate limit.
-    """
     last_e = None
     for i in range(max_retry):
         try:
@@ -57,9 +54,6 @@ def _read_all_values():
     return ws.get_all_values()
 
 def load_data_raw():
-    """
-    Load dari Google Sheets -> DataFrame + kolom __row.
-    """
     vals = _safe_call(_read_all_values)
     if len(vals) <= 1:
         df = pd.DataFrame(columns=COLUMNS)
@@ -89,11 +83,6 @@ def clear_data_cache():
         pass
 
 def save_data(df: pd.DataFrame):
-    """
-    Simpan FULL rewrite ke Google Sheets, tapi aman:
-    - update dulu
-    - kalau gagal rollback (best-effort)
-    """
     ws = _get_ws()
     _safe_call(lambda: _ensure_header(ws))
 
@@ -104,7 +93,6 @@ def save_data(df: pd.DataFrame):
     df2 = df2.fillna("")
     values = [COLUMNS] + df2[COLUMNS].astype(str).values.tolist()
 
-    # snapshot lama (1x read) - ini bisa bikin quota, tapi kita minimalisir pemanggilan save
     old_vals = _safe_call(lambda: ws.get_all_values())
 
     try:
@@ -114,7 +102,6 @@ def save_data(df: pd.DataFrame):
         if old_rows > new_rows:
             _safe_call(lambda: ws.delete_rows(new_rows + 1, old_rows))
     except Exception as e:
-        # rollback best-effort
         try:
             _safe_call(lambda: ws.clear())
             if old_vals:
@@ -131,7 +118,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ================= CSS PROFESSIONAL (FRONTEND ONLY) =================
+# ================= CSS =================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
@@ -426,7 +413,6 @@ def get_base64_of_bin_file(bin_file):
 
 # ================= STATE MANAGEMENT =================
 if 'data' not in st.session_state:
-    # load sekali awal (cached)
     try:
         st.session_state['data'] = load_data_cached()
     except Exception as e:
