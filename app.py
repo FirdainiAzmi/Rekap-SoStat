@@ -519,13 +519,13 @@ def admin_page():
                 df_menu = df_cat[df_cat['Menu'] == in_menu]
                 list_sub = df_menu['Sub_Menu'].dropna().unique().tolist()
                 list_sub.append("➕ Buat Sub Baru")
-                sel_sub = st.selectbox("Sub Menu (Tahun)", list_sub, key="in_sub_sel")
+                sel_sub = st.selectbox("Sub Menu", list_sub, key="in_sub_sel")
                 if sel_sub == "➕ Buat Sub Baru":
                     in_sub = st.text_input("Ketik Sub Menu Baru", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt")
                 else:
                     in_sub = sel_sub
             else:
-                in_sub = st.text_input("Sub Menu (Tahun)", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt_def")
+                in_sub = st.text_input("Sub Menu", placeholder="Misal: Sakernas Agustus 2025", key="in_sub_txt_def")
 
             # SUB MENU 2
             in_sub2 = ""
@@ -539,13 +539,13 @@ def admin_page():
                 list_sub2 = df_sub['Sub2_Menu'].dropna().unique().tolist()
                 list_sub2 = [x for x in list_sub2 if str(x) != 'nan']
                 list_sub2.append("➕ Buat Sub 2 Baru")
-                sel_sub2 = st.selectbox("Sub Menu 2 (Judul Kegiatan)", list_sub2, key="in_sub2_sel")
+                sel_sub2 = st.selectbox("Sub Menu 2", list_sub2, key="in_sub2_sel")
                 if sel_sub2 == "➕ Buat Sub 2 Baru":
                     in_sub2 = st.text_input("Ketik Sub Menu 2 Baru", placeholder="Misal: Pelatihan Petugas", key="in_sub2_txt")
                 else:
                     in_sub2 = sel_sub2
             else:
-                in_sub2 = st.text_input("Sub Menu 2 (Judul Kegiatan)", placeholder="Misal: Pelatihan Petugas", key="in_sub2_txt_def")
+                in_sub2 = st.text_input("Sub Menu 2", placeholder="Misal: Pelatihan Petugas", key="in_sub2_txt_def")
 
             st.markdown("---")
             in_nama = st.text_input("Judul File (Wajib Diisi)*", key="in_nama")
